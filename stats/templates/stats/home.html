@@ -8,17 +8,9 @@
 <body>
     <h1>Baseball Data Lab Web</h1>
     <p>{{ message }}</p>
-    {% if schedule %}
-        <h2>Today's Schedule</h2>
-        <ul>
-        {% for day in schedule %}
-            {% for game in day.games %}
-                <li>{{ game.teams.away.team.name }} at {{ game.teams.home.team.name }} - {{ game.gameDate }}</li>
-            {% endfor %}
-        {% endfor %}
-        </ul>
-    {% endif %}
+    {{ schedule|json_script:"schedule-data" }}
     <div id="vue-app">
+        <schedule-view :schedule="schedule"></schedule-view>
         <hello-component></hello-component>
     </div>
       <script src="{% static 'stats/app.js' %}"></script>
