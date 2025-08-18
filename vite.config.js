@@ -4,6 +4,10 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  define: {
+    // Avoid runtime ReferenceError by replacing process.env.NODE_ENV at build time
+    'process.env.NODE_ENV': JSON.stringify('production')
+  },
   build: {
     lib: {
       entry: resolve(__dirname, 'frontend/main.js'),
