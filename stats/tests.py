@@ -5,3 +5,4 @@ class HomeViewTests(TestCase):
         client = Client()
         response = client.get('/')
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'hello-component')
