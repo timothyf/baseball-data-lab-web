@@ -4,22 +4,32 @@ A Django based web interface for exploring data from the `baseball-data-lab` lib
 
 ## Development
 
-1. Install dependencies:
+1. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-2. Run database migrations and start the development server:
+2. Install frontend dependencies and build the bundled assets:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Run database migrations and start the development server:
    ```bash
    python manage.py migrate
    python manage.py runserver
    ```
-3. Visit `http://localhost:8000/` to see the home page displaying information from `baseball-data-lab`.
+4. Visit `http://localhost:8000/` to see the home page displaying information from `baseball-data-lab`.
 
 This project is a minimal scaffold and is intended to grow with additional views and data presentations over time.
 
 ## Frontend
 
-Vue.js is available for building interactive components. The home page shows a
-minimal example component mounted from `stats/static/stats/app.js` and loaded
-from the Vue CDN. Additional Vue components can be created in that directory
-and referenced from Django templates using the `{% static %}` tag.
+Vue components live in the `frontend/` directory and are bundled with Vite into
+`stats/static/stats/app.js`. During development you can run:
+
+```bash
+npm run dev
+```
+
+to start a development server with hot-reloading. The compiled asset is
+referenced from Django templates using the `{% static %}` tag.
