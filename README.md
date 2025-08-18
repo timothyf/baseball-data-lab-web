@@ -25,7 +25,7 @@ This project is a minimal scaffold and is intended to grow with additional views
 ## Frontend
 
 Vue components live in the `frontend/` directory and are bundled with Vite into
-`stats/static/stats/app.js`. During development you can run:
+`frontend/dist/app.js`. During development you can run:
 
 ```bash
 npm run dev

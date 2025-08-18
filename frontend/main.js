@@ -1,18 +1,13 @@
 import { createApp } from 'vue';
-import HelloComponent from './components/HelloComponent.vue';
-import ScheduleView from './components/ScheduleView.vue';
+import App from './App.vue';
+import router from './router';
+import { scheduleStore } from './store/schedule';
 
 const scheduleElement = document.getElementById('schedule-data');
 const scheduleData = scheduleElement ? JSON.parse(scheduleElement.textContent) : [];
 
-const app = createApp({
-  data() {
-    return {
-      schedule: scheduleData
-    };
-  }
-});
+scheduleStore.schedule = scheduleData;
 
-app.component('hello-component', HelloComponent);
-app.component('schedule-view', ScheduleView);
+const app = createApp(App);
+app.use(router);
 app.mount('#vue-app');

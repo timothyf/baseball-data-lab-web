@@ -27,4 +27,4 @@ def home(request):
         'message': message,
         'schedule': schedule,
     }
-    return render(request, 'stats/home.html', context)
+    return render(request, 'home.html', context)
