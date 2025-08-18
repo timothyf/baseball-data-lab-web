@@ -22,6 +22,7 @@ class HomeViewTests(TestCase):
         client = Client()
         response = client.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Today's Schedule")
+        self.assertContains(response, 'schedule-data')
+        self.assertContains(response, 'schedule-view')
         self.assertContains(response, 'Away Team')
         self.assertContains(response, 'Home Team')
