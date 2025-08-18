@@ -8,8 +8,15 @@
 <body>
     <h1>Baseball Data Lab Web</h1>
     <p>{{ message }}</p>
-    {% if data %}
-        <pre>{{ data }}</pre>
+    {% if schedule %}
+        <h2>Today's Schedule</h2>
+        <ul>
+        {% for day in schedule %}
+            {% for game in day.games %}
+                <li>{{ game.teams.away.team.name }} at {{ game.teams.home.team.name }} - {{ game.gameDate }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
     {% endif %}
     <div id="vue-app">
         <hello-component></hello-component>
