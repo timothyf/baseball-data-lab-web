@@ -8,7 +8,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'frontend/main.js'),
       name: 'App',
-      fileName: () => 'app.js',
+      fileName: () => 'main.js',
       formats: ['iife']
     },
     outDir: 'frontend/dist',
