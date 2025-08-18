@@ -1,8 +1,8 @@
 <template>
-  <div v-if="schedule && schedule.length">
+  <div v-if="scheduleStore.schedule && scheduleStore.schedule.length">
     <h2>Today's Schedule</h2>
     <ul>
-      <li v-for="(day, dIndex) in schedule" :key="dIndex">
+      <li v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex">
         <ul>
           <li v-for="game in day.games" :key="game.gamePk">
             {{ game.teams.away.team.name }} at {{ game.teams.home.team.name }} - {{ game.gameDate }}
@@ -13,14 +13,6 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ScheduleView',
-  props: {
-    schedule: {
-      type: Array,
-      default: () => []
-    }
-  }
-};
+<script setup>
+import { scheduleStore } from '../store/schedule';
 </script>

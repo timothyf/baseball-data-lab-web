@@ -9,10 +9,7 @@
     <h1>Baseball Data Lab Web</h1>
     <p>{{ message }}</p>
     {{ schedule|json_script:"schedule-data" }}
-    <div id="vue-app">
-        <schedule-view :schedule="schedule"></schedule-view>
-        <hello-component></hello-component>
-    </div>
-      <script src="{% static 'stats/app.js' %}"></script>
+    <div id="vue-app"></div>
+    <script src="{% static 'app.js' %}"></script>
 </body>
 </html>

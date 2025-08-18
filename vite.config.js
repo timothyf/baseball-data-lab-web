@@ -11,7 +11,7 @@ export default defineConfig({
       fileName: () => 'app.js',
       formats: ['iife']
     },
-    outDir: 'stats/static/stats',
+    outDir: 'frontend/dist',
     emptyOutDir: true,
     rollupOptions: {
       output: {
