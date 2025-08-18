@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,5 +11,10 @@
     {% if data %}
         <pre>{{ data }}</pre>
     {% endif %}
+    <div id="vue-app">
+        <hello-component></hello-component>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="{% static 'stats/app.js' %}"></script>
 </body>
 </html>
