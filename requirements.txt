@@ -1,2 +1,9 @@
 Django>=4.2
 git+https://github.com/timothyf/baseball-data-lab.git@main#egg=baseball-data-lab
+MLB-StatsAPI
+mplcursors
+pandas
+pillow
+pybaseball
+requests
+seaborn
