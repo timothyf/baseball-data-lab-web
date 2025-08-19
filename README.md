@@ -8,19 +8,23 @@ A Django based web interface for exploring data from the `baseball-data-lab` lib
    ```bash
    pip install -r backend/requirements.txt
    ```
-2. Install frontend dependencies and build the bundled assets:
+2. Install frontend dependencies:
    ```bash
    cd frontend
    npm install
-   npm run build
+   cd ..
    ```
-3. Run database migrations and start the development server:
+3. Run database migrations:
    ```bash
-   cd ../backend
+   cd backend
    python manage.py migrate
-   python manage.py runserver
+   cd ..
    ```
-4. Visit `http://localhost:8000/` to see the home page displaying information from `baseball-data-lab`.
+4. Start the frontend and backend development servers together:
+   ```bash
+   foreman start -j Procfile.dev
+   ```
+5. Visit `http://localhost:8000/` to see the home page displaying information from `baseball-data-lab`.
 
 This project is a minimal scaffold and is intended to grow with additional views and data presentations over time.
 
