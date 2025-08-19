@@ -19,9 +19,15 @@
               boxShadow:'0 1px 2px rgba(0,0,0,0.04)'
             }">
           <div class="game-teams">
-            <span class="team-chip away" style="display:inline-block;padding:2px 6px;margin-right:4px;background:#ffffff;">{{ teamAbbrev(game.teams.away.team) }}</span>
+            <span class="team-chip away" style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;">
+              <img v-if="game.teams.away.team.logo_url" :src="game.teams.away.team.logo_url" alt="" class="team-logo" />
+              {{ teamAbbrev(game.teams.away.team) }}
+            </span>
             <span style="padding:0 4px;opacity:.6;">@</span>
-            <span class="team-chip home" style="display:inline-block;padding:2px 6px;margin-left:4px;background:#ffffff;">{{ teamAbbrev(game.teams.home.team) }}</span>
+            <span class="team-chip home" style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;">
+              <img v-if="game.teams.home.team.logo_url" :src="game.teams.home.team.logo_url" alt="" class="team-logo" />
+              {{ teamAbbrev(game.teams.home.team) }}
+            </span>
           </div>
           <div class="game-time">{{ gameTime(game) }}</div>
           <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
@@ -134,6 +140,12 @@ function shortName(name) {
 .team-name {
   font-weight: bold;
   color: #333;
-} 
+}
+
+.team-logo {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}
 </style>
 

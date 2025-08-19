@@ -12,13 +12,14 @@ class HomeViewTests(TestCase):
                     {
                         'gameDate': '2025-08-18T18:20:00Z',
                         'teams': {
-                            'away': {'team': {'name': 'Away Team'}},
-                            'home': {'team': {'name': 'Home Team'}},
+                            'away': {'team': {'name': 'Away Team', 'id': 1}},
+                            'home': {'team': {'name': 'Home Team', 'id': 2}},
                         },
                     }
                 ]
             }
         ]
+        mock_client.get_team_spot_url.return_value = 'logo-url'
         client = Client()
         response = client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -26,3 +27,4 @@ class HomeViewTests(TestCase):
         self.assertContains(response, 'id="vue-app"')
         self.assertContains(response, 'Away Team')
         self.assertContains(response, 'Home Team')
+        self.assertContains(response, 'logo-url')
