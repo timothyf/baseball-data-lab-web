@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 
 
 class HomeViewTests(TestCase):
-    @patch('stats.views.UnifiedDataClient')
+    @patch('apps.web.views.UnifiedDataClient')
     def test_home_view(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
         mock_client.get_schedule_for_date_range.return_value = [
