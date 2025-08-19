@@ -44,6 +44,8 @@
 import { onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import 'primevue/datatable/style';
+import 'primevue/column/style';
 import { standingsStore } from '../store/standings';
 
 async function fetchStandings() {
