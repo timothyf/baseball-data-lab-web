@@ -2,53 +2,37 @@
   <div v-if="standingsStore.standings.length" style="font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;">
     <div v-for="(record, index) in standingsStore.standings" :key="index" class="division">
       <h3>{{ getDivisionName(record.division?.id)  }}</h3>
-      <table class="standings-table">
-        <thead>
-          <tr>
-            <th style="width:180px">Team</th>
-            <th>W</th>
-            <th>L</th>
-            <th>PCT</th>
-            <th>GB</th>
-            <th>WCGB</th>
-            <th>RS</th>
-            <th>RA</th>
-            <th>rDiff</th>
-            <th>xWL</th>
-            <th>Home</th>
-            <th>Away</th>
-            <th>Division</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="teamRecord in record.teamRecords" :key="teamRecord.team.id">
-            <td style="font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif; font-weight: normal">{{ teamRecord.team.name }}</td>
-            <td>{{ teamRecord.wins }}</td>
-            <td>{{ teamRecord.losses }}</td>
-            <td>{{ teamRecord.winningPercentage }}</td>
-            <td>{{ teamRecord.divisionGamesBack }}</td>
-            <td>{{ teamRecord.wildCardGamesBack }}</td>
-            <td>{{ teamRecord.runsScored }}</td>
-            <td>{{ teamRecord.runsAllowed }}</td>
-            <td>{{ teamRecord.runDifferential }}</td>
-            <td>{{ teamRecord.records.expectedRecords[0].wins + "-" + teamRecord.records.expectedRecords[0].losses }}</td>
-            <td>{{ teamRecord.records.splitRecords[0].wins }} - {{ teamRecord.records.splitRecords[0].losses }}</td>
-            <td>{{ teamRecord.records.splitRecords[1].wins +  "-" + teamRecord.records.splitRecords[1].losses }}</td>
-            <td>
-              {{
-              (() => {
-                const id = record.division?.id;
-                const idx =
-                id === 200 || id === 203 ? 0 :
-                id === 201 || id === 204 ? 1 : 2;
-                const r = teamRecord.records.divisionRecords[idx] || {};
-                return `${r.wins}-${r.losses}`;
-              })()
-              }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <DataTable :value="record.teamRecords">
+        <Column field="team.name" header="Team" style="width:180px"></Column>
+        <Column field="wins" header="W"></Column>
+        <Column field="losses" header="L"></Column>
+        <Column field="winningPercentage" header="PCT"></Column>
+        <Column field="divisionGamesBack" header="GB"></Column>
+        <Column field="wildCardGamesBack" header="WCGB"></Column>
+        <Column field="runsScored" header="RS"></Column>
+        <Column field="runsAllowed" header="RA"></Column>
+        <Column field="runDifferential" header="rDiff"></Column>
+        <Column header="xWL">
+          <template #body="{ data }">
+            {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
+          </template>
+        </Column>
+        <Column header="Home">
+          <template #body="{ data }">
+            {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
+          </template>
+        </Column>
+        <Column header="Away">
+          <template #body="{ data }">
+            {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
+          </template>
+        </Column>
+        <Column header="Division">
+          <template #body="{ data }">
+            {{ divisionRecord(data, record.division?.id) }}
+          </template>
+        </Column>
+      </DataTable>
     </div>
   </div>
   <div v-else>
@@ -58,6 +42,8 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 import { standingsStore } from '../store/standings';
 
 async function fetchStandings() {
@@ -78,23 +64,20 @@ function getDivisionName(divisionId) {
   return divisionNames[divisionId] || divisionId;
 }
 
+function divisionRecord(teamRecord, divisionId) {
+  const idx =
+    divisionId === 200 || divisionId === 203 ? 0 :
+    divisionId === 201 || divisionId === 204 ? 1 : 2;
+  const r = teamRecord.records.divisionRecords[idx] || {};
+  return `${r.wins}-${r.losses}`;
+}
+
 onMounted(() => {
   fetchStandings();
 });
 </script>
 
 <style scoped>
-.standings-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-}
-.standings-table th,
-.standings-table td {
-  border: 1px solid #e2e8f0;
-  padding: 4px 8px;
-  text-align: left;
-}
 .division {
   margin-bottom: 2rem;
 }
