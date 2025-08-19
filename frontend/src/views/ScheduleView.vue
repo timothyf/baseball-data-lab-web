@@ -2,7 +2,7 @@
   <div v-if="scheduleStore.schedule && scheduleStore.schedule.length">
     <div class="schedule-header">
       <button class="nav-btn" @click="prevDay">&#8592;</button>
-      <h2 class="header-date">{{ formatDate(currentDate) }}</h2>
+      <h2 class="header-date">{{ formatDate(currentDate()) }}</h2>
       <button class="nav-btn" @click="nextDay">&#8594;</button>
     </div>
     <div v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex" class="schedule-day">
@@ -27,7 +27,7 @@
               <img v-if="game.teams.away.team.logo_url" :src="game.teams.away.team.logo_url" alt="" class="team-logo" />
               {{ teamAbbrev(game.teams.away.team) }}
             </span>
-            <span style="padding:0 4px;opacity:.6;">@</span>
+            <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
             <span class="team-chip home" style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;">
               <img v-if="game.teams.home.team.logo_url" :src="game.teams.home.team.logo_url" alt="" class="team-logo" />
               {{ teamAbbrev(game.teams.home.team) }}
@@ -44,7 +44,7 @@
             class="game-pitchers"
             v-if="game.status?.detailedState === 'Final'"
             >
-            <span v-if="game.decisions?.winner">
+            <span v-if="game.decisions?.winner" style="padding:4px">
               <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
             </span>
             <span v-if="game.decisions?.loser">
@@ -58,7 +58,7 @@
             <span v-if="game.teams.away.probablePitcher">
               {{ shortName(game.teams.away.probablePitcher.fullName) }}
             </span>
-            <span v-if="game.teams.home.probablePitcher" style="opacity:.6;">vs</span>
+            <span v-if="game.teams.home.probablePitcher" style="padding:4px;opacity:.6;">vs</span>
             <span v-if="game.teams.home.probablePitcher">
               {{ shortName(game.teams.home.probablePitcher.fullName) }}
             </span>
@@ -73,9 +73,14 @@
 import { ref } from 'vue';
 import { scheduleStore } from '../store/schedule';
 
-const currentDate = ref(
-  (scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate)?.slice(0, 10)
-);
+// const currentDate = ref(
+//   (scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate)?.slice(0, 10)
+// );
+
+function currentDate() {
+  const dateStr = scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate;
+  return dateStr ? dateStr.slice(0, 10) : new Date().toISOString().slice(0, 10);
+}
 
 async function fetchSchedule(dateStr) {
   const resp = await fetch(`/api/schedule/?date=${dateStr}`);
@@ -88,10 +93,10 @@ async function fetchSchedule(dateStr) {
 }
 
 function adjustDay(delta) {
-  const date = new Date(currentDate.value);
+  const date = new Date(currentDate());
   date.setDate(date.getDate() + delta);
   const iso = date.toISOString().split('T')[0];
-  currentDate.value = iso;
+  //currentDate().value = iso;
   fetchSchedule(iso);
 }
 
@@ -105,8 +110,37 @@ function nextDay() {
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  // Interpret plain YYYY-MM-DD as midnight America/New_York (handles EST/EDT)
+  let date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    try {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      // Use noon UTC as a stable point to detect the offset for that calendar date
+      const noonUTC = Date.UTC(y, m - 1, d, 12, 0, 0);
+      const tz = 'America/New_York';
+      const hourInNY = Number(new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        hour: '2-digit',
+        hour12: false
+      }).format(noonUTC));
+      // If hourInNY = 7 offset is -05 (standard); if 8 offset is -04 (DST)
+      const offset = 12 - hourInNY; // hours to add to local to reach UTC
+      const offsetStr = String(Math.abs(offset)).padStart(2, '0');
+      const sign = offset >= 0 ? '-' : '+'; // offset variable is positive for behind UTC
+      date = new Date(`${dateStr}T00:00:00${sign}${offsetStr}:00`);
+    } catch {
+      // Fallback to standard time (EST, UTC-05:00)
+      date = new Date(`${dateStr}T00:00:00-05:00`);
+    }
+  } else {
+    date = new Date(dateStr);
+  }
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'America/New_York'
+  });
 }
 
 function formatTime(dateStr) {
@@ -154,7 +188,7 @@ function shortName(name) {
 }
 
 .game-teams {
-  width: 150px;
+  width: 250px;
   font-weight: 600;
 }
 
