@@ -27,6 +27,24 @@ def home(request):
             except Exception:  # Fallback if zoneinfo unavailable
                 today = date.today()
             schedule = client.get_schedule_for_date_range(today, today)
+
+            # Attach team logo URLs for home and away teams
+            try:
+                for day in schedule:
+                    for game in day.get("games", []):
+                        teams = game.get("teams", {})
+                        for side in ("home", "away"):
+                            team = teams.get(side, {}).get("team")
+                            team_id = team.get("id") if team else None
+                            if team_id:
+                                try:
+                                    team["logo_url"] = client.get_team_spot_url(
+                                        team_id, 32
+                                    )
+                                except Exception:  # pragma: no cover - defensive
+                                    team["logo_url"] = None
+            except Exception:  # pragma: no cover - defensive
+                pass
         except Exception as exc:  # pragma: no cover - defensive
             schedule = [f"Error fetching schedule: {exc}"]
     elif _bdl_error:
