@@ -2,7 +2,9 @@
   <div v-if="scheduleStore.schedule && scheduleStore.schedule.length">
     <div class="schedule-header">
       <button class="nav-btn" @click="prevDay">&#8592;</button>
-      <h2 class="header-date">{{ formatDate(currentDate()) }}</h2>
+      <h2 class="header-date">
+        {{ currentDate() === new Date().toISOString().slice(0,10) ? `Today - ${formatDate(currentDate())}` : formatDate(currentDate()) }}
+      </h2>
       <button class="nav-btn" @click="nextDay">&#8594;</button>
     </div>
     <div v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex" class="schedule-day">
@@ -47,8 +49,11 @@
             <span v-if="game.decisions?.winner" style="padding:4px">
               <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
             </span>
-            <span v-if="game.decisions?.loser">
+            <span v-if="game.decisions?.loser" style="padding:4px">
               <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
+            </span>
+            <span v-if="game.decisions?.save" style="padding:4px">
+              <strong>S:</strong> {{ shortName(game.decisions.save.fullName) }}
             </span>
             </div>
             <div
@@ -209,7 +214,7 @@ function shortName(name) {
 }
 
 .game-pitchers {
-  width: 200px;
+  width: 270px;
   font-size: 0.9rem;
   color: #555;
   text-align: right;

@@ -10,7 +10,7 @@ except Exception as exc:  # pragma: no cover - handles missing dependency
     _bdl_error = str(exc)
 
 
-def home(request):
+def schedule(request):
     """Home page displaying today's MLB schedule."""
     message = "baseball-data-lab library is not installed."
     schedule = None
@@ -55,8 +55,8 @@ def home(request):
     }
     return render(request, 'web/index.html', context)
 
-def schedule(request):
-    return render(request, 'web/schedule.html')
+def home(request):
+    return render(request, 'web/home.html')
 
 def standings(request):
     return render(request, 'web/standings.html')
