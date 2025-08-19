@@ -32,10 +32,10 @@
             v-if="game.status?.detailedState === 'Final'"
             >
             <span v-if="game.decisions?.winner">
-              <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
+              <strong>Winner:</strong> {{ shortName(game.decisions.winner.fullName) }}
             </span>
             <span v-if="game.decisions?.loser">
-              <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
+              <strong>Loser:</strong> {{ shortName(game.decisions.loser.fullName) }}
             </span>
             </div>
             <div
