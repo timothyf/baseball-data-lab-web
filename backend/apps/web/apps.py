@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
-class StatsConfig(AppConfig):
+
+class WebConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'stats'
+    name = 'apps.web'

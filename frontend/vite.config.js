@@ -10,12 +10,12 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'frontend/main.js'),
+      entry: resolve(__dirname, 'src/main.js'),
       name: 'App',
       fileName: () => 'main.js',
       formats: ['iife']
     },
-    outDir: 'frontend/dist',
+    outDir: '../backend/static/frontend',
     emptyOutDir: true,
     rollupOptions: {
       output: {

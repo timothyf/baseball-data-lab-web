@@ -6,15 +6,17 @@ A Django based web interface for exploring data from the `baseball-data-lab` lib
 
 1. Install Python dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r backend/requirements.txt
    ```
 2. Install frontend dependencies and build the bundled assets:
    ```bash
+   cd frontend
    npm install
    npm run build
    ```
 3. Run database migrations and start the development server:
    ```bash
+   cd ../backend
    python manage.py migrate
    python manage.py runserver
    ```
@@ -25,7 +27,7 @@ This project is a minimal scaffold and is intended to grow with additional views
 ## Frontend
 
 Vue components live in the `frontend/` directory and are bundled with Vite into
-`frontend/dist/main.js`. During development you can run:
+`backend/static/frontend/main.js`. During development you can run:
 
 ```bash
 npm run dev
