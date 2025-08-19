@@ -61,5 +61,8 @@ def schedule(request):
 def standings(request):
     return render(request, 'web/standings.html')
 
+def teams(request):
+    return render(request, 'web/teams.html')
+
 def players(request):
     return render(request, 'web/players.html')
