@@ -52,7 +52,7 @@
     </div>
   </div>
   <div v-else>
-    <p>No standings data available.</p>
+    <p>Standings data is loading.</p>
   </div>
 </template>
 
