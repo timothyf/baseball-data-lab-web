@@ -1,7 +1,11 @@
 <template>
   <div v-if="scheduleStore.schedule && scheduleStore.schedule.length">
+    <div class="schedule-header">
+      <button class="nav-btn" @click="prevDay">&#8592;</button>
+      <h2 class="header-date">{{ formatDate(currentDate) }}</h2>
+      <button class="nav-btn" @click="nextDay">&#8594;</button>
+    </div>
     <div v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex" class="schedule-day">
-      <h2>{{ formatDate(day.date || day.games[0]?.gameDate) }}</h2>
       <ul class="game-list">
         <li v-for="game in day.games" :key="game.gamePk" class="game-row"
             :style="{
@@ -66,7 +70,38 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { scheduleStore } from '../store/schedule';
+
+const currentDate = ref(
+  (scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate)?.slice(0, 10)
+);
+
+async function fetchSchedule(dateStr) {
+  const resp = await fetch(`/api/schedule/?date=${dateStr}`);
+  const data = await resp.json();
+  scheduleStore.schedule = data;
+  if (data && data.length) {
+    const d = data[0].date || data[0].games[0]?.gameDate;
+    currentDate.value = d ? d.slice(0, 10) : dateStr;
+  }
+}
+
+function adjustDay(delta) {
+  const date = new Date(currentDate.value);
+  date.setDate(date.getDate() + delta);
+  const iso = date.toISOString().split('T')[0];
+  currentDate.value = iso;
+  fetchSchedule(iso);
+}
+
+function prevDay() {
+  adjustDay(-1);
+}
+
+function nextDay() {
+  adjustDay(1);
+}
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -155,6 +190,26 @@ function shortName(name) {
   width: 20px;
   height: 20px;
   margin-right: 4px;
+}
+
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.header-date {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
 }
 </style>
 
