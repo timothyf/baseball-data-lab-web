@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ScheduleView from '../views/ScheduleView.vue';
 import StandingsView from '../views/StandingsView.vue';
+import TeamsView from '../views/TeamsView.vue';
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: '/standings',
     name: 'Standings',
     component: StandingsView
+  },
+  {
+    path: '/teams',
+    name: 'Teams',
+    component: TeamsView
   }
 ];
 
