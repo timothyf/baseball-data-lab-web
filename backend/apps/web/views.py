@@ -54,3 +54,12 @@ def home(request):
         'schedule': schedule,
     }
     return render(request, 'web/index.html', context)
+
+def schedule(request):
+    return render(request, 'web/schedule.html')
+
+def standings(request):
+    return render(request, 'web/standings.html')
+
+def players(request):
+    return render(request, 'web/players.html')
