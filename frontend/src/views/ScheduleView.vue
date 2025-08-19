@@ -30,6 +30,9 @@
             </span>
           </div>
           <div class="game-time">{{ gameTime(game) }}</div>
+          <div class="game-score" v-if="game.status?.detailedState === 'Final'">
+            {{ game.teams.away.score }} - {{ game.teams.home.score }}
+          </div>
           <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
             {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
             </div>
@@ -122,6 +125,12 @@ function shortName(name) {
 
 .game-time {
   width: 80px;
+}
+
+.game-score {
+  width: 60px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .game-broadcasts {
