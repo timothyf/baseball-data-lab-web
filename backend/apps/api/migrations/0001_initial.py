@@ -22,11 +22,43 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("source", models.CharField(max_length=100)),
-                ("external_id", models.CharField(max_length=100)),
+                ("key_person", models.CharField(max_length=20, null=True)),
+                ("key_uuid", models.CharField(max_length=40, null=True)),
+                ("key_mlbam", models.CharField(max_length=20, null=True)),
+                ("key_retro", models.CharField(max_length=20, null=True)),
+                ("key_bbref", models.CharField(max_length=20, null=True)),
+                ("key_bbref_minors", models.CharField(max_length=20, null=True)),
+                ("key_fangraphs", models.CharField(max_length=20, null=True)),
+                ("key_npb", models.CharField(max_length=20, null=True)),
+                ("name_last", models.CharField(max_length=100, null=True)),
+                ("name_first", models.CharField(max_length=100, null=True)),
+                ("name_given", models.CharField(max_length=100, null=True)),
+                ("name_suffix", models.CharField(max_length=10, null=True)),
+                (
+                    "name_full",
+                    models.GeneratedField(
+                        expression=models.functions.Concat(
+                            models.F("name_first"),
+                            models.Value(" "),
+                            models.F("name_last"),
+                        ),
+                        output_field=models.CharField(max_length=200),
+                        db_persist=True,
+                    ),
+                ),
             ],
             options={
                 "db_table": "player_id_infos",
             },
+        ),
+    ]
+    Migration.operations += [
+        migrations.AddIndex(
+            model_name="playeridinfo",
+            index=models.Index(fields=["name_full"], name="pidinfo_full_idx"),
+        ),
+        migrations.AddIndex(
+            model_name="playeridinfo",
+            index=models.Index(fields=["name_last"], name="pidinfo_last_idx"),
         ),
     ]
