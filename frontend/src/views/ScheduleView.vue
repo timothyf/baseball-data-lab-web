@@ -3,25 +3,54 @@
     <div v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex" class="schedule-day">
       <h2>{{ formatDate(day.date || day.games[0]?.gameDate) }}</h2>
       <ul class="game-list">
-        <li v-for="game in day.games" :key="game.gamePk" class="game-row">
+        <li v-for="game in day.games" :key="game.gamePk" class="game-row"
+            :style="{
+              background:'#f9fafb',
+              padding:'6px 10px',
+              border:'1px solid #e2e8f0',
+              borderRadius:'6px',
+              marginLeft:'auto',
+              display:'flex',
+              alignItems:'center',
+              gap:'10px',
+              // justifyContent:'flex-end',
+              fontSize:'.75rem',
+              lineHeight:'1.1',
+              boxShadow:'0 1px 2px rgba(0,0,0,0.04)'
+            }">
           <div class="game-teams">
-            <span class="away">{{ teamAbbrev(game.teams.away.team) }}</span>
-            <span>@</span>
-            <span class="home">{{ teamAbbrev(game.teams.home.team) }}</span>
+            <span class="team-chip away" style="display:inline-block;padding:2px 6px;margin-right:4px;background:#ffffff;">{{ teamAbbrev(game.teams.away.team) }}</span>
+            <span style="padding:0 4px;opacity:.6;">@</span>
+            <span class="team-chip home" style="display:inline-block;padding:2px 6px;margin-left:4px;background:#ffffff;">{{ teamAbbrev(game.teams.home.team) }}</span>
           </div>
           <div class="game-time">{{ gameTime(game) }}</div>
           <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
             {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
-          </div>
-          <div class="game-pitchers">
+            </div>
+            <div
+            class="game-pitchers"
+            v-if="game.status?.detailedState === 'Final'"
+            >
+            <span v-if="game.decisions?.winner">
+              <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
+            </span>
+            <span v-if="game.decisions?.loser">
+              <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
+            </span>
+            </div>
+            <div
+            class="game-pitchers"
+            v-else
+            >
             <span v-if="game.teams.away.probablePitcher">
               {{ shortName(game.teams.away.probablePitcher.fullName) }}
             </span>
+            <span v-if="game.teams.home.probablePitcher" style="opacity:.6;">vs</span>
             <span v-if="game.teams.home.probablePitcher">
-              vs {{ shortName(game.teams.home.probablePitcher.fullName) }}
+              {{ shortName(game.teams.home.probablePitcher.fullName) }}
             </span>
-          </div>
-        </li>
+            </div>
+          </li>
       </ul>
     </div>
   </div>
@@ -101,5 +130,10 @@ function shortName(name) {
   color: #555;
   text-align: right;
 }
+
+.team-name {
+  font-weight: bold;
+  color: #333;
+} 
 </style>
 
