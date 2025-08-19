@@ -31,11 +31,12 @@ This project is a minimal scaffold and is intended to grow with additional views
 ## Frontend
 
 Vue components live in the `frontend/` directory and are bundled with Vite into
-`backend/static/frontend/main.js`. During development you can run:
+`backend/static/frontend/main.js` for production. During development you can run:
 
 ```bash
 npm run dev
 ```
 
-to start a development server with hot-reloading. The compiled asset is
-referenced from Django templates using the `{% static %}` tag.
+to start a development server with hot-reloading. When `DEBUG` is enabled,
+the Django template pulls scripts from `http://localhost:5173` automatically.
+In production, the prebuilt asset is referenced using the `{% static %}` tag.
