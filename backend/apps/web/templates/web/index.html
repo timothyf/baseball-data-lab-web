@@ -1,24 +1,18 @@
+{% extends "web/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Baseball Data Lab Web</title>
-</head>
-<body>
-    <h1>Baseball Data Lab Web</h1>
-    <p>{{ message }}</p>
-    {{ schedule|json_script:"schedule-data" }}
-    <div id="vue-app"></div>
 
-    {% if DJANGO_USE_VITE_DEV %}
-        <!-- Vite dev server with HMR -->
-        <script type="module" src="http://localhost:5173/@vite/client"></script>
-        <script type="module" src="http://localhost:5173/src/main.js"></script>
-    {% else %}
-        <!-- Built static bundle -->
-        <script src="{% static 'frontend/main.js' %}"></script>
-    {% endif %}
-</body>
-</html>
+{% block content %}
+<h1>Baseball Data Lab Web</h1>
+<p>{{ message }}</p>
+{{ schedule|json_script:"schedule-data" }}
+<div id="vue-app"></div>
 
+{% if DJANGO_USE_VITE_DEV %}
+    <!-- Vite dev server with HMR -->
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/src/main.js"></script>
+{% else %}
+    <!-- Built static bundle -->
+    <script src="{% static 'frontend/main.js' %}"></script>
+{% endif %}
+{% endblock %}
