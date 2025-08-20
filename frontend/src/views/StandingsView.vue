@@ -46,7 +46,9 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import 'primevue/datatable/style';
 import 'primevue/column/style';
-import { standingsStore } from '../store/standings';
+import { useStandingsStore } from '../store/standings';
+
+const standingsStore = useStandingsStore();
 
 async function fetchStandings() {
   const resp = await fetch('/api/standings/');

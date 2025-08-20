@@ -1,5 +1,7 @@
-import { reactive } from 'vue';
+import { defineStore } from 'pinia';
 
-export const teamsStore = reactive({
-  teams: []
+export const useTeamsStore = defineStore('teams', {
+  state: () => ({
+    teams: []
+  })
 });

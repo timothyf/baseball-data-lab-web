@@ -1,5 +1,7 @@
-import { reactive } from 'vue';
+import { defineStore } from 'pinia';
 
-export const standingsStore = reactive({
-  standings: []
+export const useStandingsStore = defineStore('standings', {
+  state: () => ({
+    standings: []
+  })
 });

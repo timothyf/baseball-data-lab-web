@@ -6,5 +6,7 @@
 </template>
 
 <script setup>
-import { teamsStore } from '../store/teams';
+import { useTeamsStore } from '../store/teams';
+
+const teamsStore = useTeamsStore();
 </script>

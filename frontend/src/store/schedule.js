@@ -1,5 +1,7 @@
-import { reactive } from 'vue';
+import { defineStore } from 'pinia';
 
-export const scheduleStore = reactive({
-  schedule: []
+export const useScheduleStore = defineStore('schedule', {
+  state: () => ({
+    schedule: []
+  })
 });
