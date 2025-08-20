@@ -144,6 +144,24 @@ class TeamSearchApiTests(TestCase):
         self.assertEqual(data[0]['mlbam_team_id'], '111')
 
 
+class TeamInfoApiTests(TestCase):
+    def setUp(self):
+        TeamIdInfo.objects.create(id=1, full_name='Red Sox', mlbam_team_id=111)
+
+    def test_team_info_returns_team(self):
+        client = Client()
+        response = client.get('/api/teams/111/')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['full_name'], 'Red Sox')
+        self.assertEqual(data['mlbam_team_id'], '111')
+
+    def test_team_info_not_found(self):
+        client = Client()
+        response = client.get('/api/teams/999/')
+        self.assertEqual(response.status_code, 404)
+
+
 class TeamLogoApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_logo_endpoint(self, mock_client_cls):
