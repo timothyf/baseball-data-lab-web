@@ -45,3 +45,14 @@ class TeamIdInfo(models.Model):
 
     class Meta:
         db_table = 'team_id_infos'
+
+
+class Venue(models.Model):
+    mlbam_id = models.IntegerField(null=True)
+    name = models.CharField(max_length=255, null=True)
+    link = models.CharField(max_length=255, null=True)
+    active = models.BooleanField(null=True)
+    season = models.IntegerField(null=True)
+
+    class Meta:
+        db_table = 'venues'
