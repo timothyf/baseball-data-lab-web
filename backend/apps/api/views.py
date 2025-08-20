@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 from django.db import connection
 
@@ -91,3 +91,31 @@ def player_search(request):
             }
         )
     return JsonResponse(results, safe=False)
+
+
+@require_GET
+def player_headshot(request, player_id: int):
+    """Return a player's headshot image."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT key_mlbam FROM player_id_infos WHERE id = %s",
+            [player_id],
+        )
+        row = cursor.fetchone()
+
+    if not row or row[0] is None:
+        return JsonResponse({'error': 'Player not found'}, status=404)
+
+    key_mlbam = str(row[0])
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    try:
+        client = UnifiedDataClient()
+        image_bytes = client.fetch_player_headshot(int(key_mlbam))
+        return HttpResponse(image_bytes, content_type='image/png')
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
