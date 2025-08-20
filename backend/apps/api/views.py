@@ -66,7 +66,7 @@ def player_search(request):
     with connection.cursor() as cursor:
         cursor.execute(
             """
-            SELECT id, name_full
+            SELECT id, name_full, key_mlbam
             FROM player_id_infos
             WHERE name_full ILIKE %s
             ORDER BY name_full
@@ -76,8 +76,18 @@ def player_search(request):
         )
         rows = cursor.fetchall()
 
-    results = [
-        {"id": row[0], "name_full": row[1]}
-        for row in rows
-    ]
+    results = []
+    for row in rows:
+        key_mlbam = row[2]
+        if key_mlbam is not None:
+            key_mlbam = str(key_mlbam)
+            if key_mlbam.endswith('.0'):
+                key_mlbam = key_mlbam[:-2]
+        results.append(
+            {
+                "id": row[0],
+                "name_full": row[1],
+                "key_mlbam": key_mlbam,
+            }
+        )
     return JsonResponse(results, safe=False)
