@@ -31,6 +31,56 @@
           </tr>
         </tbody>
       </table>
+      <div v-if="boxscore" class="boxscore">
+        <h3>Boxscore</h3>
+        <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore">
+          <h4>{{ side === 'away' ? awayTeam : homeTeam }}</h4>
+          <table class="boxscore-table">
+            <thead>
+              <tr>
+                <th>Batter</th>
+                <th>AB</th>
+                <th>R</th>
+                <th>H</th>
+                <th>RBI</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="id in boxscoreTeams[side]?.batters ?? []" :key="`bat-` + id">
+                <td>{{ playerName(side, id) }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="boxscore-table">
+            <thead>
+              <tr>
+                <th>Pitcher</th>
+                <th>IP</th>
+                <th>H</th>
+                <th>R</th>
+                <th>ER</th>
+                <th>BB</th>
+                <th>K</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="id in boxscoreTeams[side]?.pitchers ?? []" :key="`pit-` + id">
+                <td>{{ playerName(side, id) }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'inningsPitched') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'hits') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'runs') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -79,6 +129,25 @@ const awayScore = computed(() => game.value?.teams?.away?.score ?? '');
 
 const innings = computed(() => game.value?.scoreboard?.linescore?.innings ?? []);
 const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?? {});
+
+const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
+const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
+
+function player(side, id) {
+  const players = boxscoreTeams.value[side]?.players ?? {};
+  const key = `ID${id}`;
+  return players[key] || {};
+}
+
+function playerName(side, id) {
+  const p = player(side, id);
+  return p.person?.boxscoreName || p.person?.fullName || '';
+}
+
+function playerStat(side, id, statType, field) {
+  const p = player(side, id);
+  return p.stats?.[statType]?.[field] ?? '';
+}
 </script>
 
 <style scoped>
@@ -87,6 +156,18 @@ const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?
 }
 .linescore th,
 .linescore td {
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.boxscore-table {
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.boxscore-table th,
+.boxscore-table td {
   border: 1px solid #ccc;
   padding: 4px 8px;
   text-align: center;
