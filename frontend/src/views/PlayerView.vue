@@ -1,9 +1,8 @@
 <template>
   <div>
-    <h1>Player</h1>
+    <h1>{{ name }}</h1>
     <img v-if="headshotSrc" :src="headshotSrc" alt="Player headshot" />
     <p>ID: {{ id }}</p>
-    <p>Name: {{ name }}</p>
   </div>
 </template>
 
