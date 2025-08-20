@@ -158,6 +158,26 @@ def team_search(request):
 
 
 @require_GET
+def team_info(request, mlbam_team_id: int):
+    """Return basic team information by MLBAM team ID."""
+    row = (
+        TeamIdInfo.objects
+        .filter(mlbam_team_id=mlbam_team_id)
+        .values('id', 'full_name', 'mlbam_team_id')
+        .first()
+    )
+
+    if row is None:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+
+    mlbam_team_id_value = row.get('mlbam_team_id')
+    if mlbam_team_id_value is not None:
+        row['mlbam_team_id'] = str(mlbam_team_id_value)
+
+    return JsonResponse(row)
+
+
+@require_GET
 def team_logo(request, team_id: int):
     """Return a team's logo image."""
     if UnifiedDataClient is None:
