@@ -4,6 +4,7 @@ import ScheduleView from '../views/ScheduleView.vue';
 import StandingsView from '../views/StandingsView.vue';
 import TeamsView from '../views/TeamsView.vue';
 import PlayersView from '../views/PlayersView.vue';
+import PlayerView from '../views/PlayerView.vue';
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
     path: '/players',
     name: 'Players',
     component: PlayersView
+  },
+  {
+    path: '/player/:id',
+    name: 'Player',
+    component: PlayerView,
+    props: route => ({ id: route.params.id, name: route.query.name })
   }
 ];
 
