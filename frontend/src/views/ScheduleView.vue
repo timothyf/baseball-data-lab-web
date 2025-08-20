@@ -62,7 +62,9 @@
 import DataView from 'primevue/dataview';
 import 'primevue/dataview/style';
 import { computed } from 'vue';
-import { scheduleStore } from '../store/schedule';
+import { useScheduleStore } from '../store/schedule';
+
+const scheduleStore = useScheduleStore();
 
 const today = new Date().toISOString().slice(0, 10);
 
