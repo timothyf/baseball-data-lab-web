@@ -6,6 +6,7 @@ import TeamsView from '../views/TeamsView.vue';
 import TeamView from '../views/TeamView.vue';
 import PlayersView from '../views/PlayersView.vue';
 import PlayerView from '../views/PlayerView.vue';
+import GameView from '../views/GameView.vue';
 
 const routes = [
   {
@@ -44,6 +45,12 @@ const routes = [
     name: 'Player',
     component: PlayerView,
     props: route => ({ id: route.params.id, name: route.query.name })
+  },
+  {
+    path: '/game/:game_pk',
+    name: 'Game',
+    component: GameView,
+    props: route => ({ game_pk: route.params.game_pk })
   }
 ];
 
