@@ -3,6 +3,8 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 from django.db import connection
 
+from .models import PlayerIdInfo
+
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
     _bdl_error = None
@@ -63,30 +65,24 @@ def player_search(request):
     if not query:
         return JsonResponse([], safe=False)
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT id, name_full, key_mlbam
-            FROM player_id_infos
-            WHERE name_full ILIKE %s
-            ORDER BY name_full
-            LIMIT 10
-            """,
-            [f"%{query}%"],
-        )
-        rows = cursor.fetchall()
+    rows = (
+        PlayerIdInfo.objects
+        .filter(name_full__icontains=query)
+        .order_by('name_full')
+        .values('id', 'name_full', 'key_mlbam')[:10]
+    )
 
     results = []
     for row in rows:
-        key_mlbam = row[2]
+        key_mlbam = row.get('key_mlbam')
         if key_mlbam is not None:
             key_mlbam = str(key_mlbam)
             if key_mlbam.endswith('.0'):
                 key_mlbam = key_mlbam[:-2]
         results.append(
             {
-                "id": row[0],
-                "name_full": row[1],
+                "id": row['id'],
+                "name_full": row['name_full'],
                 "key_mlbam": key_mlbam,
             }
         )
