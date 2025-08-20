@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
                 ("mlbam_division_id", models.IntegerField(null=True)),
                 ("bref_team_id", models.CharField(max_length=20, null=True)),
                 ("retrosheet_team_id", models.CharField(max_length=20, null=True)),
-                ("active_from", models.DateField(null=True)),
-                ("active_to", models.DateField(null=True)),
+                ("active_from", models.IntegerField(null=True)),
+                ("active_to", models.IntegerField(null=True)),
             ],
             options={
                 "db_table": "team_id_infos",
