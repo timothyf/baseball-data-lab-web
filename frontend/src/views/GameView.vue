@@ -18,14 +18,14 @@
           <tr>
             <th>{{ awayTeam }}</th>
             <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
-            <td>{{ awayScore }}</td>
+            <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
             <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
           </tr>
           <tr>
             <th>{{ homeTeam }}</th>
             <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
-            <td>{{ homeScore }}</td>
+            <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
             <td>{{ linescoreTeams.home?.errors ?? '' }}</td>
           </tr>
