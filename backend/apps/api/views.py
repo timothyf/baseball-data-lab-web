@@ -1,9 +1,9 @@
 from datetime import datetime
+from datetime import datetime
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
-from django.db import connection
 
-from .models import PlayerIdInfo
+from .models import PlayerIdInfo, TeamIdInfo
 
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
@@ -95,17 +95,16 @@ def player_headshot(request, player_id: int):
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT key_mlbam FROM player_id_infos WHERE id = %s",
-            [player_id],
-        )
-        row = cursor.fetchone()
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
 
-    if not row or row[0] is None:
-        return JsonResponse({'error': 'Player not found'}, status=404)
+    if key_mlbam is None:
+        return JsonResponse({"error": "Player not found"}, status=404)
 
-    key_mlbam = str(row[0])
+    key_mlbam = str(key_mlbam)
     if key_mlbam.endswith('.0'):
         key_mlbam = key_mlbam[:-2]
 
@@ -123,29 +122,23 @@ def team_search(request):
     if not query:
         return JsonResponse([], safe=False)
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT id, full_name, mlbam_team_id
-            FROM team_id_infos
-            WHERE full_name ILIKE %s
-            ORDER BY full_name
-            LIMIT 10
-            """,
-            [f"%{query}%"],
-        )
-        rows = cursor.fetchall()
+    rows = (
+        TeamIdInfo.objects
+        .filter(full_name__icontains=query)
+        .order_by('full_name')
+        .values('id', 'full_name', 'mlbam_team_id')[:10]
+    )
 
     results = []
     for row in rows:
-        mlbam_team_idv = row[2]
+        mlbam_team_id = row.get('mlbam_team_id')
         if mlbam_team_id is not None:
             mlbam_team_id = str(mlbam_team_id)
         results.append(
             {
-                "id": row[0],
-                "full_name": row[1],
-                "mlbam_team_id": mlbam_team_id,
+                'id': row['id'],
+                'full_name': row['full_name'],
+                'mlbam_team_id': mlbam_team_id,
             }
         )
     return JsonResponse(results, safe=False)
@@ -157,17 +150,16 @@ def team_logo(request, team_id: int):
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT mlbam_team_id FROM team_id_infos WHERE id = %s",
-            [team_id],
-        )
-        row = cursor.fetchone()
+    mlbam_team_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
 
-    if not row or row[0] is None:
+    if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)
 
-    mlbam_team_id = str(row[0])
+    mlbam_team_id = str(mlbam_team_id)
 
     try:
         client = UnifiedDataClient()

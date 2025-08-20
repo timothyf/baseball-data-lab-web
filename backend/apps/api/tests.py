@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.test import TestCase, Client
 
-from apps.api.models import PlayerIdInfo
+from apps.api.models import PlayerIdInfo, TeamIdInfo
 
 
 class ScheduleApiTests(TestCase):
@@ -109,3 +109,35 @@ class PlayerSearchApiTests(TestCase):
         data = response.json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['key_mlbam'], '123')
+
+
+class TeamSearchApiTests(TestCase):
+    def setUp(self):
+        TeamIdInfo.objects.create(id=1, full_name='Red Sox', mlbam_team_id=111)
+        TeamIdInfo.objects.create(id=2, full_name='Blue Jays', mlbam_team_id=222)
+
+    def test_team_search_returns_results(self):
+        client = Client()
+        response = client.get('/api/teams/', {'q': 'red'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['full_name'], 'Red Sox')
+        self.assertEqual(data[0]['mlbam_team_id'], '111')
+
+
+class TeamLogoApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_team_logo_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_team_logo_url.return_value = 'logo-url'
+
+        TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
+
+        client = Client()
+        response = client.get('/api/teams/1/logo/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'logo-url')
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        mock_client.get_team_logo_url.assert_called_once_with(555)
