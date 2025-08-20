@@ -7,7 +7,11 @@
       @complete="searchPlayers"
       optionLabel="name_full"
       placeholder="Search for a player"
-    />
+    >
+      <template #option="{ option }">
+        <div>{{ option.name_full }}</div>
+      </template>
+    </AutoComplete>
     <div v-if="selectedPlayer">
       <p>Full Name: {{ selectedPlayer.name_full }}</p>
       <p>Mlbam_ID: {{ selectedPlayer.key_mlbam }}</p>
