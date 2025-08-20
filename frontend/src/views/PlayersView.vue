@@ -8,6 +8,10 @@
       optionLabel="name_full"
       placeholder="Search for a player"
     />
+    <div v-if="selectedPlayer">
+      <p>Full Name: {{ selectedPlayer.name_full }}</p>
+      <p>Mlbam_ID: {{ selectedPlayer.key_mlbam }}</p>
+    </div>
   </div>
 </template>
 
