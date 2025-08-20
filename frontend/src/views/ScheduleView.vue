@@ -24,7 +24,15 @@
                 {{ teamAbbrev(game.teams.home.team) }}
               </span>
             </div>
-            <div class="game-time">{{ gameTime(game) }}</div>
+            <div class="game-time">
+              <RouterLink
+                v-if="game.status?.detailedState === 'Final'"
+                :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
+              >
+                Final
+              </RouterLink>
+              <span v-else>{{ gameTime(game) }}</span>
+            </div>
             <div class="game-score" v-if="game.status?.detailedState === 'Final'">
               {{ game.teams.away.score }} - {{ game.teams.home.score }}
             </div>
