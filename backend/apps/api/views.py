@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
+from django.db import connection
 
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
@@ -53,3 +54,30 @@ def standings(request):
         return JsonResponse(data, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
+def player_search(request):
+    """Search for players by name."""
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse([], safe=False)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id, name_full
+            FROM player_id_infos
+            WHERE name_full ILIKE %s
+            ORDER BY name_full
+            LIMIT 10
+            """,
+            [f"%{query}%"],
+        )
+        rows = cursor.fetchall()
+
+    results = [
+        {"id": row[0], "name_full": row[1]}
+        for row in rows
+    ]
+    return JsonResponse(results, safe=False)
