@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ("name_last", models.CharField(max_length=100, null=True)),
                 ("name_first", models.CharField(max_length=100, null=True)),
                 ("name_given", models.CharField(max_length=100, null=True)),
-                ("name_suffix", models.CharField(max_length=10, null=True)),
+                ("name_suffix", models.CharField(max_length=20, null=True)),
                 (
                     "name_full",
                     models.GeneratedField(
@@ -51,8 +51,7 @@ class Migration(migrations.Migration):
                 "db_table": "player_id_infos",
             },
         ),
-    ]
-    Migration.operations += [
+
         migrations.AddIndex(
             model_name="playeridinfo",
             index=models.Index(fields=["name_full"], name="pidinfo_full_idx"),
