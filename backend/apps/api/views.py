@@ -45,6 +45,19 @@ def schedule(request):
 
 
 @require_GET
+def game_data(request, game_pk: int):
+    """Return detailed data for a single game."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+    try:
+        client = UnifiedDataClient()
+        data = client.get_game_data(game_pk)
+        return JsonResponse(data, safe=False)
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
 def standings(request):
     """Return standings data for the current season."""
     if UnifiedDataClient is None:

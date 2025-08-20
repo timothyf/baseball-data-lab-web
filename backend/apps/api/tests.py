@@ -33,6 +33,24 @@ class ScheduleApiTests(TestCase):
         self.assertEqual(game['teams']['away']['team']['logo_url'], 'logo-url')
 
 
+class GameDataApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_game_data_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_game_data.return_value = {
+            'teams': {
+                'home': {'team': {'name': 'Home'}, 'score': 5},
+                'away': {'team': {'name': 'Away'}, 'score': 3},
+            }
+        }
+        client = Client()
+        response = client.get('/api/games/123/')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['teams']['home']['team']['name'], 'Home')
+        self.assertEqual(data['teams']['away']['score'], 3)
+
+
 class StandingsApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_standings_endpoint(self, mock_client_cls):
