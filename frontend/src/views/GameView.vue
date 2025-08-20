@@ -4,6 +4,33 @@
     <div v-if="game">
       <h2>{{ awayTeam }} @ {{ homeTeam }}</h2>
       <p>Final Score: {{ awayScore }} - {{ homeScore }}</p>
+      <table v-if="innings.length" class="linescore">
+        <thead>
+          <tr>
+            <th></th>
+            <th v-for="inning in innings" :key="inning.num">{{ inning.num }}</th>
+            <th>R</th>
+            <th>H</th>
+            <th>E</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>{{ awayTeam }}</th>
+            <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
+            <td>{{ awayScore }}</td>
+            <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
+            <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
+          </tr>
+          <tr>
+            <th>{{ homeTeam }}</th>
+            <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
+            <td>{{ homeScore }}</td>
+            <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
+            <td>{{ linescoreTeams.home?.errors ?? '' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -49,7 +76,19 @@ const awayTeam = computed(() => game.value.awayTeamName || '');
 
 const homeScore = computed(() => game.value?.teams?.home?.score ?? '');
 const awayScore = computed(() => game.value?.teams?.away?.score ?? '');
+
+const innings = computed(() => game.value?.scoreboard?.linescore?.innings ?? []);
+const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?? {});
 </script>
 
 <style scoped>
+.linescore {
+  border-collapse: collapse;
+}
+.linescore th,
+.linescore td {
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  text-align: center;
+}
 </style>
