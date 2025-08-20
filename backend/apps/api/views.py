@@ -119,3 +119,63 @@ def player_headshot(request, player_id: int):
         return HttpResponse(image_bytes, content_type='image/png')
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
+    
+@require_GET
+def team_search(request):
+    """Search for teams by name."""
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse([], safe=False)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id, full_name, mlbam_team_id
+            FROM team_id_infos
+            WHERE full_name ILIKE %s
+            ORDER BY full_name
+            LIMIT 10
+            """,
+            [f"%{query}%"],
+        )
+        rows = cursor.fetchall()
+
+    results = []
+    for row in rows:
+        mlbam_team_idv = row[2]
+        if mlbam_team_id is not None:
+            mlbam_team_id = str(mlbam_team_id)
+        results.append(
+            {
+                "id": row[0],
+                "full_name": row[1],
+                "mlbam_team_id": mlbam_team_id,
+            }
+        )
+    return JsonResponse(results, safe=False)
+
+
+@require_GET
+def team_logo(request, team_id: int):
+    """Return a team's logo image."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT mlbam_team_id FROM team_id_infos WHERE id = %s",
+            [team_id],
+        )
+        row = cursor.fetchone()
+
+    if not row or row[0] is None:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+
+    mlbam_team_id = str(row[0])
+
+    try:
+        client = UnifiedDataClient()
+        logo_url = client.get_team_logo_url(int(mlbam_team_id))
+        return HttpResponse(logo_url, content_type='text/plain')
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
