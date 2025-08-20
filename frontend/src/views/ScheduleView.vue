@@ -1,107 +1,105 @@
 <template>
   <div v-if="scheduleStore.schedule && scheduleStore.schedule.length">
-    <div class="schedule-header">
-      <button class="nav-btn" @click="prevDay">&#8592;</button>
-      <h2 class="header-date">
-        {{ currentDate() === new Date().toISOString().slice(0,10) ? `Today - ${formatDate(currentDate())}` : formatDate(currentDate()) }}
-      </h2>
-      <button class="nav-btn" @click="nextDay">&#8594;</button>
-    </div>
-    <div v-for="(day, dIndex) in scheduleStore.schedule" :key="dIndex" class="schedule-day">
-      <ul class="game-list">
-        <li v-for="game in day.games" :key="game.gamePk" class="game-row"
-            :style="{
-              background:'#f9fafb',
-              padding:'6px 10px',
-              border:'1px solid #e2e8f0',
-              borderRadius:'6px',
-              marginLeft:'auto',
-              display:'flex',
-              alignItems:'center',
-              gap:'10px',
-              // justifyContent:'flex-end',
-              fontSize:'.75rem',
-              lineHeight:'1.1',
-              boxShadow:'0 1px 2px rgba(0,0,0,0.04)'
-            }">
-          <div class="game-teams">
-            <span class="team-chip away" style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;">
-              <img v-if="game.teams.away.team.logo_url" :src="game.teams.away.team.logo_url" alt="" class="team-logo" />
-              {{ teamAbbrev(game.teams.away.team) }}
-            </span>
-            <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
-            <span class="team-chip home" style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;">
-              <img v-if="game.teams.home.team.logo_url" :src="game.teams.home.team.logo_url" alt="" class="team-logo" />
-              {{ teamAbbrev(game.teams.home.team) }}
-            </span>
+    <DataView :value="allGames" layout="list">
+      <template #header>
+        <div class="schedule-header">
+          <button class="nav-btn" @click="prevDay">&#8592;</button>
+          <h2 class="header-date">
+            {{ currentDate() === today ? `Today - ${formatDate(currentDate())}` : formatDate(currentDate()) }}
+          </h2>
+          <button class="nav-btn" @click="nextDay">&#8594;</button>
+        </div>
+      </template>
+      <template #list="slotProps">
+        <div class="game-list">
+          <div v-for="game in slotProps.items" :key="game.gamePk" class="game-row" :style="rowStyle">
+            <div class="game-teams">
+              <span class="team-chip away" style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;">
+                <img v-if="game.teams.away.team.logo_url" :src="game.teams.away.team.logo_url" alt="" class="team-logo" />
+                {{ teamAbbrev(game.teams.away.team) }}
+              </span>
+              <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
+              <span class="team-chip home" style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;">
+                <img v-if="game.teams.home.team.logo_url" :src="game.teams.home.team.logo_url" alt="" class="team-logo" />
+                {{ teamAbbrev(game.teams.home.team) }}
+              </span>
+            </div>
+            <div class="game-time">{{ gameTime(game) }}</div>
+            <div class="game-score" v-if="game.status?.detailedState === 'Final'">
+              {{ game.teams.away.score }} - {{ game.teams.home.score }}
+            </div>
+            <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
+              {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
+            </div>
+            <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
+              <span v-if="game.decisions?.winner" style="padding:4px">
+                <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
+              </span>
+              <span v-if="game.decisions?.loser" style="padding:4px">
+                <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
+              </span>
+              <span v-if="game.decisions?.save" style="padding:4px">
+                <strong>S:</strong> {{ shortName(game.decisions.save.fullName) }}
+              </span>
+            </div>
+            <div class="game-pitchers" v-else>
+              <span v-if="game.teams.away.probablePitcher">
+                {{ shortName(game.teams.away.probablePitcher.fullName) }}
+              </span>
+              <span v-if="game.teams.home.probablePitcher" style="padding:4px;opacity:.6;">vs</span>
+              <span v-if="game.teams.home.probablePitcher">
+                {{ shortName(game.teams.home.probablePitcher.fullName) }}
+              </span>
+            </div>
           </div>
-          <div class="game-time">{{ gameTime(game) }}</div>
-          <div class="game-score" v-if="game.status?.detailedState === 'Final'">
-            {{ game.teams.away.score }} - {{ game.teams.home.score }}
-          </div>
-          <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
-            {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
-            </div>
-            <div
-            class="game-pitchers"
-            v-if="game.status?.detailedState === 'Final'"
-            >
-            <span v-if="game.decisions?.winner" style="padding:4px">
-              <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
-            </span>
-            <span v-if="game.decisions?.loser" style="padding:4px">
-              <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
-            </span>
-            <span v-if="game.decisions?.save" style="padding:4px">
-              <strong>S:</strong> {{ shortName(game.decisions.save.fullName) }}
-            </span>
-            </div>
-            <div
-            class="game-pitchers"
-            v-else
-            >
-            <span v-if="game.teams.away.probablePitcher">
-              {{ shortName(game.teams.away.probablePitcher.fullName) }}
-            </span>
-            <span v-if="game.teams.home.probablePitcher" style="padding:4px;opacity:.6;">vs</span>
-            <span v-if="game.teams.home.probablePitcher">
-              {{ shortName(game.teams.home.probablePitcher.fullName) }}
-            </span>
-            </div>
-          </li>
-      </ul>
-    </div>
+        </div>
+      </template>
+    </DataView>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import DataView from 'primevue/dataview';
+import 'primevue/dataview/style';
+import { computed } from 'vue';
 import { scheduleStore } from '../store/schedule';
 
-// const currentDate = ref(
-//   (scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate)?.slice(0, 10)
-// );
+const today = new Date().toISOString().slice(0, 10);
+
+const rowStyle = {
+  background: '#f9fafb',
+  padding: '6px 10px',
+  border: '1px solid #e2e8f0',
+  borderRadius: '6px',
+  marginLeft: 'auto',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  fontSize: '.75rem',
+  lineHeight: '1.1',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+};
+
+const allGames = computed(() =>
+  scheduleStore.schedule.flatMap((d) => d.games || [])
+);
 
 function currentDate() {
-  const dateStr = scheduleStore.schedule[0]?.date || scheduleStore.schedule[0]?.games[0]?.gameDate;
-  return dateStr ? dateStr.slice(0, 10) : new Date().toISOString().slice(0, 10);
+  const dateStr =
+    scheduleStore.schedule[0]?.date ||
+    scheduleStore.schedule[0]?.games[0]?.gameDate;
+  return dateStr ? dateStr.slice(0, 10) : today;
 }
 
 async function fetchSchedule(dateStr) {
   const resp = await fetch(`/api/schedule/?date=${dateStr}`);
-  const data = await resp.json();
-  scheduleStore.schedule = data;
-  if (data && data.length) {
-    const d = data[0].date || data[0].games[0]?.gameDate;
-    currentDate.value = d ? d.slice(0, 10) : dateStr;
-  }
+  scheduleStore.schedule = await resp.json();
 }
 
 function adjustDay(delta) {
   const date = new Date(currentDate());
   date.setDate(date.getDate() + delta);
   const iso = date.toISOString().split('T')[0];
-  //currentDate().value = iso;
   fetchSchedule(iso);
 }
 
@@ -115,26 +113,20 @@ function nextDay() {
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  // Interpret plain YYYY-MM-DD as midnight America/New_York (handles EST/EDT)
   let date;
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     try {
       const [y, m, d] = dateStr.split('-').map(Number);
-      // Use noon UTC as a stable point to detect the offset for that calendar date
       const noonUTC = Date.UTC(y, m - 1, d, 12, 0, 0);
       const tz = 'America/New_York';
-      const hourInNY = Number(new Intl.DateTimeFormat('en-US', {
-        timeZone: tz,
-        hour: '2-digit',
-        hour12: false
-      }).format(noonUTC));
-      // If hourInNY = 7 offset is -05 (standard); if 8 offset is -04 (DST)
-      const offset = 12 - hourInNY; // hours to add to local to reach UTC
+      const hourInNY = Number(
+        new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: '2-digit', hour12: false }).format(noonUTC)
+      );
+      const offset = 12 - hourInNY;
       const offsetStr = String(Math.abs(offset)).padStart(2, '0');
-      const sign = offset >= 0 ? '-' : '+'; // offset variable is positive for behind UTC
+      const sign = offset >= 0 ? '-' : '+';
       date = new Date(`${dateStr}T00:00:00${sign}${offsetStr}:00`);
     } catch {
-      // Fallback to standard time (EST, UTC-05:00)
       date = new Date(`${dateStr}T00:00:00-05:00`);
     }
   } else {
@@ -251,4 +243,3 @@ function shortName(name) {
   cursor: pointer;
 }
 </style>
-
