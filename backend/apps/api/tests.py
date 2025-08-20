@@ -1,6 +1,7 @@
 from unittest.mock import patch
 from django.test import TestCase, Client
-from django.db import connection
+
+from apps.api.models import PlayerIdInfo
 
 
 class ScheduleApiTests(TestCase):
@@ -62,11 +63,12 @@ class PlayerHeadshotApiTests(TestCase):
         mock_client = mock_client_cls.return_value
         mock_client.fetch_player_headshot.return_value = b'image-bytes'
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO player_id_infos (id, key_mlbam, name_first, name_last) VALUES (%s, %s, %s, %s)",
-                [1, '123', 'Test', 'Player'],
-            )
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
 
         client = Client()
         response = client.get('/api/players/1/headshot/')
@@ -75,3 +77,35 @@ class PlayerHeadshotApiTests(TestCase):
         self.assertEqual(response.content, b'image-bytes')
         self.assertEqual(response['Content-Type'], 'image/png')
         mock_client.fetch_player_headshot.assert_called_once_with(123)
+
+
+class PlayerSearchApiTests(TestCase):
+    def setUp(self):
+        # Create more than 10 players to ensure the limit works
+        for i in range(11):
+            PlayerIdInfo.objects.create(
+                name_first='Test',
+                name_last=f'Player{i}',
+                key_mlbam=str(100 + i),
+            )
+        PlayerIdInfo.objects.create(
+            name_first='Foo',
+            name_last='Bar',
+            key_mlbam='123.0',
+        )
+
+    def test_player_search_case_insensitive_and_limited(self):
+        client = Client()
+        # Case-insensitive search and limit
+        response = client.get('/api/players/', {'q': 'test'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 10)
+        self.assertTrue(all('Test Player' in p['name_full'] for p in data))
+
+        # Ensure key_mlbam is sanitized and search is case-insensitive
+        response = client.get('/api/players/', {'q': 'foo'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['key_mlbam'], '123')
