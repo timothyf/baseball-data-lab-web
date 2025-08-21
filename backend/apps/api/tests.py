@@ -177,3 +177,29 @@ class TeamLogoApiTests(TestCase):
         self.assertEqual(response.content, b'logo-url')
         self.assertEqual(response['Content-Type'], 'text/plain')
         mock_client.get_team_logo_url.assert_called_once_with(555)
+
+
+class TeamRecordApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_team_record_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_team_record_for_season.return_value = {
+            'wins': 10,
+            'losses': 5,
+            'divisionRank': '1',
+            'streak': {
+                'streakType': 'wins',
+                'streakNumber': 3,
+                'streakCode': 'W3'
+            }
+        }
+
+        TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
+
+        client = Client()
+        response = client.get('/api/teams/1/record/', {'season': '2025'})
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['wins'], 10)
+        mock_client.get_team_record_for_season.assert_called_once_with(555, 2025)
