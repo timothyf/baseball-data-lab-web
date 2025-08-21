@@ -83,6 +83,7 @@ function formatRank(rank) {
 </script>
 
 <style scoped>
+
 .team-header {
   display: flex;
   align-items: center;
@@ -107,4 +108,5 @@ function formatRank(rank) {
   font-weight: 600;
   color: #555;
 }
+
 </style>
