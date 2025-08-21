@@ -203,3 +203,29 @@ class TeamRecordApiTests(TestCase):
         data = response.json()
         self.assertEqual(data['wins'], 10)
         mock_client.get_team_record_for_season.assert_called_once_with(555, 2025)
+
+
+class TeamRecentScheduleApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_team_recent_schedule_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_recent_schedule_for_team.return_value = {
+            'id': 555,
+            'previousGameSchedule': {'dates': []},
+            'nextGameSchedule': {'dates': []}
+        }
+
+        TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
+
+        client = Client()
+        response = client.get('/api/teams/1/recent_schedule/')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['id'], 555)
+        mock_client.get_recent_schedule_for_team.assert_called_once_with(555)
+
+    def test_team_recent_schedule_team_not_found(self):
+        client = Client()
+        response = client.get('/api/teams/1/recent_schedule/')
+        self.assertEqual(response.status_code, 404)
