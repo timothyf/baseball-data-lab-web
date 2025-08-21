@@ -12,54 +12,7 @@
       </template>
       <template #list="slotProps">
         <div class="game-list">
-          <div v-for="game in slotProps.items" :key="game.gamePk" class="game-row" :style="rowStyle">
-            <div class="game-teams">
-              <span class="team-chip away" style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;">
-                <img v-if="game.teams.away.team.logo_url" :src="game.teams.away.team.logo_url" alt="" class="team-logo" />
-                {{ teamAbbrev(game.teams.away.team) }}
-              </span>
-              <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
-              <span class="team-chip home" style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;">
-                <img v-if="game.teams.home.team.logo_url" :src="game.teams.home.team.logo_url" alt="" class="team-logo" />
-                {{ teamAbbrev(game.teams.home.team) }}
-              </span>
-            </div>
-            <div class="game-time">
-              <RouterLink
-                v-if="game.status?.detailedState === 'Final'"
-                :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
-              >
-                Final
-              </RouterLink>
-              <span v-else>{{ gameTime(game) }}</span>
-            </div>
-            <div class="game-score" v-if="game.status?.detailedState === 'Final'">
-              {{ game.teams.away.score }} - {{ game.teams.home.score }}
-            </div>
-            <div class="game-broadcasts" v-if="game.broadcasts && game.broadcasts.length">
-              {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
-            </div>
-            <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
-              <span v-if="game.decisions?.winner" style="padding:4px">
-                <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
-              </span>
-              <span v-if="game.decisions?.loser" style="padding:4px">
-                <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
-              </span>
-              <span v-if="game.decisions?.save" style="padding:4px">
-                <strong>S:</strong> {{ shortName(game.decisions.save.fullName) }}
-              </span>
-            </div>
-            <div class="game-pitchers" v-else>
-              <span v-if="game.teams.away.probablePitcher">
-                {{ shortName(game.teams.away.probablePitcher.fullName) }}
-              </span>
-              <span v-if="game.teams.home.probablePitcher" style="padding:4px;opacity:.6;">vs</span>
-              <span v-if="game.teams.home.probablePitcher">
-                {{ shortName(game.teams.home.probablePitcher.fullName) }}
-              </span>
-            </div>
-          </div>
+          <GameRow v-for="game in slotProps.items" :key="game.gamePk" :game="game" />
         </div>
       </template>
     </DataView>
@@ -71,24 +24,12 @@ import DataView from 'primevue/dataview';
 import 'primevue/dataview/style';
 import { computed } from 'vue';
 import { useScheduleStore } from '../store/schedule';
+import GameRow from '../components/GameRow.vue';
 
 const scheduleStore = useScheduleStore();
 
 const today = new Date().toISOString().slice(0, 10);
 
-const rowStyle = {
-  background: '#f9fafb',
-  padding: '6px 10px',
-  border: '1px solid #e2e8f0',
-  borderRadius: '6px',
-  marginLeft: 'auto',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  fontSize: '.75rem',
-  lineHeight: '1.1',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-};
 
 const allGames = computed(() =>
   scheduleStore.schedule.flatMap((d) => d.games || [])
@@ -150,30 +91,6 @@ function formatDate(dateStr) {
   });
 }
 
-function formatTime(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-}
-
-function gameTime(game) {
-  if (game?.status?.abstractGameState === 'Live') return 'LIVE';
-  if (game?.status?.detailedState === 'Final') return 'Final';
-  return formatTime(game.gameDate);
-}
-
-function teamAbbrev(team) {
-  return team?.abbreviation || team?.teamCode || team?.name || '';
-}
-
-function shortName(name) {
-  if (!name) return '';
-  const parts = name.split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0][0]}. ${parts.slice(1).join(' ')}`;
-  }
-  return name;
-}
 </script>
 
 <style scoped>
@@ -185,52 +102,6 @@ function shortName(name) {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.game-row {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
-}
-
-.game-teams {
-  width: 250px;
-  font-weight: 600;
-}
-
-.game-time {
-  width: 80px;
-}
-
-.game-score {
-  width: 60px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.game-broadcasts {
-  flex: 1;
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.game-pitchers {
-  width: 270px;
-  font-size: 0.9rem;
-  color: #555;
-  text-align: right;
-}
-
-.team-name {
-  font-weight: bold;
-  color: #333;
-}
-
-.team-logo {
-  width: 20px;
-  height: 20px;
-  margin-right: 4px;
 }
 
 .schedule-header {
