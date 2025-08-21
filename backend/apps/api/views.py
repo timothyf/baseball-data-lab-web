@@ -249,12 +249,20 @@ def team_recent_schedule(request, team_id: int):
         .first()
     )
 
+    logger.info("team_recent_schedule called with team_id=%s, mlbam_team_id=%s", team_id, mlbam_team_id)
+
     if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)
 
     try:
+        
         client = UnifiedDataClient()
+        logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
         schedule = client.get_recent_schedule_for_team(int(mlbam_team_id))
         return JsonResponse(schedule, safe=False)
+    except ValueError as ve:
+        logger.error("ValueError in team_recent_schedule: %s", ve)
+        return JsonResponse({'error': str(ve)}, status=400)
     except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Unexpected error in team_recent_schedule: %s", exc)   
         return JsonResponse({'error': str(exc)}, status=500)

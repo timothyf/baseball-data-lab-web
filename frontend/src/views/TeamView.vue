@@ -23,7 +23,7 @@
       <p>Streak: {{ teamRecord.streak?.streakCode }}</p>
     </div>
 
-    <div v-if="recentSchedule">
+    <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
         <h2>Previous Games</h2>
         <ul>
@@ -180,6 +180,11 @@ function describeGame(game, includeScore) {
   font-weight: 600;
   color: #555;
   padding-top: 8px;
+}
+
+.recent-schedule {
+  display: flex;
+  margin-top: 1rem;
 }
 
 .schedule-section {
