@@ -63,5 +63,5 @@ watch(() => id, (newId) => {
 </script>
 
 <style scoped>
-img { max-width: 200px; height: auto; }
+img { max-width: 100px; height: auto; }
 </style>
