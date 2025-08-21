@@ -200,3 +200,35 @@ def team_logo(request, team_id: int):
         return HttpResponse(logo_url, content_type='text/plain')
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
+def team_record(request, team_id: int):
+    """Return a team's record for a given season."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    mlbam_team_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+
+    if mlbam_team_id is None:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+
+    season_str = request.GET.get('season')
+    if season_str is None:
+        season_str = str(datetime.now().year)
+
+    try:
+        season = int(season_str)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid season'}, status=400)
+
+    try:
+        client = UnifiedDataClient()
+        record = client.get_team_record_for_season(int(mlbam_team_id), season)
+        return JsonResponse(record, safe=False)
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)

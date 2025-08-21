@@ -5,6 +5,13 @@
     <img v-if="teamLogoSrc" :src="teamLogoSrc" alt="Team Logo" />
     <p v-else>Loading logo…</p>
 
+    <div v-if="teamRecord">
+      <p>Record: {{ teamRecord.wins }}-{{ teamRecord.losses }}</p>
+      <p>Division Rank: {{ teamRecord.divisionRank }}</p>
+      <p>Streak: {{ teamRecord.streak?.streakCode }}</p>
+    </div>
+    <p v-else>Loading record…</p>
+
   </div>
 </template>
 
@@ -17,6 +24,7 @@ const { id, name } = defineProps({
 });
 
 const teamLogoSrc = ref("");
+const teamRecord = ref(null);
 
 // fetcher for plain-text URL
 async function loadLogo(teamId) {
@@ -31,13 +39,27 @@ async function loadLogo(teamId) {
   }
 }
 
+async function loadRecord(teamId) {
+  try {
+    const res = await fetch(`/api/teams/${teamId}/record/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    teamRecord.value = await res.json();
+  } catch (e) {
+    console.error("Failed to fetch team record:", e);
+    teamRecord.value = null;
+  }
+}
 
 
 onMounted(() => {
-  loadLogo(id)
+  loadLogo(id);
+  loadRecord(id);
 });
 
-watch(() => id, (newId) => loadLogo(newId));
+watch(() => id, (newId) => {
+  loadLogo(newId);
+  loadRecord(newId);
+});
 </script>
 
 <style scoped>
