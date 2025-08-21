@@ -7,7 +7,6 @@
         alt="Team Logo"
         class="team-logo"
       />
-      <p v-else>Loading logo…</p>
 
       <div class="team-info">
         <h1>{{ name }}</h1>
@@ -15,7 +14,7 @@
           {{ teamRecord.wins }}-{{ teamRecord.losses }} -
           {{ formatRank(teamRecord.divisionRank) }}
         </p>
-        <p v-else>Loading record…</p>
+        <p v-else>Loading data...</p>
       </div>
     </div>
 
@@ -59,9 +58,6 @@
           </li>
         </ul>
       </div>
-    </div>
-    <div v-else>
-      <p>Loading schedule…</p>
     </div>
   </div>
 </template>
@@ -244,6 +240,7 @@ function describeGame(game, includeScore) {
   margin-top: 1rem;
   width: 600px;
   margin: auto;
+  justify-content: space-between;
 }
 
 .schedule-section {
