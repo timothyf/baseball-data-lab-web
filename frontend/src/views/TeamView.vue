@@ -1,17 +1,27 @@
 <template>
   <div>
-    <h1>{{ name }}</h1>
+    <div class="team-header">
+      <img
+        v-if="teamLogoSrc"
+        :src="teamLogoSrc"
+        alt="Team Logo"
+        class="team-logo"
+      />
+      <p v-else>Loading logo…</p>
 
-    <img v-if="teamLogoSrc" :src="teamLogoSrc" alt="Team Logo" />
-    <p v-else>Loading logo…</p>
+      <div class="team-info">
+        <h1>{{ name }}</h1>
+        <p v-if="teamRecord">
+          {{ teamRecord.wins }}-{{ teamRecord.losses }} -
+          {{ formatRank(teamRecord.divisionRank) }}
+        </p>
+        <p v-else>Loading record…</p>
+      </div>
+    </div>
 
     <div v-if="teamRecord">
-      <p>Record: {{ teamRecord.wins }}-{{ teamRecord.losses }}</p>
-      <p>Division Rank: {{ teamRecord.divisionRank }}</p>
       <p>Streak: {{ teamRecord.streak?.streakCode }}</p>
     </div>
-    <p v-else>Loading record…</p>
-
   </div>
 </template>
 
@@ -60,8 +70,43 @@ watch(() => id, (newId) => {
   loadLogo(newId);
   loadRecord(newId);
 });
+
+function formatRank(rank) {
+  if (rank == null) return "";
+  const j = rank % 10,
+    k = rank % 100;
+  if (j === 1 && k !== 11) return `${rank}st Place`;
+  if (j === 2 && k !== 12) return `${rank}nd Place`;
+  if (j === 3 && k !== 13) return `${rank}rd Place`;
+  return `${rank}th Place`;
+}
 </script>
 
 <style scoped>
-img { max-width: 100px; height: auto; }
+
+.team-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.team-logo {
+  width: 120px;
+  height: auto;
+  margin-right: 1rem;
+}
+
+.team-info h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.team-info p {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #555;
+}
+
 </style>
