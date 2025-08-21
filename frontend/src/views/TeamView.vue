@@ -88,25 +88,28 @@ function formatRank(rank) {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
+  padding: 50px;
+  font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
 }
 
 .team-logo {
   width: 120px;
   height: auto;
-  margin-right: 1rem;
+  margin-right: 5rem;
 }
 
 .team-info h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 55px;
   font-weight: 700;
 }
 
 .team-info p {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 35px;
   font-weight: 600;
   color: #555;
+  padding-top: 8px;
 }
 
 </style>
