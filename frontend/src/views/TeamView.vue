@@ -5,7 +5,6 @@
     <img v-if="teamLogoSrc" :src="teamLogoSrc" alt="Team Logo" />
     <p v-else>Loading logo…</p>
 
-    <p>ID: {{ id }}</p>
   </div>
 </template>
 
@@ -32,7 +31,12 @@ async function loadLogo(teamId) {
   }
 }
 
-onMounted(() => loadLogo(id));
+
+
+onMounted(() => {
+  loadLogo(id)
+});
+
 watch(() => id, (newId) => loadLogo(newId));
 </script>
 

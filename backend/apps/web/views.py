@@ -61,6 +61,9 @@ def home(request):
 def standings(request):
     return render(request, 'web/standings.html')
 
+def team(request, mlbam_team_id: int):
+    return render(request, 'web/team.html', {'mlbam_team_id': mlbam_team_id})
+
 def teams(request):
     return render(request, 'web/teams.html')
 
