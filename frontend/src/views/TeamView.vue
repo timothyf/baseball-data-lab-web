@@ -195,6 +195,9 @@ function describeGame(game, includeScore) {
   margin-bottom: 1rem;
   padding: 50px;
   font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
+  width: 700px;
+  margin: auto;
+  text-align: center;
 }
 
 .team-logo {
@@ -221,6 +224,7 @@ function describeGame(game, includeScore) {
   margin: 0 auto 2rem;
   border-collapse: collapse;
   font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
+  font-size: 26px;
 }
 
 .team-stats th,
@@ -238,6 +242,8 @@ function describeGame(game, includeScore) {
 .recent-schedule {
   display: flex;
   margin-top: 1rem;
+  width: 600px;
+  margin: auto;
 }
 
 .schedule-section {
