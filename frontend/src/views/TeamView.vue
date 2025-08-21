@@ -46,7 +46,11 @@
         <h2>Previous Games</h2>
         <ul>
           <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
-            {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
+            <RouterLink
+              :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
+            >
+              {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
+            </RouterLink>
           </li>
         </ul>
       </div>
