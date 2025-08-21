@@ -19,9 +19,28 @@
       </div>
     </div>
 
-    <div v-if="teamRecord">
-      <p>Streak: {{ teamRecord.streak?.streakCode }}</p>
-    </div>
+    <table v-if="teamRecord" class="team-stats">
+      <thead>
+        <tr>
+          <th>Streak</th>
+          <th>Last 10</th>
+          <th>Last 30</th>
+          <th>RS</th>
+          <th>RA</th>
+          <th>rDiff</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ streakCode }}</td>
+          <td>{{ lastTen }}</td>
+          <td>{{ lastThirty }}</td>
+          <td>{{ runsScored }}</td>
+          <td>{{ runsAllowed }}</td>
+          <td>{{ runDifferential }}</td>
+        </tr>
+      </tbody>
+    </table>
 
     <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
@@ -129,6 +148,22 @@ const nextGames = computed(() => {
 
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
+const streakCode = computed(() => teamRecord.value?.streak?.streakCode || "");
+
+const lastTen = computed(() => {
+  const split = teamRecord.value?.records?.splitRecords?.find(r => r.type === 'lastTen');
+  return split ? `${split.wins}-${split.losses}` : "";
+});
+
+const lastThirty = computed(() => {
+  const split = teamRecord.value?.records?.splitRecords?.find(r => r.type === 'lastThirty');
+  return split ? `${split.wins}-${split.losses}` : "";
+});
+
+const runsScored = computed(() => teamRecord.value?.runsScored ?? "");
+const runsAllowed = computed(() => teamRecord.value?.runsAllowed ?? "");
+const runDifferential = computed(() => teamRecord.value?.runDifferential ?? "");
+
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   return isNaN(d) ? dateStr : d.toLocaleDateString();
@@ -180,6 +215,24 @@ function describeGame(game, includeScore) {
   font-weight: 600;
   color: #555;
   padding-top: 8px;
+}
+
+.team-stats {
+  margin: 0 auto 2rem;
+  border-collapse: collapse;
+  font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
+}
+
+.team-stats th,
+.team-stats td {
+  border: 2px solid #555;
+  padding: 0.5rem 1rem;
+  text-align: center;
+}
+
+.team-stats th {
+  background-color: #eee;
+  font-weight: 600;
 }
 
 .recent-schedule {
