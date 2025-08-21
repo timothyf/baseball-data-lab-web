@@ -1,6 +1,8 @@
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 from django.shortcuts import render
+import logging
+logger = logging.getLogger(__name__)
 
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient

@@ -2,6 +2,8 @@ from datetime import datetime
 from datetime import datetime
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
+import logging
+logger = logging.getLogger(__name__)
 
 from .models import PlayerIdInfo, TeamIdInfo
 
@@ -205,6 +207,7 @@ def team_logo(request, team_id: int):
 @require_GET
 def team_record(request, team_id: int):
     """Return a team's record for a given season."""
+    logger.info("team_record called with team_id=%s", team_id)
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
@@ -228,7 +231,7 @@ def team_record(request, team_id: int):
 
     try:
         client = UnifiedDataClient()
-        record = client.get_team_record_for_season(int(mlbam_team_id), season)
+        record = client.get_team_record_for_season(season, int(mlbam_team_id))
         return JsonResponse(record, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
