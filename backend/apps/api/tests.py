@@ -41,7 +41,13 @@ class GameDataApiTests(TestCase):
             'teams': {
                 'home': {'team': {'name': 'Home'}, 'score': 5},
                 'away': {'team': {'name': 'Away'}, 'score': 3},
-            }
+            },
+            'home_team_data': {'id': 1},
+            'away_team_data': {'id': 2},
+        }
+        mock_client.get_team_spot_url.return_value = 'logo-url'
+        mock_client.get_game_boxscore_data.return_value = {
+            'info': [{'label': 'Att', 'value': '10,000'}]
         }
         client = Client()
         response = client.get('/api/games/123/')
@@ -49,6 +55,12 @@ class GameDataApiTests(TestCase):
         data = response.json()
         self.assertEqual(data['teams']['home']['team']['name'], 'Home')
         self.assertEqual(data['teams']['away']['score'], 3)
+        # boxscore data should be merged into liveData
+        self.assertEqual(
+            data['liveData']['boxscore']['info'][0]['label'],
+            'Att',
+        )
+        mock_client.get_game_boxscore_data.assert_called_once_with(123)
 
 
 class StandingsApiTests(TestCase):
