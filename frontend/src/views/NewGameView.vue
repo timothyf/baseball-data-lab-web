@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between gap-4 flex-wrap">
           <!-- Left team -->
           <div class="flex items-center gap-3">
-            <img :src="game.away.logo" alt="Away Logo" class="w-12 h-12 object-contain" />
+            <img :src="game.away.logo" alt="Away Logo" class="w-12 h-12 object-contain" style="max-width: 75px;" />
             <div>
               <div class="text-sm text-muted-color">Away</div>
               <div class="text-xl font-semibold">{{ game.away.name }}</div>
@@ -29,7 +29,7 @@
               <div class="text-sm text-muted-color">Home</div>
               <div class="text-xl font-semibold">{{ game.home.name }}</div>
             </div>
-            <img :src="game.home.logo" alt="Home Logo" class="w-12 h-12 object-contain" />
+            <img :src="game.home.logo" alt="Home Logo" class="w-12 h-12 object-contain" style="max-width: 75px;" />
           </div>
         </div>
       </template>
@@ -251,8 +251,8 @@ import Chart from 'primevue/chart'
 const game = ref({
   gameDate: 'Aug 12, 2024',
   venue: 'T-Mobile Park',
-  away: { abbrev: 'DET', name: 'Detroit Tigers', logo: '/static/logos/DET.png', runs: 3 },
-  home: { abbrev: 'SEA', name: 'Seattle Mariners', logo: '/static/logos/SEA.png', runs: 4 },
+  away: { abbrev: 'DET', name: 'Detroit Tigers', logo: 'https://www.mlbstatic.com/team-logos/team-cap-on-light/118.svg', runs: 3 },
+  home: { abbrev: 'SEA', name: 'Seattle Mariners', logo: 'https://www.mlbstatic.com/team-logos/team-cap-on-light/118.svg', runs: 4 },
   summary: {
     winningPitcher: 'Luis Castillo (SEA)',
     losingPitcher: 'Tarik Skubal (DET)',

@@ -185,11 +185,12 @@ def team_logo(request, team_id: int):
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
-    mlbam_team_id = (
-        TeamIdInfo.objects.filter(id=team_id)
-        .values_list('mlbam_team_id', flat=True)
-        .first()
-    )
+    mlbam_team_id = team_id
+    # mlbam_team_id = (
+    #     TeamIdInfo.objects.filter(id=team_id)
+    #     .values_list('mlbam_team_id', flat=True)
+    #     .first()
+    # )
 
     if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)

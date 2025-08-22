@@ -20,8 +20,6 @@
 </template>
 
 <script setup>
-import DataView from 'primevue/dataview';
-import 'primevue/dataview/style';
 import { computed } from 'vue';
 import { useScheduleStore } from '../store/schedule';
 import GameRow from '../components/GameRow.vue';

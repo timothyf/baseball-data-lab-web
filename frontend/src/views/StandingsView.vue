@@ -42,10 +42,6 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import 'primevue/datatable/style';
-import 'primevue/column/style';
 import { useStandingsStore } from '../store/standings';
 
 const standingsStore = useStandingsStore();
