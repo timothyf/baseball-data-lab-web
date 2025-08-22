@@ -54,6 +54,12 @@ def game_data(request, game_pk: int):
     try:
         client = UnifiedDataClient()
         data = client.get_game_data(game_pk)
+        # Pull additional boxscore details for summary information
+        try:
+            boxscore = client.get_game_boxscore_data(game_pk)
+            data.setdefault('liveData', {})['boxscore'] = boxscore
+        except Exception:  # pragma: no cover - downstream service failure
+            pass
         data['home_team_data']['logo_url'] = client.get_team_spot_url(data['home_team_data']['id'], 32)
         data['away_team_data']['logo_url'] = client.get_team_spot_url(data['away_team_data']['id'], 32)
         return JsonResponse(data, safe=False)
