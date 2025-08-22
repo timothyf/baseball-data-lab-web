@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useScheduleStore } from '../store/schedule';
 import GameRow from '../components/GameRow.vue';
 
@@ -88,6 +88,12 @@ function formatDate(dateStr) {
     timeZone: 'America/New_York'
   });
 }
+
+onMounted(() => {
+  if (!scheduleStore.schedule.length) {
+    fetchSchedule(today);
+  }
+});
 
 </script>
 
