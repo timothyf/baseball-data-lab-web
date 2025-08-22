@@ -3,7 +3,7 @@
     <div v-if="game">
       <h2>{{ awayTeam }} @ {{ homeTeam }}</h2>
       <h3 class="game-date">{{ game.gameDate }}</h3>
-      <table v-if="innings.length" class="linescore">
+      <table v-if="innings.length" class="linescore" :style="{ '--team-color': '#f0f0f0' }">
         <thead>
           <tr>
             <th></th>
@@ -15,14 +15,14 @@
         </thead>
         <tbody>
           <tr>
-            <th>{{ awayTeam }}</th>
+            <th :style="{ backgroundColor: awayColor }">{{ awayTeam }}</th>
             <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
             <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
           </tr>
           <tr>
-            <th>{{ homeTeam }}</th>
+            <th :style="{ backgroundColor: homeColor }">{{ homeTeam }}</th>
             <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
             <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
@@ -34,7 +34,7 @@
         <h3>Boxscore</h3>
         <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore">
           <h4>{{ side === 'away' ? awayTeam : homeTeam }}</h4>
-          <table class="boxscore-table">
+          <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
             <thead>
               <tr>
                 <th>Batter</th>
@@ -54,7 +54,7 @@
               </tr>
             </tbody>
           </table>
-          <table class="boxscore-table">
+          <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
             <thead>
               <tr>
                 <th>Pitcher</th>
@@ -92,6 +92,8 @@ const { game_pk } = defineProps({
 });
 
 const game = ref(null);
+const homeColor = ref('#ffffff');
+const awayColor = ref('#ffffff');
 
 onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
@@ -106,14 +108,18 @@ onMounted(async () => {
   if (homeTeamId) {
     const homeResp = await fetch(`/api/teams/${homeTeamId}/`);
     if (homeResp.ok) {
-      game.value.homeTeamName = (await homeResp.json()).full_name;
+      const data = await homeResp.json();
+      game.value.homeTeamName = data.full_name;
+      homeColor.value = data.primary_color || data.color || '#ffffff';
     }
   }
 
   if (awayTeamId) {
     const awayResp = await fetch(`/api/teams/${awayTeamId}/`);
     if (awayResp.ok) {
-      game.value.awayTeamName = (await awayResp.json()).full_name;
+      const data = await awayResp.json();
+      game.value.awayTeamName = data.full_name;
+      awayColor.value = data.primary_color || data.color || '#ffffff';
     }
   }
 });
@@ -153,11 +159,17 @@ function playerStat(side, id, statType, field) {
 .linescore {
   border-collapse: collapse;
 }
+.linescore thead {
+  background-color: var(--team-color);
+}
 .linescore th,
 .linescore td {
   border: 1px solid #ccc;
   padding: 4px 8px;
   text-align: center;
+}
+.linescore tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .boxscore {
@@ -183,12 +195,18 @@ function playerStat(side, id, statType, field) {
   margin-top: 1rem;
   border-collapse: collapse;
 }
+.boxscore-table thead {
+  background-color: var(--team-color);
+}
 
 .boxscore-table th,
 .boxscore-table td {
   border: 1px solid #ccc;
   padding: 4px 8px;
   text-align: center;
+}
+.boxscore-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .game-date {
