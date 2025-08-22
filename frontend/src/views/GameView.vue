@@ -41,6 +41,9 @@
         <div class="summary-info">
           <p>Winning Pitcher: {{ winningPitcher }}</p>
           <p>Losing Pitcher: {{ losingPitcher }}</p>
+          <p>HRs: {{ homers }}</p>
+          <p>Attendance: {{ attendance }}</p>
+          <p>Game Time: {{ gameDuration }}</p>
         </div>
       </div>
         <div v-if="boxscore" class="boxscore">
@@ -146,6 +149,44 @@ const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?
 
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
+
+const winningPitcher = computed(() =>
+  game.value?.summary?.winningPitcher ||
+  game.value?.liveData?.decisions?.winner?.fullName ||
+  '—'
+);
+
+const losingPitcher = computed(() =>
+  game.value?.summary?.losingPitcher ||
+  game.value?.liveData?.decisions?.loser?.fullName ||
+  '—'
+);
+
+const homers = computed(() => {
+  const fromSummary = game.value?.summary?.homers;
+  if (fromSummary && fromSummary.length) {
+    return fromSummary.join(', ');
+  }
+  const info = game.value?.liveData?.boxscore?.info ?? [];
+  const hrEntry = info.find(item => item.label === 'HR');
+  return hrEntry ? hrEntry.value : '—';
+});
+
+const attendance = computed(() => {
+  const att =
+    game.value?.summary?.attendance ??
+    (game.value?.liveData?.boxscore?.info || []).find(i => i.label === 'Att')?.value;
+  if (!att) return '—';
+  return typeof att === 'number' ? att.toLocaleString() : att;
+});
+
+const gameDuration = computed(() => {
+  return (
+    game.value?.summary?.duration ||
+    (game.value?.liveData?.boxscore?.info || []).find(i => i.label === 'T')?.value ||
+    '—'
+  );
+});
 
 function player(side, id) {
   const players = boxscoreTeams.value[side]?.players ?? {};
