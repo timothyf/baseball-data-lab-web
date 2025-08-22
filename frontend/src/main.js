@@ -6,6 +6,7 @@ import { useScheduleStore } from './store/schedule';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import 'primeicons/primeicons.css';
+import './global.css';
 
 const scheduleElement = document.getElementById('schedule-data');
 const scheduleData = scheduleElement ? JSON.parse(scheduleElement.textContent) : [];
