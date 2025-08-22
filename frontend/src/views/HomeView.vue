@@ -7,6 +7,15 @@
         Advanced stats, interactive visualizations, and real-time standings—your
         baseball analytics hub.
       </p>
+      <p class="welcome-message">
+        Welcome! Get started by exploring the schedule, diving into player stats,
+        or building your own team.
+      </p>
+      <div class="cta-buttons">
+        <router-link to="/schedule" class="cta-button">View Schedule</router-link>
+        <router-link to="/players" class="cta-button">Explore Player Stats</router-link>
+        <router-link to="/teams" class="cta-button">Create Your Team</router-link>
+      </div>
     </div>
   </section>
 </template>
@@ -45,5 +54,32 @@
   font-size: 1.25rem;
   max-width: 600px;
   margin: 0 auto;
+}
+
+.welcome-message {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.cta-buttons {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cta-button {
+  background-color: #fbbf24;
+  color: #1e3a8a;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #f59e0b;
 }
 </style>
