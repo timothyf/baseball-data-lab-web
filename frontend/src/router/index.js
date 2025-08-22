@@ -36,6 +36,12 @@ const routes = [
     props: route => ({ id: route.params.id, name: route.query.name })
   },
   {
+    path: '/game/:game_pk',
+    name: 'Game',
+    component: GameView,
+    props: route => ({ game_pk: route.params.game_pk })
+  },
+  {
     path: '/players',
     name: 'Players',
     component: PlayersView

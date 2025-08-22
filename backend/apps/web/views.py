@@ -71,3 +71,8 @@ def teams(request):
 
 def players(request):
     return render(request, 'web/players.html')
+
+def game(request, game_pk: int):
+    return render(request, 'web/game.html', {'game_pk': game_pk})
+
+

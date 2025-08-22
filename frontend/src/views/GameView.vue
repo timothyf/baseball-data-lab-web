@@ -1,9 +1,8 @@
 <template>
   <div>
-    <h1>Game {{ game_pk }}</h1>
     <div v-if="game">
       <h2>{{ awayTeam }} @ {{ homeTeam }}</h2>
-      <p>Final Score: {{ awayScore }} - {{ homeScore }}</p>
+      <h3 class="game-date">{{ game.gameDate }}</h3>
       <table v-if="innings.length" class="linescore">
         <thead>
           <tr>
@@ -161,6 +160,25 @@ function playerStat(side, id, statType, field) {
   text-align: center;
 }
 
+.boxscore {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 1000px;
+}
+
+.boxscore h3 {
+  flex: 0 0 100%;   /* always full width */
+  margin: 0 0 1rem;
+}
+
+.team-boxscore {
+  flex: 0 0 50%;    /* each takes half width */
+  box-sizing: border-box;
+  padding: 0.5rem;
+}
+
 .boxscore-table {
   margin-top: 1rem;
   border-collapse: collapse;
@@ -171,5 +189,11 @@ function playerStat(side, id, statType, field) {
   border: 1px solid #ccc;
   padding: 4px 8px;
   text-align: center;
+}
+
+.game-date {
+  font-size: 20px;
+  color: #555;
+  margin-top: -8px;
 }
 </style>
