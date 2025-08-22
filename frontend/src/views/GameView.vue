@@ -1,46 +1,52 @@
 <template>
   <div>
     <div v-if="game">
-      <h2 class="matchup-header" :style="headerStyle">
-        <img :src="awayLogo" alt="Away Logo" class="team-logo" />
-        {{ awayTeam }} @
-        <img :src="homeLogo" alt="Home Logo" class="team-logo" />
-        {{ homeTeam }}
+      <h2 class="matchup-header">
+        <img :src="game.away_team_data.logo_url" alt="Away Logo" class="team-logo" />
+        {{ game.away_team_data.name }} @
+        <img :src="game.home_team_data.logo_url" alt="Home Logo" class="team-logo" />
+        {{ game.home_team_data.name }}
       </h2>
       <h3 class="game-date">{{ game.gameDate }}</h3>
-      <div v-if="innings.length" class="card">
-        <table class="linescore" :style="{ '--team-color': '#f0f0f0' }">
-          <thead>
-            <tr>
-              <th></th>
-              <th v-for="inning in innings" :key="inning.num">{{ inning.num }}</th>
-              <th>R</th>
-              <th>H</th>
-              <th>E</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th :style="{ backgroundColor: awayColor }">{{ awayTeam }}</th>
-              <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
-              <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
-              <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
-              <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
-            </tr>
-            <tr>
-              <th :style="{ backgroundColor: homeColor }">{{ homeTeam }}</th>
-              <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
-              <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
-              <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
-              <td>{{ linescoreTeams.home?.errors ?? '' }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="game-summary">
+        <div v-if="innings.length" class="card linescore-div">
+          <table class="linescore" :style="{ '--team-color': '#f0f0f0' }">
+            <thead>
+              <tr>
+                <th></th>
+                <th v-for="inning in innings" :key="inning.num">{{ inning.num }}</th>
+                <th>R</th>
+                <th>H</th>
+                <th>E</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th :style="{ backgroundColor: awayColor }">{{ game.away_team_data.name }}</th>
+                <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
+                <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
+                <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
+                <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
+              </tr>
+              <tr>
+                <th :style="{ backgroundColor: homeColor }">{{ game.home_team_data.name }}</th>
+                <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
+                <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
+                <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
+                <td>{{ linescoreTeams.home?.errors ?? '' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="summary-info">
+          <p>Winning Pitcher: {{ winningPitcher }}</p>
+          <p>Losing Pitcher: {{ losingPitcher }}</p>
+        </div>
       </div>
         <div v-if="boxscore" class="boxscore">
           <h3>Boxscore</h3>
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
-            <h4>{{ side === 'away' ? awayTeam : homeTeam }}</h4>
+            <h4>{{ side === 'away' ? game.away_team_data.name : game.home_team_data.name }}</h4>
             <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
               <thead>
                 <tr>
@@ -49,15 +55,25 @@
                   <th>R</th>
                   <th>H</th>
                   <th>RBI</th>
+                  <th>BB</th>
+                  <th>SO</th>
+                  <th>AVG</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="id in boxscoreTeams[side]?.batters ?? []" :key="`bat-` + id">
+                <tr
+                  v-for="id in (boxscoreTeams[side]?.batters ?? [])
+                    .filter(id => playerStat(side, id, 'batting', 'plateAppearances') > 0)"
+                  :key="`bat-` + id"
+                >
                   <td>{{ playerName(side, id) }}</td>
                   <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
                   <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
                   <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
                   <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'baseOnBalls') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'strikeOuts') }}</td>
+                  <td>{{ playerSeasonStat(side, id, 'batting', 'avg') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -71,6 +87,7 @@
                   <th>ER</th>
                   <th>BB</th>
                   <th>K</th>
+                  <th>ERA</th>
                 </tr>
               </thead>
               <tbody>
@@ -82,6 +99,7 @@
                   <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
                   <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
                   <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
+                  <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -101,8 +119,6 @@ const { game_pk } = defineProps({
 const game = ref(null);
 const homeColor = ref('#ffffff');
 const awayColor = ref('#ffffff');
-const homeLogo = ref('');
-const awayLogo = ref('');
 
 onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
@@ -110,47 +126,11 @@ onMounted(async () => {
     game.value = await resp.json();
   }
 
-  // fetch team names
-  const homeTeamId = game.value.team_home_id;
-  const awayTeamId = game.value.team_away_id;
-
-  if (homeTeamId) {
-    const [homeResp, homeLogoResp] = await Promise.all([
-      fetch(`/api/teams/${homeTeamId}/`),
-      fetch(`/api/teams/${homeTeamId}/logo/`)
-    ]);
-    if (homeResp.ok) {
-      const data = await homeResp.json();
-      game.value.homeTeamName = data.full_name;
-      homeColor.value = data.primary_color || data.color || '#ffffff';
-    }
-    if (homeLogoResp.ok) {
-      homeLogo.value = (await homeLogoResp.text()).trim();
-    }
-  }
-
-  if (awayTeamId) {
-    const [awayResp, awayLogoResp] = await Promise.all([
-      fetch(`/api/teams/${awayTeamId}/`),
-      fetch(`/api/teams/${awayTeamId}/logo/`)
-    ]);
-    if (awayResp.ok) {
-      const data = await awayResp.json();
-      game.value.awayTeamName = data.full_name;
-      awayColor.value = data.primary_color || data.color || '#ffffff';
-    }
-    if (awayLogoResp.ok) {
-      awayLogo.value = (await awayLogoResp.text()).trim();
-    }
-  }
 });
-
-const homeTeam = computed(() => game.value.homeTeamName || '');
-const awayTeam = computed(() => game.value.awayTeamName || '');
 
 const headerStyle = computed(() => ({
   background: `linear-gradient(to right, ${awayColor.value}, ${homeColor.value})`,
-  color: '#fff',
+//  color: '#fff',
   padding: '8px',
   borderRadius: '4px',
   textAlign: 'center'
@@ -182,6 +162,12 @@ function playerStat(side, id, statType, field) {
   const p = player(side, id);
   return p.stats?.[statType]?.[field] ?? '';
 }
+
+function playerSeasonStat(side, id, statType, field) {
+  const p = player(side, id);
+  return p.seasonStats?.[statType]?.[field] ?? '';
+}
+
 </script>
 
 <style scoped>
@@ -189,6 +175,7 @@ function playerStat(side, id, statType, field) {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: black !important;
 }
 
 .team-logo {
@@ -281,8 +268,20 @@ function playerStat(side, id, statType, field) {
 }
 
 .game-date {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: #555;
   margin: 0 0 1rem;
+  text-align: center;
+}
+
+.game-summary {
+  display: flex;
+  max-width: 1200px;
+  margin: auto;
+  background-color: white;
+}
+
+.summary-info {
+  padding-left: 16px;
 }
 </style>
