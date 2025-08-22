@@ -1,7 +1,12 @@
 <template>
   <div>
     <div v-if="game">
-      <h2>{{ awayTeam }} @ {{ homeTeam }}</h2>
+      <h2 class="matchup-header" :style="headerStyle">
+        <img :src="awayLogo" alt="Away Logo" class="team-logo" />
+        {{ awayTeam }} @
+        <img :src="homeLogo" alt="Home Logo" class="team-logo" />
+        {{ homeTeam }}
+      </h2>
       <h3 class="game-date">{{ game.gameDate }}</h3>
       <div v-if="innings.length" class="card">
         <table class="linescore" :style="{ '--team-color': '#f0f0f0' }">
@@ -96,6 +101,8 @@ const { game_pk } = defineProps({
 const game = ref(null);
 const homeColor = ref('#ffffff');
 const awayColor = ref('#ffffff');
+const homeLogo = ref('');
+const awayLogo = ref('');
 
 onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
@@ -108,26 +115,46 @@ onMounted(async () => {
   const awayTeamId = game.value.team_away_id;
 
   if (homeTeamId) {
-    const homeResp = await fetch(`/api/teams/${homeTeamId}/`);
+    const [homeResp, homeLogoResp] = await Promise.all([
+      fetch(`/api/teams/${homeTeamId}/`),
+      fetch(`/api/teams/${homeTeamId}/logo/`)
+    ]);
     if (homeResp.ok) {
       const data = await homeResp.json();
       game.value.homeTeamName = data.full_name;
       homeColor.value = data.primary_color || data.color || '#ffffff';
     }
+    if (homeLogoResp.ok) {
+      homeLogo.value = (await homeLogoResp.text()).trim();
+    }
   }
 
   if (awayTeamId) {
-    const awayResp = await fetch(`/api/teams/${awayTeamId}/`);
+    const [awayResp, awayLogoResp] = await Promise.all([
+      fetch(`/api/teams/${awayTeamId}/`),
+      fetch(`/api/teams/${awayTeamId}/logo/`)
+    ]);
     if (awayResp.ok) {
       const data = await awayResp.json();
       game.value.awayTeamName = data.full_name;
       awayColor.value = data.primary_color || data.color || '#ffffff';
+    }
+    if (awayLogoResp.ok) {
+      awayLogo.value = (await awayLogoResp.text()).trim();
     }
   }
 });
 
 const homeTeam = computed(() => game.value.homeTeamName || '');
 const awayTeam = computed(() => game.value.awayTeamName || '');
+
+const headerStyle = computed(() => ({
+  background: `linear-gradient(to right, ${awayColor.value}, ${homeColor.value})`,
+  color: '#fff',
+  padding: '8px',
+  borderRadius: '4px',
+  textAlign: 'center'
+}));
 
 
 
@@ -158,6 +185,19 @@ function playerStat(side, id, statType, field) {
 </script>
 
 <style scoped>
+.matchup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-logo {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  margin: 0 8px;
+}
+
 .linescore {
   border-collapse: collapse;
 }
