@@ -32,10 +32,9 @@
           </tbody>
         </table>
       </div>
-      <div v-if="boxscore" class="boxscore">
-        <h3>Boxscore</h3>
-        <div v-for="side in ['away', 'home']" :key="side" class="card">
-          <div class="team-boxscore">
+        <div v-if="boxscore" class="boxscore">
+          <h3>Boxscore</h3>
+          <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
             <h4>{{ side === 'away' ? awayTeam : homeTeam }}</h4>
             <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
               <thead>
@@ -83,7 +82,6 @@
             </table>
           </div>
         </div>
-      </div>
     </div>
   </div>
 </template>
@@ -179,24 +177,27 @@ function playerStat(side, id, statType, field) {
 .boxscore {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 20px;
-  width: 1000px;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto 0;
 }
 
-
 .boxscore h3 {
-  flex: 0 0 100%;   /* always full width */
+  flex: 0 0 100%; /* always full width */
   margin: 0 0 1rem;
 }
 
-.boxscore > .card {
-  flex: 0 0 50%;    /* each takes half width */
+.team-boxscore {
+  flex: 0 0 50%; /* each takes half width */
   box-sizing: border-box;
+  padding: 0.5rem;
 }
 
-.team-boxscore {
-  padding: 0.5rem;
+@media (max-width: 768px) {
+  .team-boxscore {
+    flex: 0 0 100%;
+  }
 }
 
 .boxscore-table {
