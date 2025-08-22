@@ -1,7 +1,15 @@
 from pathlib import Path
 import os
 
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Or your desired deployment location
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, '../frontend', 'dist'), # Assuming 'frontend/dist' is your Vite build output
+# ]
+
 
 SECRET_KEY = 'development-secret-key'
 

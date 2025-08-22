@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -10,4 +12,4 @@ urlpatterns = [
     path('players/', views.players, name='players'),
     path('game/<int:game_pk>/', views.game, name='game'),
     path('new-game/<int:game_pk>/', views.new_game, name='new_game')
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
