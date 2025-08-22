@@ -207,8 +207,15 @@ function playerStat(side, id, statType, field) {
 .linescore th,
 .linescore td {
   border: 1px solid #ccc;
-  padding: 4px 8px;
   text-align: center;
+}
+
+.linescore th {
+  padding: 8px 12px;
+}
+
+.linescore td {
+  padding: 4px 8px;
 }
 .linescore tbody tr:nth-child(even) {
   background-color: #f9f9f9;
@@ -251,8 +258,15 @@ function playerStat(side, id, statType, field) {
 .boxscore-table th,
 .boxscore-table td {
   border: 1px solid #ccc;
-  padding: 4px 8px;
   text-align: center;
+}
+
+.boxscore-table th {
+  padding: 8px 12px;
+}
+
+.boxscore-table td {
+  padding: 4px 8px;
 }
 .boxscore-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
@@ -267,8 +281,8 @@ function playerStat(side, id, statType, field) {
 }
 
 .game-date {
-  font-size: 20px;
+  font-size: 1.2rem;
   color: #555;
-  margin-top: -8px;
+  margin: 0 0 1rem;
 }
 </style>
