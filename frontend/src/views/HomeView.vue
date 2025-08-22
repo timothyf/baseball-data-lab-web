@@ -1,7 +1,7 @@
 <template>
   <section class="hero">
     <div class="hero-content">
-      <img src="/logo.png" alt="Baseball Data Lab logo" class="logo" />
+      <img src="http://localhost:5173/logo.png" alt="Baseball Data Lab logo" class="logo" />
       <h1 class="tagline">Data-Driven Baseball Insights</h1>
       <p class="description">
         Advanced stats, interactive visualizations, and real-time standings—your
