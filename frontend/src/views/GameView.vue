@@ -189,12 +189,12 @@ function playerStat(side, id, statType, field) {
 }
 
 .team-boxscore {
-  flex: 0 0 50%; /* each takes half width */
+  flex: 0 0 49%; /* each takes half width */
   box-sizing: border-box;
   padding: 0.5rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .team-boxscore {
     flex: 0 0 100%;
   }

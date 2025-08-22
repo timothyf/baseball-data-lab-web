@@ -3,9 +3,12 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 import { useScheduleStore } from './store/schedule';
-import PrimeVue from 'primevue/config';
+
+
+import PrimeVue from 'primevue/config'
+import 'primeicons/primeicons.css'
 import Aura from '@primevue/themes/aura';
-import 'primeicons/primeicons.css';
+// import 'primevue/resources/themes/aura-light-blue/theme.css'
 import './global.css';
 
 const scheduleElement = document.getElementById('schedule-data');

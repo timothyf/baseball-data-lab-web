@@ -7,6 +7,7 @@ import TeamView from '../views/TeamView.vue';
 import PlayersView from '../views/PlayersView.vue';
 import PlayerView from '../views/PlayerView.vue';
 import GameView from '../views/GameView.vue';
+import NewGameView from '../views/NewGameView.vue';
 
 const routes = [
   {
@@ -39,6 +40,12 @@ const routes = [
     path: '/game/:game_pk',
     name: 'Game',
     component: GameView,
+    props: route => ({ game_pk: route.params.game_pk })
+  },
+  {
+    path: '/new-game/:game_pk',
+    name: 'NewGame',
+    component: NewGameView,
     props: route => ({ game_pk: route.params.game_pk })
   },
   {
