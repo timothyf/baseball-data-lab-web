@@ -2,7 +2,21 @@
   <section class="standings">
     <div class="standings-container">
       <div v-if="standingsStore.standings.length">
-        <div v-for="(record, index) in standingsStore.standings" :key="index" class="division-card">
+        <nav class="division-links">
+          <a
+            v-for="(record, index) in standingsStore.standings"
+            :key="`link-${index}`"
+            :href="`#division-${record.division?.id}`"
+          >
+            {{ getDivisionName(record.division?.id) }}
+          </a>
+        </nav>
+        <div
+          v-for="(record, index) in standingsStore.standings"
+          :key="index"
+          class="division-card"
+          :id="`division-${record.division?.id}`"
+        >
           <h3>{{ getDivisionName(record.division?.id)  }}</h3>
           <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
             <Column field="team.name" header="Team" style="width:180px"></Column>
@@ -96,11 +110,25 @@ onMounted(() => {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #fff;
   padding: 2rem 1rem;
+  scroll-behavior: smooth;
 }
 
 .standings-container {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+.division-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.division-links a {
+  color: var(--color-accent);
+  text-decoration: underline;
 }
 .division-card {
   background: rgba(255, 255, 255, 0.15);
