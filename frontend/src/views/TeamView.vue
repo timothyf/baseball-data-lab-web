@@ -47,23 +47,27 @@
     <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
         <h2>Previous Games</h2>
-        <ul>
-          <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
-            <RouterLink
-              :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
-            >
-              {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
-            </RouterLink>
-          </li>
-        </ul>
+        <div class="schedule-card">
+          <ul>
+            <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
+              <RouterLink
+                :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
+              >
+                {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="schedule-section">
         <h2>Upcoming Games</h2>
-        <ul>
-          <li v-for="game in nextGames" :key="`next-` + game.gamePk">
-            {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
-          </li>
-        </ul>
+        <div class="schedule-card">
+          <ul>
+            <li v-for="game in nextGames" :key="`next-` + game.gamePk">
+              {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     </div>
@@ -295,26 +299,25 @@ function describeGame(game, includeScore) {
 }
 
 .schedule-section {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
   margin: 1rem 0;
   flex: 1 1 45%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.schedule-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.schedule-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  text-align: left;
 }
 
-.schedule-section ul {
+.schedule-card ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
+  margin: 0;
 }
 
-.schedule-section li {
+.schedule-card li {
   margin-bottom: 0.25rem;
 }
 
