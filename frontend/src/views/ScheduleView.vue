@@ -29,6 +29,8 @@ const scheduleStore = useScheduleStore();
 
 const scheduleCache = new Map();
 
+let controller;
+
 const today = new Date().toISOString().slice(0, 10);
 
 // Cache of Intl.DateTimeFormat instances by locale
@@ -67,8 +69,13 @@ const headerDate = computed(() =>
 
 async function fetchSchedule(
   dateStr,
-  { cacheOnly = false, prefetch = true } = {}
+  { cacheOnly = false, prefetch = true } = {},
 ) {
+  if (!cacheOnly) {
+    if (controller) controller.abort();
+    controller = new AbortController();
+  }
+
   if (scheduleCache.has(dateStr)) {
     const cached = scheduleCache.get(dateStr);
     if (!cacheOnly) scheduleStore.schedule = cached;
@@ -76,7 +83,9 @@ async function fetchSchedule(
     return cached;
   }
 
-  const resp = await fetch(`/api/schedule/?date=${dateStr}`);
+  const options = {};
+  if (!cacheOnly) options.signal = controller.signal;
+  const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
   const data = await resp.json();
   scheduleCache.set(dateStr, data);
   if (!cacheOnly) scheduleStore.schedule = data;
@@ -116,14 +125,18 @@ async function prevDay() {
   const date = new Date(currentDate.value);
   date.setDate(date.getDate() - 1);
   const iso = date.toISOString().split('T')[0];
-  await fetchSchedule(iso);
+  try {
+    await fetchSchedule(iso);
+  } catch {}
 }
 
 async function nextDay() {
   const date = new Date(currentDate.value);
   date.setDate(date.getDate() + 1);
   const iso = date.toISOString().split('T')[0];
-  await fetchSchedule(iso);
+  try {
+    await fetchSchedule(iso);
+  } catch {}
 }
 
 function getFormatter(locale) {
