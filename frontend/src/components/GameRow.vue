@@ -85,7 +85,7 @@ const rowStyle = {
   gap: '10px',
   fontSize: '.85rem',
   lineHeight: '1.1',
-  color: '#fff',
+  color: '#000',
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
 };
 </script>
@@ -114,13 +114,13 @@ const rowStyle = {
 .game-broadcasts {
   flex: 1;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .game-pitchers {
   width: 270px;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
   text-align: right;
 }
 
