@@ -219,15 +219,17 @@ function describeGame(game, includeScore) {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
-  padding: 50px;
+  padding: 3rem;
   font-family: var(--font-base);
-  width: 700px;
-  margin: auto;
+  margin: 0 auto;
+  max-width: 43.75rem;
+  width: 100%;
   text-align: center;
 }
 
 .team-logo {
-  width: 120px;
+  max-width: 7.5rem;
+  width: 100%;
   height: auto;
   margin-right: 5rem;
 }
@@ -251,6 +253,8 @@ function describeGame(game, includeScore) {
   border-collapse: collapse;
   font-family: var(--font-base);
   font-size: 1.6rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .team-stats th,
@@ -267,10 +271,11 @@ function describeGame(game, includeScore) {
 
 .recent-schedule {
   display: flex;
-  margin-top: 1rem;
-  width: 600px;
-  margin: auto;
+  margin: 1rem auto 0;
   justify-content: space-between;
+  width: 100%;
+  max-width: 37.5rem;
+  flex-wrap: wrap;
 }
 
 .schedule-section {
@@ -284,6 +289,27 @@ function describeGame(game, includeScore) {
 
 .schedule-section li {
   margin-bottom: 0.25rem;
+}
+
+@media (max-width: 600px) {
+  .team-header {
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+  }
+
+  .team-logo {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .recent-schedule {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .schedule-section {
+    width: 100%;
+  }
 }
 
 </style>
