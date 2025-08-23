@@ -36,6 +36,16 @@
       </RouterLink>
       <span v-else>{{ gameTime(game) }}</span>
     </div>
+    <div class="game-prob" v-if="game.prediction">
+      <div class="prob-bar">
+        <div class="away" :style="{ width: `${(game.prediction.away * 100).toFixed(0)}%` }"></div>
+        <div class="home" :style="{ width: `${(game.prediction.home * 100).toFixed(0)}%` }"></div>
+      </div>
+      <div class="prob-labels">
+        <span>{{ (game.prediction.away * 100).toFixed(0) }}%</span>
+        <span>{{ (game.prediction.home * 100).toFixed(0) }}%</span>
+      </div>
+    </div>
     <div class="game-score" v-if="game.status?.detailedState === 'Final'">
       {{ game.teams.away.score }} - {{ game.teams.home.score }}
     </div>
@@ -103,6 +113,34 @@ const rowStyle = {
 
 .game-time {
   width: 80px;
+}
+
+.game-prob {
+  width: 80px;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.prob-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #e5e7eb;
+  margin-bottom: 2px;
+}
+
+.prob-bar .away {
+  background: #3b82f6;
+}
+
+.prob-bar .home {
+  background: #ef4444;
+}
+
+.prob-labels {
+  display: flex;
+  justify-content: space-between;
 }
 
 .game-score {
