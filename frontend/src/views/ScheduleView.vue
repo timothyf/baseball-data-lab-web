@@ -55,16 +55,22 @@ function currentDate() {
   return dateStr ? dateStr.slice(0, 10) : today;
 }
 
-async function fetchSchedule(dateStr) {
+async function fetchSchedule(
+  dateStr,
+  { cacheOnly = false, prefetch = true } = {}
+) {
   if (scheduleCache.has(dateStr)) {
-    scheduleStore.schedule = scheduleCache.get(dateStr);
-    return scheduleStore.schedule;
+    const cached = scheduleCache.get(dateStr);
+    if (!cacheOnly) scheduleStore.schedule = cached;
+    if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
+    return cached;
   }
 
   const resp = await fetch(`/api/schedule/?date=${dateStr}`);
   const data = await resp.json();
-  scheduleStore.schedule = data;
   scheduleCache.set(dateStr, data);
+  if (!cacheOnly) scheduleStore.schedule = data;
+  if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
 
   // Fetch win probability predictions for each game in parallel
   // const predictionPromises = [];
@@ -81,7 +87,19 @@ async function fetchSchedule(dateStr) {
   // }
   // await Promise.all(predictionPromises);
 
-  return scheduleStore.schedule;
+  return data;
+}
+
+function prefetchAdjacent(dateStr) {
+  const date = new Date(dateStr);
+  const prev = new Date(date);
+  const next = new Date(date);
+  prev.setDate(prev.getDate() - 1);
+  next.setDate(next.getDate() + 1);
+  const prevIso = prev.toISOString().split('T')[0];
+  const nextIso = next.toISOString().split('T')[0];
+  fetchSchedule(prevIso, { cacheOnly: true, prefetch: false });
+  fetchSchedule(nextIso, { cacheOnly: true, prefetch: false });
 }
 
 async function prevDay() {
