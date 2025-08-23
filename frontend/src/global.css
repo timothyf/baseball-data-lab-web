@@ -21,3 +21,34 @@ a {
 a:hover {
   color: var(--color-accent);
 }
+
+/* Shared search page layout */
+.search-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  padding: 2rem 1rem;
+}
+
+.search-container {
+  text-align: center;
+}
+
+.search-container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.search-container .p-autocomplete {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.search-container .p-inputtext {
+  width: 100%;
+}

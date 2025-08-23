@@ -45,3 +45,4 @@ import SearchAutocomplete from '../components/SearchAutocomplete.vue';
 }
 </style>
 
+
