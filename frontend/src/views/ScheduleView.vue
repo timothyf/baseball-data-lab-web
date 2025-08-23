@@ -66,7 +66,9 @@ watch(
 const currentDate = computed(() => {
   const dateStr =
     scheduleStore.schedule.value[0]?.date ||
-    scheduleStore.schedule.value[0]?.games[0]?.gameDate;
+    // Use optional chaining for array access to avoid errors when the
+    // schedule array is empty.
+    scheduleStore.schedule.value[0]?.games?.[0]?.gameDate;
   return dateStr ? dateStr.slice(0, 10) : today;
 });
 
