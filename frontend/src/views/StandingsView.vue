@@ -30,7 +30,19 @@
         >
           <h3>{{ getDivisionName(record.division?.id)  }}</h3>
           <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
-            <Column field="team.name" header="Team" style="width:180px"></Column>
+            <Column header="Team" style="width:180px">
+              <template #body="{ data }">
+                <RouterLink
+                  :to="{
+                    name: 'Team',
+                    params: { id: data.team.id },
+                    query: { name: data.team.name }
+                  }"
+                >
+                  {{ data.team.name }}
+                </RouterLink>
+              </template>
+            </Column>
             <Column field="wins" header="W"></Column>
             <Column field="losses" header="L"></Column>
             <Column field="winningPercentage" header="PCT"></Column>
