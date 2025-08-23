@@ -57,9 +57,18 @@
     <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
       <span v-if="game.decisions?.winner" style="padding:4px">
         <strong>W:</strong>
-        <RouterLink :to="playerLink(game.decisions.winner)">
-          {{ shortName(game.decisions.winner.fullName) }}
-        </RouterLink>
+
+
+                <RouterLink
+                  :to="{
+                    name: 'Player',
+                    params: { id: game.decisions.winner.id },
+                    query: { name: game.decisions.winner.fullName }
+                  }"
+                >
+                 {{ shortName(game.decisions.winner.fullName) }}
+                </RouterLink>
+
       </span>
       <span v-if="game.decisions?.loser" style="padding:4px">
         <strong>L:</strong>
@@ -116,6 +125,7 @@ const playerLink = (player) => ({
   params: { id: player.id },
   query: { name: player.fullName }
 });
+
 
 const homeRecord = ref(null);
 const awayRecord = ref(null);

@@ -14,7 +14,7 @@ const { id, name } = defineProps({
   name: String
 });
 
-const headshotSrc = computed(() => `/api/players/${id}/headshot/`);
+const headshotSrc = computed(() => `/api/player/${id}/headshot/`);
 </script>
 
 <style scoped>

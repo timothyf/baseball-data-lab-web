@@ -9,6 +9,7 @@ urlpatterns = [
     path('standings/', views.standings, name='standings'),
     path('teams/', views.teams, name='teams'),
     path('team/<int:mlbam_team_id>/', views.team, name='team'),
+    path('player/<int:player_id>/', views.player, name='player'),
     path('players/', views.players, name='players'),
     path('game/<int:game_pk>/', views.game, name='game'),
     path('new-game/<int:game_pk>/', views.new_game, name='new_game')
