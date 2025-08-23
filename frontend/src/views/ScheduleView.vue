@@ -4,30 +4,26 @@
       class="schedule-container"
       v-if="scheduleStore.schedule && scheduleStore.schedule.length"
     >
-      <DataView :value="allGames" layout="list">
-        <template #header>
-          <div class="schedule-header">
-            <button class="nav-btn" @click="prevDay">&#8592;</button>
-            <h2 class="header-date">
-              {{
-                currentDate.value === today
-                  ? `Today - ${formatDate(currentDate.value)}`
-                  : formatDate(currentDate.value)
-              }}
-            </h2>
-            <button class="nav-btn" @click="nextDay">&#8594;</button>
-          </div>
+      <div class="schedule-header">
+        <button class="nav-btn" @click="prevDay">&#8592;</button>
+        <h2 class="header-date">
+          {{
+            currentDate.value === today
+              ? `Today - ${formatDate(currentDate.value)}`
+              : formatDate(currentDate.value)
+          }}
+        </h2>
+        <button class="nav-btn" @click="nextDay">&#8594;</button>
+      </div>
+      <VirtualScroller
+        :items="allGames"
+        :itemSize="110"
+        scrollHeight="70vh"
+      >
+        <template #item="{ item }">
+          <GameRow :key="item.gamePk" :game="item" />
         </template>
-        <template #list="slotProps">
-          <div class="game-list">
-            <GameRow
-              v-for="game in slotProps.items"
-              :key="game.gamePk"
-              :game="game"
-            />
-          </div>
-        </template>
-      </DataView>
+      </VirtualScroller>
     </div>
   </section>
 </template>
@@ -223,7 +219,7 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
-.game-list {
+:deep(.p-virtualscroller-content) {
   list-style: none;
   padding: 0;
   margin: 0;
