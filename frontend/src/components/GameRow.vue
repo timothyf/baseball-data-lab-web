@@ -56,23 +56,42 @@
     </div>
     <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
       <span v-if="game.decisions?.winner" style="padding:4px">
-        <strong>W:</strong> {{ shortName(game.decisions.winner.fullName) }}
+        <strong>W:</strong>
+        <RouterLink :to="playerLink(game.decisions.winner)">
+          {{ shortName(game.decisions.winner.fullName) }}
+        </RouterLink>
       </span>
       <span v-if="game.decisions?.loser" style="padding:4px">
-        <strong>L:</strong> {{ shortName(game.decisions.loser.fullName) }}
+        <strong>L:</strong>
+        <RouterLink :to="playerLink(game.decisions.loser)">
+          {{ shortName(game.decisions.loser.fullName) }}
+        </RouterLink>
       </span>
       <span v-if="game.decisions?.save" style="padding:4px">
-        <strong>S:</strong> {{ shortName(game.decisions.save.fullName) }}
+        <strong>S:</strong>
+        <RouterLink :to="playerLink(game.decisions.save)">
+          {{ shortName(game.decisions.save.fullName) }}
+        </RouterLink>
       </span>
     </div>
     <div class="game-pitchers" v-else>
-      <span v-if="game.teams.away.probablePitcher">
+      <RouterLink
+        v-if="game.teams.away.probablePitcher"
+        :to="playerLink(game.teams.away.probablePitcher)"
+      >
         {{ shortName(game.teams.away.probablePitcher.fullName) }}
-      </span>
-      <span v-if="game.teams.home.probablePitcher" style="padding:4px;opacity:.6;">vs</span>
-      <span v-if="game.teams.home.probablePitcher">
+      </RouterLink>
+      <span
+        v-if="game.teams.home.probablePitcher"
+        style="padding:4px;opacity:.6;"
+        >vs</span
+      >
+      <RouterLink
+        v-if="game.teams.home.probablePitcher"
+        :to="playerLink(game.teams.home.probablePitcher)"
+      >
         {{ shortName(game.teams.home.probablePitcher.fullName) }}
-      </span>
+      </RouterLink>
     </div>
   </div>
 </template>
@@ -90,6 +109,12 @@ const { game } = defineProps({
     type: Object,
     required: true
   }
+});
+
+const playerLink = (player) => ({
+  name: 'Player',
+  params: { id: player.id },
+  query: { name: player.fullName }
 });
 
 const homeRecord = ref(null);
