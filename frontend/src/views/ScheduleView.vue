@@ -11,7 +11,7 @@
       </div>
       <div class="games-list">
         <GameRow
-          v-for="game in allGames"
+          v-for="game in games"
           :key="game.gamePk"
           :game="game"
         />
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, shallowRef, watch } from 'vue';
 import { useScheduleStore } from '../store/schedule';
 import GameRow from '../components/GameRow.vue';
 
@@ -42,9 +42,14 @@ const nyHourFormatter = new Intl.DateTimeFormat('en-US', {
   hour12: false
 });
 
+const games = shallowRef([]);
 
-const allGames = computed(() =>
-  scheduleStore.schedule.flatMap((d) => d.games || [])
+watch(
+  () => scheduleStore.schedule,
+  (schedule) => {
+    games.value = schedule.flatMap((d) => d.games || []);
+  },
+  { immediate: true }
 );
 
 const currentDate = computed(() => {
