@@ -82,6 +82,26 @@ def standings(request):
 
 
 @require_GET
+def news(request):
+    """Return a small set of recent league news headlines."""
+    news_items = [
+        {
+            "title": "Opening Day is around the corner",
+            "url": "https://www.mlb.com/news",
+        },
+        {
+            "title": "Top prospect makes big league debut",
+            "url": "https://www.mlb.com/news",
+        },
+        {
+            "title": "Pitching duel ends in walk-off win",
+            "url": "https://www.mlb.com/news",
+        },
+    ]
+    return JsonResponse(news_items, safe=False)
+
+
+@require_GET
 def player_search(request):
     """Search for players by name."""
     query = request.GET.get('q', '').strip()

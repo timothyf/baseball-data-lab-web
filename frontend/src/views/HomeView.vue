@@ -26,6 +26,34 @@
         <p>{{ topStat }}</p>
       </div>
 
+      <div class="news" v-if="newsItems.length">
+        <h2>Latest News</h2>
+        <ul>
+          <li v-for="(item, idx) in newsItems" :key="idx">
+            <a :href="item.url" target="_blank" rel="noopener">{{ item.title }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="schedule-preview" v-if="schedulePreview.length">
+        <h2>Today's Games</h2>
+        <ul>
+          <li v-for="(game, idx) in schedulePreview" :key="idx">
+            {{ game.teams.away.team.name }} @ {{ game.teams.home.team.name }} -
+            {{ formatTime(game.gameDate) }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="standings-preview" v-if="standingsPreview.length">
+        <h2>Standings Snapshot</h2>
+        <ul>
+          <li v-for="team in standingsPreview" :key="team.team.id">
+            {{ team.team.name }}: {{ team.wins }}-{{ team.losses }}
+          </li>
+        </ul>
+      </div>
+
       <div class="cta-buttons">
         <router-link to="/schedule" class="cta-button">View Schedule</router-link>
         <router-link to="/players" class="cta-button">Explore Player Stats</router-link>
@@ -62,6 +90,14 @@ const features = [
 ];
 
 const topStat = ref('');
+const newsItems = ref([]);
+const schedulePreview = ref([]);
+const standingsPreview = ref([]);
+
+function formatTime(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
 onMounted(async () => {
   try {
@@ -69,12 +105,37 @@ onMounted(async () => {
     if (response.ok) {
       const data = await response.json();
       topStat.value = data.stat;
-      return;
     }
   } catch (e) {
-    // Ignore errors and use fallback text
+    // Ignore errors
   }
-  topStat.value = 'Shohei Ohtani leads the league with 45 HRs.';
+  if (!topStat.value) {
+    topStat.value = 'Shohei Ohtani leads the league with 45 HRs.';
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    const [newsRes, scheduleRes, standingsRes] = await Promise.all([
+      fetch('/api/news/'),
+      fetch(`/api/schedule/?date=${today}`),
+      fetch('/api/standings/'),
+    ]);
+
+    if (newsRes.ok) {
+      newsItems.value = await newsRes.json();
+    }
+    if (scheduleRes.ok) {
+      const sched = await scheduleRes.json();
+      schedulePreview.value = sched[0]?.games?.slice(0, 5) ?? [];
+    }
+    if (standingsRes.ok) {
+      const standings = await standingsRes.json();
+      standingsPreview.value =
+        standings.records?.[0]?.teamRecords?.slice(0, 5) ?? [];
+    }
+  } catch (e) {
+    // Ignore errors for dynamic content
+  }
 });
 </script>
 
@@ -157,6 +218,30 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 0.5rem;
+}
+
+.news,
+.schedule-preview,
+.standings-preview {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: left;
+}
+
+.news ul,
+.schedule-preview ul,
+.standings-preview ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.news li,
+.schedule-preview li,
+.standings-preview li {
+  margin-bottom: 0.25rem;
 }
 
 .cta-buttons {
