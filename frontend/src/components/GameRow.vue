@@ -12,6 +12,7 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.away.team) }}
+        <span v-if="awayRecord" style="margin-left:4px">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
       </span>
       <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
       <span
@@ -25,6 +26,7 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.home.team) }}
+        <span v-if="homeRecord" style="margin-left:4px">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
       </span>
     </div>
     <div class="game-time">
@@ -75,7 +77,12 @@
   </div>
 </template>
 
+<script>
+const recordCache = new Map();
+</script>
+
 <script setup>
+import { ref, onMounted } from 'vue';
 import { gameTime, teamAbbrev, shortName } from '../composables/gameHelpers';
 
 const { game } = defineProps({
@@ -83,6 +90,33 @@ const { game } = defineProps({
     type: Object,
     required: true
   }
+});
+
+const homeRecord = ref(null);
+const awayRecord = ref(null);
+
+async function fetchTeamRecord(teamId) {
+  if (recordCache.has(teamId)) {
+    return recordCache.get(teamId);
+  }
+  try {
+    const response = await fetch(`/api/teams/${teamId}/record/`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    const record = { wins: data.wins, losses: data.losses };
+    recordCache.set(teamId, record);
+    return record;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+onMounted(async () => {
+  awayRecord.value = await fetchTeamRecord(game.teams.away.team.id);
+  homeRecord.value = await fetchTeamRecord(game.teams.home.team.id);
 });
 
 const rowStyle = {
