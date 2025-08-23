@@ -12,7 +12,7 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.away.team) }}
-        <span v-if="awayRecord" style="margin-left:4px">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
+        <span v-if="awayRecord" style="margin-left:4px;color:#888;">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
       </span>
       <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
       <span
@@ -26,7 +26,7 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.home.team) }}
-        <span v-if="homeRecord" style="margin-left:4px">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
+        <span v-if="homeRecord" style="margin-left:4px;color:#888;">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
       </span>
     </div>
     <div class="game-time">
@@ -38,7 +38,7 @@
       </RouterLink>
       <span v-else>{{ gameTime(game) }}</span>
     </div>
-    <div class="game-prob" v-if="game.prediction">
+    <!-- <div class="game-prob" v-if="game.prediction">
       <div class="prob-bar">
         <div class="away" :style="{ width: `${(game.prediction.away * 100).toFixed(0)}%` }"></div>
         <div class="home" :style="{ width: `${(game.prediction.home * 100).toFixed(0)}%` }"></div>
@@ -47,7 +47,7 @@
         <span>{{ (game.prediction.away * 100).toFixed(0) }}%</span>
         <span>{{ (game.prediction.home * 100).toFixed(0) }}%</span>
       </div>
-    </div>
+    </div> -->
     <div class="game-score" v-if="game.status?.detailedState === 'Final'">
       {{ game.teams.away.score }} - {{ game.teams.home.score }}
     </div>

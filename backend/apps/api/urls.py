@@ -12,6 +12,6 @@ urlpatterns = [
     path('teams/', views.team_search, name='api-team-search'),
     path('teams/<int:mlbam_team_id>/', views.team_info, name='api-team-info'),
     path('teams/<int:team_id>/logo/', views.team_logo, name='api-team-logo'),
-    path('teams/<int:team_id>/record/', views.team_record, name='api-team-record'),
+    path('teams/<int:mlbam_team_id>/record/', views.team_record, name='api-team-record'),
     path('teams/<int:team_id>/recent_schedule/', views.team_recent_schedule, name='api-team-recent-schedule'),
 ]
