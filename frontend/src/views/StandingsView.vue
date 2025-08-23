@@ -1,43 +1,45 @@
 <template>
   <section class="standings">
-    <div v-if="standingsStore.standings.length">
-      <div v-for="(record, index) in standingsStore.standings" :key="index" class="division">
-        <h3>{{ getDivisionName(record.division?.id)  }}</h3>
-        <DataTable :value="record.teamRecords">
-          <Column field="team.name" header="Team" style="width:180px"></Column>
-          <Column field="wins" header="W"></Column>
-          <Column field="losses" header="L"></Column>
-          <Column field="winningPercentage" header="PCT"></Column>
-          <Column field="divisionGamesBack" header="GB"></Column>
-          <Column field="wildCardGamesBack" header="WCGB"></Column>
-          <Column field="runsScored" header="RS"></Column>
-          <Column field="runsAllowed" header="RA"></Column>
-          <Column field="runDifferential" header="rDiff"></Column>
-          <Column header="xWL">
-            <template #body="{ data }">
-              {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
-            </template>
-          </Column>
-          <Column header="Home">
-            <template #body="{ data }">
-              {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
-            </template>
-          </Column>
-          <Column header="Away">
-            <template #body="{ data }">
-              {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
-            </template>
-          </Column>
-          <Column header="Division">
-            <template #body="{ data }">
-              {{ divisionRecord(data, record.division?.id) }}
-            </template>
-          </Column>
-        </DataTable>
+    <div class="standings-container">
+      <div v-if="standingsStore.standings.length">
+        <div v-for="(record, index) in standingsStore.standings" :key="index" class="division">
+          <h3>{{ getDivisionName(record.division?.id)  }}</h3>
+          <DataTable :value="record.teamRecords">
+            <Column field="team.name" header="Team" style="width:180px"></Column>
+            <Column field="wins" header="W"></Column>
+            <Column field="losses" header="L"></Column>
+            <Column field="winningPercentage" header="PCT"></Column>
+            <Column field="divisionGamesBack" header="GB"></Column>
+            <Column field="wildCardGamesBack" header="WCGB"></Column>
+            <Column field="runsScored" header="RS"></Column>
+            <Column field="runsAllowed" header="RA"></Column>
+            <Column field="runDifferential" header="rDiff"></Column>
+            <Column header="xWL">
+              <template #body="{ data }">
+                {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
+              </template>
+            </Column>
+            <Column header="Home">
+              <template #body="{ data }">
+                {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
+              </template>
+            </Column>
+            <Column header="Away">
+              <template #body="{ data }">
+                {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
+              </template>
+            </Column>
+            <Column header="Division">
+              <template #body="{ data }">
+                {{ divisionRecord(data, record.division?.id) }}
+              </template>
+            </Column>
+          </DataTable>
+        </div>
       </div>
-    </div>
-    <div v-else>
-      <p>Standings data is loading.</p>
+      <div v-else>
+        <p>Standings data is loading.</p>
+      </div>
     </div>
   </section>
 </template>
@@ -82,6 +84,15 @@ onMounted(() => {
 <style scoped>
 .standings {
   font-family: var(--font-base);
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  padding: 2rem 1rem;
+}
+
+.standings-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .division {
