@@ -2,7 +2,7 @@
   <section class="standings">
     <div class="standings-container">
       <div v-if="standingsStore.standings.length">
-        <div v-for="(record, index) in standingsStore.standings" :key="index" class="division">
+        <div v-for="(record, index) in standingsStore.standings" :key="index" class="division-card">
           <h3>{{ getDivisionName(record.division?.id)  }}</h3>
           <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
             <Column field="team.name" header="Team" style="width:180px"></Column>
@@ -102,9 +102,17 @@ onMounted(() => {
   max-width: 1000px;
   margin: 0 auto;
 }
-
-.division {
+.division-card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1rem;
+  border-radius: 0.5rem;
   margin-bottom: 2rem;
+}
+
+.division-card h3 {
+  margin-top: 0;
+  text-align: center;
+  color: var(--color-accent);
 }
 
 .standings-table .p-datatable-header,
