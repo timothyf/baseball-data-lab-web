@@ -77,6 +77,7 @@ const { id, name } = defineProps({
 const teamLogoSrc = ref("");
 const teamRecord = ref(null);
 const recentSchedule = ref(null);
+const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 // fetcher for plain-text URL
 async function loadLogo(teamId) {
@@ -104,16 +105,30 @@ async function loadRecord(teamId) {
 
 
 onMounted(() => {
-  loadLogo(id);
-  loadRecord(id);
   loadRecentSchedule(id);
 });
 
-watch(() => id, (newId) => {
-  loadLogo(newId);
-  loadRecord(newId);
-  loadRecentSchedule(newId);
-});
+watch(
+  () => id,
+  (newId) => {
+    teamLogoSrc.value = "";
+    teamRecord.value = null;
+    loadRecentSchedule(newId);
+  }
+);
+
+watch(
+  () => mlbamTeamId.value,
+  (newId) => {
+    if (newId) {
+      loadLogo(newId);
+      loadRecord(newId);
+    } else {
+      teamLogoSrc.value = "";
+      teamRecord.value = null;
+    }
+  }
+);
 
 function formatRank(rank) {
   if (rank == null) return "";
@@ -145,8 +160,6 @@ const nextGames = computed(() => {
   const dates = recentSchedule.value?.nextGameSchedule?.dates ?? [];
   return dates.flatMap(d => d.games);
 });
-
-const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 const streakCode = computed(() => teamRecord.value?.streak?.streakCode || "");
 
