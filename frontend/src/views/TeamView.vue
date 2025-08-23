@@ -1,45 +1,46 @@
 <template>
-  <div>
-    <div class="team-header">
-      <img
-        v-if="teamLogoSrc"
-        :src="teamLogoSrc"
-        alt="Team Logo"
-        class="team-logo"
-      />
+  <section class="team-view">
+    <div class="team-container">
+      <div class="team-header">
+        <img
+          v-if="teamLogoSrc"
+          :src="teamLogoSrc"
+          alt="Team Logo"
+          class="team-logo"
+        />
 
-      <div class="team-info">
-        <h1>{{ name }}</h1>
-        <p v-if="teamRecord">
-          {{ teamRecord.wins }}-{{ teamRecord.losses }} -
-          {{ formatRank(teamRecord.divisionRank) }}
-        </p>
-        <p v-else>Loading data...</p>
+        <div class="team-info">
+          <h1>{{ name }}</h1>
+          <p v-if="teamRecord">
+            {{ teamRecord.wins }}-{{ teamRecord.losses }} -
+            {{ formatRank(teamRecord.divisionRank) }}
+          </p>
+          <p v-else>Loading data...</p>
+        </div>
       </div>
-    </div>
 
-    <table v-if="teamRecord" class="team-stats">
-      <thead>
-        <tr>
-          <th>Streak</th>
-          <th>Last 10</th>
-          <th>Last 30</th>
-          <th>RS</th>
-          <th>RA</th>
-          <th>rDiff</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ streakCode }}</td>
-          <td>{{ lastTen }}</td>
-          <td>{{ lastThirty }}</td>
-          <td>{{ runsScored }}</td>
-          <td>{{ runsAllowed }}</td>
-          <td>{{ runDifferential }}</td>
-        </tr>
-      </tbody>
-    </table>
+      <table v-if="teamRecord" class="team-stats">
+        <thead>
+          <tr>
+            <th>Streak</th>
+            <th>Last 10</th>
+            <th>Last 30</th>
+            <th>RS</th>
+            <th>RA</th>
+            <th>rDiff</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ streakCode }}</td>
+            <td>{{ lastTen }}</td>
+            <td>{{ lastThirty }}</td>
+            <td>{{ runsScored }}</td>
+            <td>{{ runsAllowed }}</td>
+            <td>{{ runDifferential }}</td>
+          </tr>
+        </tbody>
+      </table>
 
     <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
@@ -63,7 +64,8 @@
         </ul>
       </div>
     </div>
-  </div>
+    </div>
+  </section>
 </template>
 
 <script setup>
@@ -201,6 +203,17 @@ function describeGame(game, includeScore) {
 </script>
 
 <style scoped>
+
+.team-view {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  padding: 2rem 1rem;
+}
+.team-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
 
 .team-header {
   display: flex;
