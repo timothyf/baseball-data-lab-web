@@ -79,6 +79,9 @@ import { useStandingsStore } from '../store/standings';
 
 const standingsStore = useStandingsStore();
 
+// Cache standings by season to avoid refetching on remount
+const standingsCache = new Map();
+
 const americanLeagueDivisions = computed(() =>
   standingsStore.standings.filter((record) =>
     ['200', '201', '202'].includes(String(record.division?.id))
@@ -91,10 +94,11 @@ const nationalLeagueDivisions = computed(() =>
   )
 );
 
-async function fetchStandings() {
+async function fetchStandings(season) {
   const resp = await fetch('/api/standings/');
   const data = await resp.json();
   standingsStore.standings = data.records || data;
+  standingsCache.set(season, standingsStore.standings);
 }
 
 function getDivisionName(divisionId) {
@@ -122,7 +126,16 @@ function formatRunDifferential(diff) {
 }
 
 onMounted(() => {
-  fetchStandings();
+  const season = new Date().getFullYear();
+  if (!standingsStore.standings.length) {
+    if (standingsCache.has(season)) {
+      standingsStore.standings = standingsCache.get(season);
+    } else {
+      fetchStandings(season);
+    }
+  } else if (!standingsCache.has(season)) {
+    standingsCache.set(season, standingsStore.standings);
+  }
 });
 </script>
 
