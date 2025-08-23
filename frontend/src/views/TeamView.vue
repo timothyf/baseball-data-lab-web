@@ -178,7 +178,10 @@ watch(
   () => mlbamTeamId.value,
   (newId) => {
     if (newId) {
-      loadLogo(newId);
+      // team_logo expects the internal team ID, whereas team_record
+      // expects the MLBAM team ID. Use the appropriate identifier for
+      // each API call.
+      loadLogo(internalTeamId.value);
       loadRecord(newId);
     } else {
       teamLogoSrc.value = "";
