@@ -5,7 +5,7 @@
         <nav class="division-links">
           <div class="league-row">
             <a
-              v-for="(record, index) in americanLeagueDivisions"
+              v-for="(record, index) in standingsStore.standingsByLeague.al"
               :key="`al-link-${index}`"
               :href="`#division-${record.division?.id}`"
             >
@@ -14,7 +14,7 @@
           </div>
           <div class="league-row">
             <a
-              v-for="(record, index) in nationalLeagueDivisions"
+              v-for="(record, index) in standingsStore.standingsByLeague.nl"
               :key="`nl-link-${index}`"
               :href="`#division-${record.division?.id}`"
             >
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted } from 'vue';
 import { useStandingsStore } from '../store/standings';
 
 const standingsStore = useStandingsStore();
@@ -94,23 +94,26 @@ const standingsStore = useStandingsStore();
 // Cache standings by season to avoid refetching on remount
 const standingsCache = new Map();
 
-const americanLeagueDivisions = computed(() =>
-  standingsStore.standings.filter((record) =>
-    ['200', '201', '202'].includes(String(record.division?.id))
-  )
-);
-
-const nationalLeagueDivisions = computed(() =>
-  standingsStore.standings.filter((record) =>
-    ['203', '204', '205'].includes(String(record.division?.id))
-  )
-);
+function groupByLeague(records) {
+  const grouped = { al: [], nl: [] };
+  records.forEach((record) => {
+    const id = String(record.division?.id);
+    if (['200', '201', '202'].includes(id)) {
+      grouped.al.push(record);
+    } else if (['203', '204', '205'].includes(id)) {
+      grouped.nl.push(record);
+    }
+  });
+  return grouped;
+}
 
 async function fetchStandings(season) {
   const resp = await fetch('/api/standings/');
   const data = await resp.json();
-  standingsStore.standings = data.records || data;
-  standingsCache.set(season, standingsStore.standings);
+  const records = data.records || data;
+  standingsStore.standings = records;
+  standingsStore.standingsByLeague = groupByLeague(records);
+  standingsCache.set(season, records);
 }
 
 function getDivisionName(divisionId) {
@@ -141,12 +144,17 @@ onMounted(() => {
   const season = new Date().getFullYear();
   if (!standingsStore.standings.length) {
     if (standingsCache.has(season)) {
-      standingsStore.standings = standingsCache.get(season);
+      const cached = standingsCache.get(season);
+      standingsStore.standings = cached;
+      standingsStore.standingsByLeague = groupByLeague(cached);
     } else {
       fetchStandings(season);
     }
-  } else if (!standingsCache.has(season)) {
-    standingsCache.set(season, standingsStore.standings);
+  } else {
+    standingsStore.standingsByLeague = groupByLeague(standingsStore.standings);
+    if (!standingsCache.has(season)) {
+      standingsCache.set(season, standingsStore.standings);
+    }
   }
 });
 </script>
