@@ -3,7 +3,7 @@
     <div class="game-teams">
       <span
         class="team-chip away"
-        style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;"
+        style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;color:var(--color-primary);border-radius:4px;"
       >
         <img
           v-if="game.teams.away.team.logo_url"
@@ -16,7 +16,7 @@
       <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
       <span
         class="team-chip home"
-        style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;"
+        style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;color:var(--color-primary);border-radius:4px;"
       >
         <img
           v-if="game.teams.home.team.logo_url"
@@ -76,17 +76,17 @@ const { game } = defineProps({
 });
 
 const rowStyle = {
-  background: '#f9fafb',
-  padding: '6px 10px',
-  border: '1px solid #e2e8f0',
+  background: 'rgba(255, 255, 255, 0.1)',
+  padding: '10px',
+  border: '1px solid rgba(255,255,255,0.2)',
   borderRadius: '6px',
-  marginLeft: 'auto',
   display: 'flex',
   alignItems: 'center',
   gap: '10px',
-  fontSize: '.75rem',
+  fontSize: '.85rem',
   lineHeight: '1.1',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+  color: '#fff',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
 };
 </script>
 
@@ -94,8 +94,6 @@ const rowStyle = {
 .game-row {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
 }
 
 .game-teams {
@@ -116,13 +114,13 @@ const rowStyle = {
 .game-broadcasts {
   flex: 1;
   font-size: 0.9rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .game-pitchers {
   width: 270px;
   font-size: 0.9rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.8);
   text-align: right;
 }
 
