@@ -68,6 +68,52 @@ def game_data(request, game_pk: int):
 
 
 @require_GET
+def predict_game(request, game_pk: int):
+    """Estimate win probabilities for a single game.
+
+    The implementation uses a very lightweight heuristic based on current
+    team winning percentages fetched from the standings endpoint.  It is not
+    intended to be a full featured predictive model but provides reasonable
+    sample output for the frontend.
+    """
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    try:
+        client = UnifiedDataClient()
+        game_data = client.get_game_data(game_pk)
+
+        home_id = game_data.get('home_team_data', {}).get('id')
+        away_id = game_data.get('away_team_data', {}).get('id')
+
+        season = datetime.now().year
+        standings = client.get_standings_data(season=season, league_ids="103,104")
+        win_pct = {}
+        for record in standings:
+            for team_rec in record.get('teamRecords', []):
+                team = team_rec.get('team', {})
+                tid = team.get('id')
+                pct_str = team_rec.get('winningPercentage')
+                try:
+                    win_pct[tid] = float(pct_str)
+                except (TypeError, ValueError):
+                    continue
+
+        home_pct = win_pct.get(home_id, 0.5)
+        away_pct = win_pct.get(away_id, 0.5)
+
+        if home_pct + away_pct == 0:
+            home_prob = 0.5
+        else:
+            home_prob = home_pct / (home_pct + away_pct)
+        away_prob = 1.0 - home_prob
+
+        return JsonResponse({'home': home_prob, 'away': away_prob})
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
 def standings(request):
     """Return standings data for the current season."""
     if UnifiedDataClient is None:

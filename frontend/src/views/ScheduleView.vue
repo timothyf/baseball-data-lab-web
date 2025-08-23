@@ -56,6 +56,21 @@ function currentDate() {
 async function fetchSchedule(dateStr) {
   const resp = await fetch(`/api/schedule/?date=${dateStr}`);
   scheduleStore.schedule = await resp.json();
+
+  // Fetch win probability predictions for each game in parallel
+  const predictionPromises = [];
+  for (const day of scheduleStore.schedule) {
+    for (const game of day.games || []) {
+      const p = fetch(`/api/games/${game.gamePk}/prediction/`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data) game.prediction = data;
+        })
+        .catch(() => {});
+      predictionPromises.push(p);
+    }
+  }
+  await Promise.all(predictionPromises);
 }
 
 function adjustDay(delta) {
