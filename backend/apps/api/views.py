@@ -270,13 +270,11 @@ def team_logo(request, team_id: int):
     """Return a team's logo image."""
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-
-    mlbam_team_id = team_id
-    # mlbam_team_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
+    mlbam_team_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
 
     if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)
@@ -351,5 +349,31 @@ def team_recent_schedule(request, team_id: int):
         logger.error("ValueError in team_recent_schedule: %s", ve)
         return JsonResponse({'error': str(ve)}, status=400)
     except Exception as exc:  # pragma: no cover - defensive
-        logger.error("Unexpected error in team_recent_schedule: %s", exc)   
+        logger.error("Unexpected error in team_recent_schedule: %s", exc)
+        return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
+def team_roster(request, team_id: int):
+    """Return the current roster for a team."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    mlbam_team_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+
+    logger.info("team_roster called with team_id=%s, mlbam_team_id=%s", team_id, mlbam_team_id)
+
+    if mlbam_team_id is None:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+
+    try:
+        client = UnifiedDataClient()
+        roster = client.get_team_roster(int(mlbam_team_id))
+        return JsonResponse(roster, safe=False)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Unexpected error in team_roster: %s", exc)
         return JsonResponse({'error': str(exc)}, status=500)

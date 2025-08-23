@@ -44,6 +44,34 @@
         </table>
       </div>
 
+      <div v-if="roster.length" class="stats-container">
+        <h2>Roster</h2>
+        <table class="team-stats">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Pos</th>
+              <th>G</th>
+              <th>AVG</th>
+              <th>ERA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="player in roster" :key="player.id">
+              <td>
+                <RouterLink :to="{ name: 'Player', params: { id: player.id } }">
+                  {{ player.fullName }}
+                </RouterLink>
+              </td>
+              <td>{{ player.primaryPosition?.abbreviation }}</td>
+              <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
+              <td>{{ player.stats?.avg ?? '' }}</td>
+              <td>{{ player.stats?.era ?? '' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
         <h2>Previous Games</h2>
@@ -85,6 +113,7 @@ const { id, name } = defineProps({
 const teamLogoSrc = ref("");
 const teamRecord = ref(null);
 const recentSchedule = ref(null);
+const roster = ref([]);
 const internalTeamId = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
@@ -126,6 +155,7 @@ async function resolveTeamId(teamId) {
     internalTeamId.value = teamId;
   }
   await loadRecentSchedule(internalTeamId.value);
+  await loadRoster(internalTeamId.value);
 }
 
 onMounted(() => {
@@ -138,6 +168,7 @@ watch(
     teamLogoSrc.value = "";
     teamRecord.value = null;
     recentSchedule.value = null;
+    roster.value = [];
     internalTeamId.value = null;
     resolveTeamId(newId);
   }
@@ -174,6 +205,18 @@ async function loadRecentSchedule(teamId) {
   } catch (e) {
     console.error("Failed to fetch recent schedule:", e);
     recentSchedule.value = null;
+  }
+}
+
+async function loadRoster(teamId) {
+  try {
+    const res = await fetch(`/api/teams/${teamId}/roster/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    roster.value = data?.roster ?? data ?? [];
+  } catch (e) {
+    console.error("Failed to fetch roster:", e);
+    roster.value = [];
   }
 }
 
