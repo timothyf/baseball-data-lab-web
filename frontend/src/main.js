@@ -12,7 +12,7 @@ import './global.css';
 
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
-import './primeicons.css';
+import 'primeicons/primeicons.css';
 import 'primevue/dataview/style';
 import 'primevue/datatable/style';
 import 'primevue/column/style';
