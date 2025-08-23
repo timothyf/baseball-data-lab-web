@@ -14,6 +14,12 @@
         {{ teamAbbrev(game.teams.away.team) }}
         <span v-if="awayRecord" style="margin-left:4px;color:#888;">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
       </span>
+      <span
+        v-if="awayStreak"
+        :class="['streak-badge', awayStreak[0] === 'W' ? 'win' : 'loss']"
+      >
+        {{ awayStreak }}
+      </span>
       <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
       <span
         class="team-chip home"
@@ -27,6 +33,12 @@
         />
         {{ teamAbbrev(game.teams.home.team) }}
         <span v-if="homeRecord" style="margin-left:4px;color:#888;">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
+      </span>
+      <span
+        v-if="homeStreak"
+        :class="['streak-badge', homeStreak[0] === 'W' ? 'win' : 'loss']"
+      >
+        {{ homeStreak }}
       </span>
     </div>
     <div class="game-time">
@@ -79,6 +91,7 @@
 
 <script>
 const recordCache = new Map();
+const scheduleCache = new Map();
 </script>
 
 <script setup>
@@ -94,6 +107,8 @@ const { game } = defineProps({
 
 const homeRecord = ref(null);
 const awayRecord = ref(null);
+const homeStreak = ref(null);
+const awayStreak = ref(null);
 
 async function fetchTeamRecord(teamId) {
   if (recordCache.has(teamId)) {
@@ -114,9 +129,52 @@ async function fetchTeamRecord(teamId) {
   }
 }
 
+async function fetchTeamStreak(teamId) {
+  if (scheduleCache.has(teamId)) {
+    return scheduleCache.get(teamId);
+  }
+  try {
+    const res = await fetch(`/api/teams/${teamId}/recent_schedule/`);
+    if (!res.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await res.json();
+    const mlbamId = data.id;
+    const games = (data.previousGameSchedule?.dates || [])
+      .flatMap(d => d.games)
+      .sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
+    const lastFive = games.slice(-5);
+    const outcomes = lastFive.map(g => {
+      const isHome = g.teams.home.team.id === mlbamId;
+      const us = isHome ? g.teams.home : g.teams.away;
+      const opp = isHome ? g.teams.away : g.teams.home;
+      if (us.score == null || opp.score == null) return null;
+      if (us.score > opp.score) return 'W';
+      if (us.score < opp.score) return 'L';
+      return 'T';
+    }).filter(Boolean);
+    let streak = null;
+    if (outcomes.length) {
+      const last = outcomes[outcomes.length - 1];
+      let count = 1;
+      for (let i = outcomes.length - 2; i >= 0 && outcomes[i] === last; i--) {
+        count++;
+      }
+      streak = `${last}${count}`;
+    }
+    scheduleCache.set(teamId, streak);
+    return streak;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
 onMounted(async () => {
   awayRecord.value = await fetchTeamRecord(game.teams.away.team.id);
   homeRecord.value = await fetchTeamRecord(game.teams.home.team.id);
+  awayStreak.value = await fetchTeamStreak(game.teams.away.team.id);
+  homeStreak.value = await fetchTeamStreak(game.teams.home.team.id);
 });
 
 const rowStyle = {
@@ -200,6 +258,25 @@ const rowStyle = {
   width: 20px;
   height: 20px;
   margin-right: 4px;
+}
+
+.streak-badge {
+  display: inline-block;
+  padding: 0 4px;
+  margin-left: 4px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.streak-badge.win {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.streak-badge.loss {
+  background: #fee2e2;
+  color: #991b1b;
 }
 </style>
 
