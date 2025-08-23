@@ -85,6 +85,7 @@ const { id, name } = defineProps({
 const teamLogoSrc = ref("");
 const teamRecord = ref(null);
 const recentSchedule = ref(null);
+const internalTeamId = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 // fetcher for plain-text URL
@@ -112,8 +113,23 @@ async function loadRecord(teamId) {
 }
 
 
+async function resolveTeamId(teamId) {
+  try {
+    const resp = await fetch(`/api/teams/${teamId}/`);
+    if (resp.ok) {
+      const data = await resp.json();
+      internalTeamId.value = data.id;
+    } else {
+      internalTeamId.value = teamId;
+    }
+  } catch (e) {
+    internalTeamId.value = teamId;
+  }
+  await loadRecentSchedule(internalTeamId.value);
+}
+
 onMounted(() => {
-  loadRecentSchedule(id);
+  resolveTeamId(id);
 });
 
 watch(
@@ -121,7 +137,9 @@ watch(
   (newId) => {
     teamLogoSrc.value = "";
     teamRecord.value = null;
-    loadRecentSchedule(newId);
+    recentSchedule.value = null;
+    internalTeamId.value = null;
+    resolveTeamId(newId);
   }
 );
 
