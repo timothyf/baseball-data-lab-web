@@ -21,9 +21,18 @@
 </template>
 
 <script setup>
-import { computed, onMounted, shallowRef, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  shallowRef,
+  watch,
+  defineAsyncComponent
+} from 'vue';
 import { useScheduleStore } from '../store/schedule';
-import GameRow from '../components/GameRow.vue';
+
+const GameRow = defineAsyncComponent(() =>
+  import('../components/GameRow.vue')
+);
 
 const scheduleStore = useScheduleStore();
 
