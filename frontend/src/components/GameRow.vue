@@ -124,9 +124,9 @@ onMounted(async () => {
 });
 
 const rowStyle = {
-  background: 'rgba(255, 255, 255, 0.1)',
+  background: '#ffffff',
   padding: '10px',
-  border: '1px solid rgba(255,255,255,0.2)',
+  border: '1px solid rgba(0,0,0,0.1)',
   borderRadius: '6px',
   display: 'flex',
   alignItems: 'center',
