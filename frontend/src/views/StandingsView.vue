@@ -4,7 +4,7 @@
       <div v-if="standingsStore.standings.length">
         <div v-for="(record, index) in standingsStore.standings" :key="index" class="division">
           <h3>{{ getDivisionName(record.division?.id)  }}</h3>
-          <DataTable :value="record.teamRecords">
+          <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
             <Column field="team.name" header="Team" style="width:180px"></Column>
             <Column field="wins" header="W"></Column>
             <Column field="losses" header="L"></Column>
@@ -97,5 +97,11 @@ onMounted(() => {
 
 .division {
   margin-bottom: 2rem;
+}
+
+.standings-table .p-datatable-header,
+.standings-table .p-datatable-thead > tr > th {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
 }
 </style>
