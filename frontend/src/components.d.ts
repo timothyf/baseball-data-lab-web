@@ -16,5 +16,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchAutocomplete: typeof import('./components/SearchAutocomplete.vue')['default']
+    VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }

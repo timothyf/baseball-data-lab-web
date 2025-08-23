@@ -372,7 +372,7 @@ def team_roster(request, team_id: int):
 
     try:
         client = UnifiedDataClient()
-        roster = client.get_team_roster(int(mlbam_team_id))
+        roster = client.fetch_active_roster(int(mlbam_team_id))
         return JsonResponse(roster, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_roster: %s", exc)
