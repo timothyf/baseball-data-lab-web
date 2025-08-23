@@ -85,7 +85,7 @@ onMounted(async () => {
   justify-content: center;
   text-align: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3a8a, #1e40af);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #fff;
   padding: 2rem;
 }
@@ -113,14 +113,22 @@ onMounted(async () => {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   padding: 1rem;
   border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .feature-icon {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  color: var(--color-accent);
 }
 
 .feature-title {
@@ -160,16 +168,17 @@ onMounted(async () => {
 }
 
 .cta-button {
-  background-color: #fbbf24;
-  color: #1e3a8a;
+  background-color: var(--color-accent);
+  color: var(--color-primary);
   padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
   font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .cta-button:hover {
   background-color: #f59e0b;
+  transform: translateY(-2px);
 }
 </style>
