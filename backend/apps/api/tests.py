@@ -118,6 +118,20 @@ class PlayerHeadshotApiTests(TestCase):
         self.assertEqual(response['Content-Type'], 'image/png')
         mock_client.fetch_player_headshot.assert_called_once_with(123)
 
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_headshot_endpoint_accepts_mlbam_id(self, mock_client_cls):
+        """The endpoint should work when passed a raw MLBAM id."""
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_player_headshot.return_value = b'image-bytes'
+
+        client = Client()
+        response = client.get('/api/players/456/headshot/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'image-bytes')
+        self.assertEqual(response['Content-Type'], 'image/png')
+        mock_client.fetch_player_headshot.assert_called_once_with(456)
+
 
 class PlayerSearchApiTests(TestCase):
     def setUp(self):

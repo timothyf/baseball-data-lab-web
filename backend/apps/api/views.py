@@ -192,18 +192,31 @@ def player_search(request):
 
 @require_GET
 def player_headshot(request, player_id: int):
-    """Return a player's headshot image."""
+    """Return a player's headshot image.
+
+    ``player_id`` may be either the internal ``PlayerIdInfo`` primary key or a
+    raw MLBAM player id.  This flexibility allows the frontend schedule view,
+    which only knows MLBAM ids, to link directly to this endpoint.
+    """
+
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
+    # Look up the MLBAM id from our database when possible.  If the provided id
+    # isn't found, fall back to treating it as an MLBAM id directly.
     key_mlbam = (
         PlayerIdInfo.objects.filter(id=player_id)
         .values_list("key_mlbam", flat=True)
         .first()
     )
-
     if key_mlbam is None:
-        return JsonResponse({"error": "Player not found"}, status=404)
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
 
     key_mlbam = str(key_mlbam)
     if key_mlbam.endswith('.0'):
