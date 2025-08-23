@@ -171,10 +171,19 @@ async function fetchTeamStreak(teamId) {
 }
 
 onMounted(async () => {
-  awayRecord.value = await fetchTeamRecord(game.teams.away.team.id);
-  homeRecord.value = await fetchTeamRecord(game.teams.home.team.id);
-  awayStreak.value = await fetchTeamStreak(game.teams.away.team.id);
-  homeStreak.value = await fetchTeamStreak(game.teams.home.team.id);
+  const [
+    awayRecordRes, homeRecordRes,
+    awayStreakRes, homeStreakRes
+  ] = await Promise.all([
+    fetchTeamRecord(game.teams.away.team.id),
+    fetchTeamRecord(game.teams.home.team.id),
+    fetchTeamStreak(game.teams.away.team.id),
+    fetchTeamStreak(game.teams.home.team.id)
+  ]);
+  awayRecord.value = awayRecordRes;
+  homeRecord.value = homeRecordRes;
+  awayStreak.value = awayStreakRes;
+  homeStreak.value = homeStreakRes;
 });
 
 const rowStyle = {
