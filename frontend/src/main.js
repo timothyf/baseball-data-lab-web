@@ -12,10 +12,11 @@ import './global.css';
 
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
-import 'primeicons/primeicons.css';
+import './primeicons.css';
 import 'primevue/dataview/style';
 import 'primevue/datatable/style';
 import 'primevue/column/style';
+
 
 
 const scheduleElement = document.getElementById('schedule-data');
