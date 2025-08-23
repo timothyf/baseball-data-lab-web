@@ -56,7 +56,7 @@ const nyHourFormatter = new Intl.DateTimeFormat('en-US', {
 const games = shallowRef([]);
 
 watch(
-  () => scheduleStore.schedule,
+  scheduleStore.schedule,
   (schedule) => {
     games.value = schedule.flatMap((d) => d.games || []);
   },
@@ -65,8 +65,8 @@ watch(
 
 const currentDate = computed(() => {
   const dateStr =
-    scheduleStore.schedule[0]?.date ||
-    scheduleStore.schedule[0]?.games[0]?.gameDate;
+    scheduleStore.schedule.value[0]?.date ||
+    scheduleStore.schedule.value[0]?.games[0]?.gameDate;
   return dateStr ? dateStr.slice(0, 10) : today;
 });
 
@@ -87,7 +87,7 @@ async function fetchSchedule(
 
   if (scheduleCache.has(dateStr)) {
     const cached = scheduleCache.get(dateStr);
-    if (!cacheOnly) scheduleStore.schedule = cached;
+    if (!cacheOnly) scheduleStore.setSchedule(cached);
     if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
     return cached;
   }
@@ -97,12 +97,12 @@ async function fetchSchedule(
   const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
   const data = await resp.json();
   scheduleCache.set(dateStr, data);
-  if (!cacheOnly) scheduleStore.schedule = data;
+  if (!cacheOnly) scheduleStore.setSchedule(data);
   if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
 
   // Fetch win probability predictions for each game in parallel
   // const predictionPromises = [];
-  // for (const day of scheduleStore.schedule) {
+  // for (const day of scheduleStore.schedule.value) {
   //   for (const game of day.games || []) {
   //     const p = fetch(`/api/games/${game.gamePk}/prediction/`)
   //       .then((r) => (r.ok ? r.json() : null))
@@ -190,7 +190,7 @@ function formatDate(dateStr, locale) {
 }
 
 onMounted(() => {
-  if (!scheduleStore.schedule.length) {
+  if (!scheduleStore.schedule.value.length) {
     fetchSchedule(today);
   }
 });
