@@ -5,8 +5,8 @@
         <nav class="division-links">
           <div class="league-row">
             <a
-              v-for="(record, index) in standingsStore.standingsByLeague.al"
-              :key="`al-link-${index}`"
+              v-for="record in standingsStore.standingsByLeague.al"
+              :key="record.division?.id"
               :href="`#division-${record.division?.id}`"
             >
               {{ getDivisionName(record.division?.id) }}
@@ -14,8 +14,8 @@
           </div>
           <div class="league-row">
             <a
-              v-for="(record, index) in standingsStore.standingsByLeague.nl"
-              :key="`nl-link-${index}`"
+              v-for="record in standingsStore.standingsByLeague.nl"
+              :key="record.division?.id"
               :href="`#division-${record.division?.id}`"
             >
               {{ getDivisionName(record.division?.id) }}
@@ -23,8 +23,8 @@
           </div>
         </nav>
         <div
-          v-for="(record, index) in standingsStore.standings"
-          :key="index"
+          v-for="record in standingsStore.standings"
+          :key="record.division?.id"
           class="division-card"
           :id="`division-${record.division?.id}`"
         >
