@@ -3,13 +3,24 @@
     <div class="standings-container">
       <div v-if="standingsStore.standings.length">
         <nav class="division-links">
-          <a
-            v-for="(record, index) in standingsStore.standings"
-            :key="`link-${index}`"
-            :href="`#division-${record.division?.id}`"
-          >
-            {{ getDivisionName(record.division?.id) }}
-          </a>
+          <div class="league-row">
+            <a
+              v-for="(record, index) in americanLeagueDivisions"
+              :key="`al-link-${index}`"
+              :href="`#division-${record.division?.id}`"
+            >
+              {{ getDivisionName(record.division?.id) }}
+            </a>
+          </div>
+          <div class="league-row">
+            <a
+              v-for="(record, index) in nationalLeagueDivisions"
+              :key="`nl-link-${index}`"
+              :href="`#division-${record.division?.id}`"
+            >
+              {{ getDivisionName(record.division?.id) }}
+            </a>
+          </div>
         </nav>
         <div
           v-for="(record, index) in standingsStore.standings"
@@ -63,10 +74,22 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useStandingsStore } from '../store/standings';
 
 const standingsStore = useStandingsStore();
+
+const americanLeagueDivisions = computed(() =>
+  standingsStore.standings.filter((record) =>
+    ['200', '201', '202'].includes(String(record.division?.id))
+  )
+);
+
+const nationalLeagueDivisions = computed(() =>
+  standingsStore.standings.filter((record) =>
+    ['203', '204', '205'].includes(String(record.division?.id))
+  )
+);
 
 async function fetchStandings() {
   const resp = await fetch('/api/standings/');
@@ -120,13 +143,19 @@ onMounted(() => {
 
 .division-links {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.division-links a {
+.league-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.league-row a {
   color: var(--color-accent);
   text-decoration: underline;
 }
