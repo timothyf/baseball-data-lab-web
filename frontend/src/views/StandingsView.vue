@@ -13,7 +13,11 @@
             <Column field="wildCardGamesBack" header="WCGB"></Column>
             <Column field="runsScored" header="RS"></Column>
             <Column field="runsAllowed" header="RA"></Column>
-            <Column field="runDifferential" header="rDiff"></Column>
+            <Column field="runDifferential" header="rDiff">
+              <template #body="{ data }">
+                {{ formatRunDifferential(data.runDifferential) }}
+              </template>
+            </Column>
             <Column header="xWL">
               <template #body="{ data }">
                 {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
@@ -74,6 +78,10 @@ function divisionRecord(teamRecord, divisionId) {
     divisionId === 201 || divisionId === 204 ? 1 : 2;
   const r = teamRecord.records.divisionRecords[idx] || {};
   return `${r.wins}-${r.losses}`;
+}
+
+function formatRunDifferential(diff) {
+  return diff > 0 ? `+${diff}` : diff;
 }
 
 onMounted(() => {
