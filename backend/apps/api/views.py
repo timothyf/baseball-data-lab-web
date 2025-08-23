@@ -1,11 +1,23 @@
 from datetime import datetime
-from datetime import datetime
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
+from django.core.cache import cache
 import logging
 logger = logging.getLogger(__name__)
 
 from .models import PlayerIdInfo, TeamIdInfo
+
+STANDINGS_CACHE_TIMEOUT = 60 * 60  # one hour
+
+
+def _get_cached_standings(client, season, league_ids="103,104"):
+    """Return standings data using cache to avoid redundant API calls."""
+    cache_key = f"standings:{season}:{league_ids}"
+    data = cache.get(cache_key)
+    if data is None:
+        data = client.get_standings_data(season=season, league_ids=league_ids)
+        cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
+    return data
 
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
@@ -87,7 +99,7 @@ def predict_game(request, game_pk: int):
         away_id = game_data.get('away_team_data', {}).get('id')
 
         season = datetime.now().year
-        standings = client.get_standings_data(season=season, league_ids="103,104")
+        standings = _get_cached_standings(client, season, "103,104")
         win_pct = {}
         for record in standings:
             for team_rec in record.get('teamRecords', []):
@@ -121,7 +133,7 @@ def standings(request):
     try:
         client = UnifiedDataClient()
         season = datetime.now().year
-        data = client.get_standings_data(season=season, league_ids="103,104")
+        data = _get_cached_standings(client, season, "103,104")
         return JsonResponse(data, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
