@@ -39,6 +39,8 @@ import GameRow from '../components/GameRow.vue';
 
 const scheduleStore = useScheduleStore();
 
+const scheduleCache = new Map();
+
 const today = new Date().toISOString().slice(0, 10);
 
 
@@ -54,8 +56,15 @@ function currentDate() {
 }
 
 async function fetchSchedule(dateStr) {
+  if (scheduleCache.has(dateStr)) {
+    scheduleStore.schedule = scheduleCache.get(dateStr);
+    return scheduleStore.schedule;
+  }
+
   const resp = await fetch(`/api/schedule/?date=${dateStr}`);
-  scheduleStore.schedule = await resp.json();
+  const data = await resp.json();
+  scheduleStore.schedule = data;
+  scheduleCache.set(dateStr, data);
 
   // Fetch win probability predictions for each game in parallel
   // const predictionPromises = [];
@@ -71,21 +80,22 @@ async function fetchSchedule(dateStr) {
   //   }
   // }
   // await Promise.all(predictionPromises);
+
+  return scheduleStore.schedule;
 }
 
-function adjustDay(delta) {
+async function prevDay() {
   const date = new Date(currentDate());
-  date.setDate(date.getDate() + delta);
+  date.setDate(date.getDate() - 1);
   const iso = date.toISOString().split('T')[0];
-  fetchSchedule(iso);
+  await fetchSchedule(iso);
 }
 
-function prevDay() {
-  adjustDay(-1);
-}
-
-function nextDay() {
-  adjustDay(1);
+async function nextDay() {
+  const date = new Date(currentDate());
+  date.setDate(date.getDate() + 1);
+  const iso = date.toISOString().split('T')[0];
+  await fetchSchedule(iso);
 }
 
 function formatDate(dateStr) {
