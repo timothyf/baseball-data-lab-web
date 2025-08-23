@@ -58,7 +58,9 @@ const games = shallowRef([]);
 watch(
   scheduleStore.schedule,
   (schedule) => {
-    games.value = schedule.flatMap((d) => d.games || []);
+    games.value = Array.isArray(schedule)
+      ? schedule.flatMap((d) => d?.games || [])
+      : [];
   },
   { immediate: true }
 );
