@@ -294,7 +294,7 @@ function describeGame(game, includeScore) {
   margin: 1rem auto 0;
   justify-content: space-between;
   width: 100%;
-  max-width: 37.5rem;
+  max-width: 700px;
   flex-wrap: wrap;
 }
 
@@ -309,6 +309,7 @@ function describeGame(game, includeScore) {
   border-radius: 0.5rem;
   margin-top: 1rem;
   text-align: left;
+  width: 325px;
 }
 
 .schedule-card ul {
