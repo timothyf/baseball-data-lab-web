@@ -2,6 +2,10 @@ import { defineStore } from 'pinia';
 
 export const useStandingsStore = defineStore('standings', {
   state: () => ({
-    standings: []
+    standings: [],
+    standingsByLeague: {
+      al: [],
+      nl: []
+    }
   })
 });
