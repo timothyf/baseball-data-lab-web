@@ -2,7 +2,7 @@
   <section class="schedule">
     <div
       class="schedule-container"
-      v-if="scheduleStore.schedule && scheduleStore.schedule.length"
+      v-if="schedule && schedule.length"
     >
       <div class="schedule-header">
         <button class="nav-btn" @click="prevDay">&#8592;</button>
@@ -28,6 +28,7 @@ import {
   watch,
   defineAsyncComponent
 } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useScheduleStore } from '../store/schedule';
 
 const GameRow = defineAsyncComponent(() =>
@@ -35,6 +36,7 @@ const GameRow = defineAsyncComponent(() =>
 );
 
 const scheduleStore = useScheduleStore();
+const { schedule } = storeToRefs(scheduleStore);
 
 const scheduleCache = new Map();
 
@@ -56,21 +58,22 @@ const nyHourFormatter = new Intl.DateTimeFormat('en-US', {
 const games = shallowRef([]);
 
 watch(
-  scheduleStore.schedule,
-  (schedule) => {
-    games.value = Array.isArray(schedule)
-      ? schedule.flatMap((d) => d?.games || [])
+  schedule,
+  (scheduleVal) => {
+    games.value = Array.isArray(scheduleVal)
+      ? scheduleVal.flatMap((d) => d?.games || [])
       : [];
   },
   { immediate: true }
 );
 
 const currentDate = computed(() => {
+  const scheduleVal = schedule.value;
   const dateStr =
-    scheduleStore.schedule.value[0]?.date ||
+    scheduleVal[0]?.date ||
     // Use optional chaining for array access to avoid errors when the
     // schedule array is empty.
-    scheduleStore.schedule.value[0]?.games?.[0]?.gameDate;
+    scheduleVal[0]?.games?.[0]?.gameDate;
   return dateStr ? dateStr.slice(0, 10) : today;
 });
 
@@ -106,7 +109,7 @@ async function fetchSchedule(
 
   // Fetch win probability predictions for each game in parallel
   // const predictionPromises = [];
-  // for (const day of scheduleStore.schedule.value) {
+  // for (const day of schedule.value) {
   //   for (const game of day.games || []) {
   //     const p = fetch(`/api/games/${game.gamePk}/prediction/`)
   //       .then((r) => (r.ok ? r.json() : null))
@@ -194,7 +197,7 @@ function formatDate(dateStr, locale) {
 }
 
 onMounted(() => {
-  if (!scheduleStore.schedule.value.length) {
+  if (!schedule.value.length) {
     fetchSchedule(today);
   }
 });
