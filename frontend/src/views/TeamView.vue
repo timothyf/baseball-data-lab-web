@@ -220,7 +220,7 @@ function describeGame(game, includeScore) {
   align-items: center;
   margin-bottom: 1rem;
   padding: 50px;
-  font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
+  font-family: var(--font-base);
   width: 700px;
   margin: auto;
   text-align: center;
@@ -234,34 +234,34 @@ function describeGame(game, includeScore) {
 
 .team-info h1 {
   margin: 0;
-  font-size: 55px;
+  font-size: 3.4rem;
   font-weight: 700;
 }
 
 .team-info p {
   margin: 0;
-  font-size: 35px;
+  font-size: 2.2rem;
   font-weight: 600;
-  color: #555;
+  color: var(--color-accent);
   padding-top: 8px;
 }
 
 .team-stats {
   margin: 0 auto 2rem;
   border-collapse: collapse;
-  font-family: proxima-nova, 'open Sans', Helvetica, Arial, sans-serif;
-  font-size: 26px;
+  font-family: var(--font-base);
+  font-size: 1.6rem;
 }
 
 .team-stats th,
 .team-stats td {
-  border: 2px solid #555;
+  border: 2px solid var(--color-accent);
   padding: 0.5rem 1rem;
   text-align: center;
 }
 
 .team-stats th {
-  background-color: #eee;
+  background-color: rgba(255, 255, 255, 0.1);
   font-weight: 600;
 }
 
