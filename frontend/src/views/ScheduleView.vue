@@ -9,15 +9,13 @@
         <h2 class="header-date">{{ headerDate }}</h2>
         <button class="nav-btn" @click="nextDay">&#8594;</button>
       </div>
-      <VirtualScroller
-        :items="allGames"
-        :itemSize="110"
-        scrollHeight="70vh"
-      >
-        <template #item="{ item }">
-          <GameRow :key="item.gamePk" :game="item" />
-        </template>
-      </VirtualScroller>
+      <div class="games-list">
+        <GameRow
+          v-for="game in allGames"
+          :key="game.gamePk"
+          :game="game"
+        />
+      </div>
     </div>
   </section>
 </template>
@@ -219,7 +217,7 @@ onMounted(() => {
   transform: translateY(-2px);
 }
 
-:deep(.p-virtualscroller-content) {
+.games-list {
   list-style: none;
   padding: 0;
   margin: 0;
