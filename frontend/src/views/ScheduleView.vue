@@ -43,6 +43,17 @@ const scheduleCache = new Map();
 
 const today = new Date().toISOString().slice(0, 10);
 
+// Cache of Intl.DateTimeFormat instances by locale
+const formatterCache = new Map();
+// Cache formatted date results keyed by input date string + locale
+const formattedDateCache = new Map();
+const TIME_ZONE = 'America/New_York';
+const nyHourFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: TIME_ZONE,
+  hour: '2-digit',
+  hour12: false
+});
+
 
 const allGames = computed(() =>
   scheduleStore.schedule.flatMap((d) => d.games || [])
@@ -116,17 +127,32 @@ async function nextDay() {
   await fetchSchedule(iso);
 }
 
-function formatDate(dateStr) {
+function getFormatter(locale) {
+  const loc = locale || undefined;
+  if (!formatterCache.has(loc)) {
+    formatterCache.set(
+      loc,
+      new Intl.DateTimeFormat(loc, {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: TIME_ZONE
+      })
+    );
+  }
+  return formatterCache.get(loc);
+}
+
+function formatDate(dateStr, locale) {
   if (!dateStr) return '';
+  const cacheKey = `${dateStr}|${locale || ''}`;
+  if (formattedDateCache.has(cacheKey)) return formattedDateCache.get(cacheKey);
   let date;
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     try {
       const [y, m, d] = dateStr.split('-').map(Number);
       const noonUTC = Date.UTC(y, m - 1, d, 12, 0, 0);
-      const tz = 'America/New_York';
-      const hourInNY = Number(
-        new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: '2-digit', hour12: false }).format(noonUTC)
-      );
+      const hourInNY = Number(nyHourFormatter.format(noonUTC));
       const offset = 12 - hourInNY;
       const offsetStr = String(Math.abs(offset)).padStart(2, '0');
       const sign = offset >= 0 ? '-' : '+';
@@ -137,12 +163,9 @@ function formatDate(dateStr) {
   } else {
     date = new Date(dateStr);
   }
-  return date.toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'America/New_York'
-  });
+  const formatted = getFormatter(locale).format(date);
+  formattedDateCache.set(cacheKey, formatted);
+  return formatted;
 }
 
 onMounted(() => {
