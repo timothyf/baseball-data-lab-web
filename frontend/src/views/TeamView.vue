@@ -19,28 +19,30 @@
         </div>
       </div>
 
-      <table v-if="teamRecord" class="team-stats">
-        <thead>
-          <tr>
-            <th>Streak</th>
-            <th>Last 10</th>
-            <th>Last 30</th>
-            <th>RS</th>
-            <th>RA</th>
-            <th>rDiff</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ streakCode }}</td>
-            <td>{{ lastTen }}</td>
-            <td>{{ lastThirty }}</td>
-            <td>{{ runsScored }}</td>
-            <td>{{ runsAllowed }}</td>
-            <td>{{ runDifferential }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="teamRecord" class="stats-container">
+        <table class="team-stats">
+          <thead>
+            <tr>
+              <th>Streak</th>
+              <th>Last 10</th>
+              <th>Last 30</th>
+              <th>RS</th>
+              <th>RA</th>
+              <th>rDiff</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ streakCode }}</td>
+              <td>{{ lastTen }}</td>
+              <td>{{ lastThirty }}</td>
+              <td>{{ runsScored }}</td>
+              <td>{{ runsAllowed }}</td>
+              <td>{{ runDifferential }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
     <div class="recent-schedule" v-if="recentSchedule">
       <div class="schedule-section">
@@ -248,13 +250,26 @@ function describeGame(game, includeScore) {
   padding-top: 8px;
 }
 
-.team-stats {
+.stats-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
   margin: 0 auto 2rem;
+  max-width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.team-stats {
   border-collapse: collapse;
   font-family: var(--font-base);
   font-size: 1.6rem;
   width: 100%;
-  max-width: 100%;
 }
 
 .team-stats th,
@@ -265,7 +280,8 @@ function describeGame(game, includeScore) {
 }
 
 .team-stats th {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--color-accent);
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -279,7 +295,18 @@ function describeGame(game, includeScore) {
 }
 
 .schedule-section {
-  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  flex: 1 1 45%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .schedule-section ul {
