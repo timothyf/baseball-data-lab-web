@@ -6,13 +6,7 @@
     >
       <div class="schedule-header">
         <button class="nav-btn" @click="prevDay">&#8592;</button>
-        <h2 class="header-date">
-          {{
-            currentDate.value === today
-              ? `Today - ${formatDate(currentDate.value)}`
-              : formatDate(currentDate.value)
-          }}
-        </h2>
+        <h2 class="header-date">{{ headerDate }}</h2>
         <button class="nav-btn" @click="nextDay">&#8594;</button>
       </div>
       <VirtualScroller
@@ -61,6 +55,12 @@ const currentDate = computed(() => {
     scheduleStore.schedule[0]?.games[0]?.gameDate;
   return dateStr ? dateStr.slice(0, 10) : today;
 });
+
+const headerDate = computed(() =>
+  currentDate.value === today
+    ? `Today - ${formatDate(currentDate.value)}`
+    : formatDate(currentDate.value)
+);
 
 async function fetchSchedule(
   dateStr,
