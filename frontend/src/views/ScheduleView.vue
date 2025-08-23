@@ -10,9 +10,9 @@
             <button class="nav-btn" @click="prevDay">&#8592;</button>
             <h2 class="header-date">
               {{
-                currentDate() === today
-                  ? `Today - ${formatDate(currentDate())}`
-                  : formatDate(currentDate())
+                currentDate.value === today
+                  ? `Today - ${formatDate(currentDate.value)}`
+                  : formatDate(currentDate.value)
               }}
             </h2>
             <button class="nav-btn" @click="nextDay">&#8594;</button>
@@ -48,12 +48,12 @@ const allGames = computed(() =>
   scheduleStore.schedule.flatMap((d) => d.games || [])
 );
 
-function currentDate() {
+const currentDate = computed(() => {
   const dateStr =
     scheduleStore.schedule[0]?.date ||
     scheduleStore.schedule[0]?.games[0]?.gameDate;
   return dateStr ? dateStr.slice(0, 10) : today;
-}
+});
 
 async function fetchSchedule(
   dateStr,
@@ -103,14 +103,14 @@ function prefetchAdjacent(dateStr) {
 }
 
 async function prevDay() {
-  const date = new Date(currentDate());
+  const date = new Date(currentDate.value);
   date.setDate(date.getDate() - 1);
   const iso = date.toISOString().split('T')[0];
   await fetchSchedule(iso);
 }
 
 async function nextDay() {
-  const date = new Date(currentDate());
+  const date = new Date(currentDate.value);
   date.setDate(date.getDate() + 1);
   const iso = date.toISOString().split('T')[0];
   await fetchSchedule(iso);
