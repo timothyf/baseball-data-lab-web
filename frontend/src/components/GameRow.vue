@@ -104,10 +104,11 @@
 
 <script>
 const recordCache = new Map();
+let standingsPromise;
 </script>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { gameTime, teamAbbrev, shortName } from '../composables/gameHelpers';
 
 const { game } = defineProps({
@@ -127,41 +128,49 @@ const playerLink = (player) => ({
 const homeRecord = ref(null);
 const awayRecord = ref(null);
 
-async function fetchTeamRecord(teamId, { signal } = {}) {
-  if (recordCache.has(teamId)) {
-    return recordCache.get(teamId);
+async function fetchStandings() {
+  if (!standingsPromise) {
+    standingsPromise = fetch('/api/standings/')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        for (const record of data?.records || []) {
+          for (const teamRecord of record?.teamRecords || []) {
+            const team = teamRecord?.team;
+            if (team?.id != null) {
+              recordCache.set(team.id, {
+                wins: teamRecord.wins,
+                losses: teamRecord.losses
+              });
+            }
+          }
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   }
-  try {
-    const response = await fetch(`/api/teams/${teamId}/record/`, { signal });
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    const record = { wins: data.wins, losses: data.losses };
-    recordCache.set(teamId, record);
-    return record;
-  } catch (e) {
-    if (e.name !== 'AbortError') {
-      console.error(e);
-    }
-    return null;
-  }
+  return standingsPromise;
 }
 
-let controller;
+async function fetchTeamRecord(teamId) {
+  if (!recordCache.has(teamId)) {
+    await fetchStandings();
+  }
+  return recordCache.get(teamId) || null;
+}
 
 onMounted(async () => {
-  controller = new AbortController();
   const [awayRecordRes, homeRecordRes] = await Promise.all([
-    fetchTeamRecord(game.teams.away.team.id, { signal: controller.signal }),
-    fetchTeamRecord(game.teams.home.team.id, { signal: controller.signal })
+    fetchTeamRecord(game.teams.away.team.id),
+    fetchTeamRecord(game.teams.home.team.id)
   ]);
   awayRecord.value = awayRecordRes;
   homeRecord.value = homeRecordRes;
-});
-
-onUnmounted(() => {
-  controller?.abort();
 });
 
 const rowStyle = {
