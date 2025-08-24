@@ -11,126 +11,140 @@
 
         <div class="team-info">
           <h1>{{ name }}</h1>
-          <p v-if="teamRecord">
-            {{ teamRecord.wins }}-{{ teamRecord.losses }} -
-            {{ formatRank(teamRecord.divisionRank) }}
-          </p>
-          <p v-else>Loading data...</p>
-          <p class="venue-name" v-if="teamDetails">
-            {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
-          </p>
         </div>
       </div>
+      <TabView>
+        <TabPanel header="Summary">
+          <div class="summary-content">
+            <p v-if="teamRecord">
+              {{ teamRecord.wins }}-{{ teamRecord.losses }} -
+              {{ formatRank(teamRecord.divisionRank) }}
+            </p>
+            <p v-else>Loading data...</p>
+            <p class="venue-name" v-if="teamDetails">
+              {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
+            </p>
+          </div>
+        </TabPanel>
 
-      <div v-if="teamRecord" class="stats-container">
-        <table class="team-stats">
-          <thead>
-            <tr>
-              <th>Streak</th>
-              <th>Last 10</th>
-              <th>Last 30</th>
-              <th>RS</th>
-              <th>RA</th>
-              <th>rDiff</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{ streakCode }}</td>
-              <td>{{ lastTen }}</td>
-              <td>{{ lastThirty }}</td>
-              <td>{{ runsScored }}</td>
-              <td>{{ runsAllowed }}</td>
-              <td>{{ runDifferential }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <TabPanel header="Roster">
+          <div v-if="batters.length || pitchers.length" class="roster-section">
+            <div v-if="batters.length" class="stats-container roster">
+              <h2>Batters</h2>
+              <table class="team-stats roster-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Pos</th>
+                    <th>G</th>
+                    <th>AVG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="player in batters" :key="player.person.id">
+                    <td>
+                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
+                        {{ player.person.fullName }}
+                      </RouterLink>
+                    </td>
+                    <td>{{ player.position.abbreviation }}</td>
+                    <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
+                    <td>{{ player.stats?.avg ?? '' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-      <div v-if="batters.length || pitchers.length" class="roster-section">
-        <div v-if="batters.length" class="stats-container roster">
-          <h2>Batters</h2>
-          <table class="team-stats roster-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Pos</th>
-                <th>G</th>
-                <th>AVG</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="player in batters" :key="player.person.id">
-                <td>
-                  <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                    {{ player.person.fullName }}
-                  </RouterLink>
-                </td>
-                <td>{{ player.position.abbreviation }}</td>
-                <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-                <td>{{ player.stats?.avg ?? '' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <div v-if="pitchers.length" class="stats-container roster">
+              <h2>Pitchers</h2>
+              <table class="team-stats roster-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>G</th>
+                    <th>ERA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="player in pitchers" :key="player.person.id">
+                    <td>
+                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
+                        {{ player.person.fullName }}
+                      </RouterLink>
+                    </td>
+                    <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
+                    <td>{{ player.stats?.era ?? '' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabPanel>
 
-        <div v-if="pitchers.length" class="stats-container roster">
-          <h2>Pitchers</h2>
-          <table class="team-stats roster-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>G</th>
-                <th>ERA</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="player in pitchers" :key="player.person.id">
-                <td>
-                  <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                    {{ player.person.fullName }}
-                  </RouterLink>
-                </td>
-                <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-                <td>{{ player.stats?.era ?? '' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <TabPanel header="Stats">
+          <div v-if="teamRecord" class="stats-container">
+            <table class="team-stats">
+              <thead>
+                <tr>
+                  <th>Streak</th>
+                  <th>Last 10</th>
+                  <th>Last 30</th>
+                  <th>RS</th>
+                  <th>RA</th>
+                  <th>rDiff</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ streakCode }}</td>
+                  <td>{{ lastTen }}</td>
+                  <td>{{ lastThirty }}</td>
+                  <td>{{ runsScored }}</td>
+                  <td>{{ runsAllowed }}</td>
+                  <td>{{ runDifferential }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </TabPanel>
 
-    <div class="recent-schedule" v-if="recentSchedule">
-      <div class="schedule-section">
-        <h2>Previous Games</h2>
-        <div class="schedule-card">
-          <ul>
-            <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
-              <RouterLink
-                :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
-              >
-                {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="schedule-section">
-        <h2>Upcoming Games</h2>
-        <div class="schedule-card">
-          <ul>
-            <li v-for="game in nextGames" :key="`next-` + game.gamePk">
-              {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+        <TabPanel header="Schedule">
+          <div class="recent-schedule" v-if="recentSchedule">
+            <div class="schedule-section">
+              <h2>Previous Games</h2>
+              <div class="schedule-card">
+                <ul>
+                  <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
+                    <RouterLink
+                      :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
+                    >
+                      {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
+                    </RouterLink>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="schedule-section">
+              <h2>Upcoming Games</h2>
+              <div class="schedule-card">
+                <ul>
+                  <li v-for="game in nextGames" :key="`next-` + game.gamePk">
+                    {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </TabPanel>
+      </TabView>
     </div>
   </section>
 </template>
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 import teamColors from '../data/teamColors.json';
 
 const { id, name } = defineProps({
