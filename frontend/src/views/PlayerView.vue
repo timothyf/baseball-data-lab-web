@@ -25,7 +25,30 @@
 
       <TabView>
         <TabPanel header="Overview">
-          <p>Overview content coming soon.</p>
+          <section
+            v-if="hasBio"
+            class="player-details biography"
+          >
+            <h2>Biography</h2>
+            <ul class="bio-list">
+              <li v-if="birthDate">
+                <strong>Birth Date:</strong> {{ formattedBirthDate }}
+              </li>
+              <li v-if="birthPlace">
+                <strong>Birthplace:</strong> {{ birthPlace }}
+              </li>
+              <li v-if="height">
+                <strong>Height:</strong> {{ height }}
+              </li>
+              <li v-if="weight">
+                <strong>Weight:</strong> {{ weight }} lbs
+              </li>
+              <li v-if="batSide || throwSide">
+                <strong>B/T:</strong>
+                {{ batSide || '?' }} / {{ throwSide || '?' }}
+              </li>
+            </ul>
+          </section>
         </TabPanel>
         <TabPanel header="Stats">
           <PlayerStats :id="id" />
@@ -54,6 +77,12 @@ const name = ref('');
 const teamName = ref('');
 const position = ref('');
 const teamLogoSrc = ref('');
+const birthDate = ref('');
+const birthPlace = ref('');
+const height = ref('');
+const weight = ref('');
+const batSide = ref('');
+const throwSide = ref('');
 
 const teamColorStyle = computed(() => {
   const colors = teamColors[teamName.value] || [];
@@ -64,6 +93,28 @@ const teamColorStyle = computed(() => {
   };
 });
 
+const formattedBirthDate = computed(() => {
+  if (!birthDate.value) return '';
+  try {
+    return new Date(birthDate.value).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch {
+    return birthDate.value;
+  }
+});
+
+const hasBio = computed(() =>
+  birthDate.value ||
+  birthPlace.value ||
+  height.value ||
+  weight.value ||
+  batSide.value ||
+  throwSide.value
+);
+
 onMounted(async () => {
   try {
     const resp = await fetch(`/api/players/${id}/`);
@@ -72,6 +123,12 @@ onMounted(async () => {
       name.value = data.name || '';
       teamName.value = data.team_name || '';
       position.value = data.position || '';
+      birthDate.value = data.birth_date || '';
+      birthPlace.value = data.birth_place || '';
+      height.value = data.height || '';
+      weight.value = data.weight || '';
+      batSide.value = data.bat_side || '';
+      throwSide.value = data.throw_side || '';
       if (data.team_id) {
         try {
           const logoResp = await fetch(`/api/teams/${data.team_id}/logo/`);
@@ -159,6 +216,24 @@ onMounted(async () => {
 
 .player-id {
   margin: 0;
+}
+
+.biography {
+  text-align: left;
+}
+
+.bio-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bio-list li {
+  margin: 0.25rem 0;
+}
+
+.bio-list strong {
+  font-weight: 600;
 }
 </style>
 

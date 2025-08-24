@@ -266,11 +266,29 @@ def player_info(request, player_id: int):
         info = client.fetch_player_info(int(key_mlbam))
         team = info.get("currentTeam", {}) or {}
         pos = info.get("primaryPosition", {}) or {}
+        bat = info.get("batSide", {}) or {}
+        throw = info.get("pitchHand", {}) or {}
+        birth_city = info.get("birthCity")
+        birth_state = info.get("birthStateProvince")
+        birth_country = info.get("birthCountry")
+        birth_place_parts = [
+            part
+            for part in [birth_city, birth_state, birth_country]
+            if part
+        ]
+        birth_place = ", ".join(birth_place_parts) if birth_place_parts else None
+
         data = {
             "team_id": team.get("id"),
             "team_name": team.get("name"),
             "position": pos.get("name"),
-            "name": info.get("fullName")
+            "name": info.get("fullName"),
+            "birth_date": info.get("birthDate"),
+            "birth_place": birth_place,
+            "height": info.get("height"),
+            "weight": info.get("weight"),
+            "bat_side": bat.get("description"),
+            "throw_side": throw.get("description"),
         }
         return JsonResponse(data)
     except Exception as exc:  # pragma: no cover - defensive
