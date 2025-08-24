@@ -1,8 +1,10 @@
 <template>
   <section class="hero">
     <div class="hero-content">
-      <img src="http://localhost:5173/logo.jpg" alt="Baseball Data Lab logo" class="logo" />
-      <h1 class="tagline">Data-Driven Baseball Insights</h1>
+      <div class="logo-container">
+        <img src="http://localhost:5173/logo.jpg" alt="Baseball Data Lab logo" class="logo" />
+        <h1 class="tagline">Data-Driven<br />Baseball Insights</h1>
+      </div>
 
       <div class="feature-cards">
         <router-link
@@ -21,23 +23,10 @@
         Advanced stats, interactive visualizations, and real-time standings—your
         baseball analytics hub.
       </p>
-      <p class="welcome-message">
-        Welcome! Get started by exploring the schedule, diving into player stats,
-        or building your own team.
-      </p>
 
       <div class="top-stat" v-if="topStat">
         <h2>Top Stat of the Day</h2>
         <p>{{ topStat }}</p>
-      </div>
-
-      <div class="news" v-if="newsItems.length">
-        <h2>Latest News</h2>
-        <ul>
-          <li v-for="(item, idx) in newsItems" :key="idx">
-            <a :href="item.url" target="_blank" rel="noopener">{{ item.title }}</a>
-          </li>
-        </ul>
       </div>
 
       <div class="schedule-preview" v-if="schedulePreview.length">
@@ -94,7 +83,6 @@ const features = [
 ];
 
 const topStat = ref('');
-const newsItems = ref([]);
 const schedulePreview = ref([]);
 const standingsPreview = ref([]);
 
@@ -119,15 +107,11 @@ onMounted(async () => {
 
   const today = new Date().toISOString().split('T')[0];
   try {
-    const [newsRes, scheduleRes, standingsRes] = await Promise.all([
-      fetch('/api/news/'),
+    const [scheduleRes, standingsRes] = await Promise.all([
       fetch(`/api/schedule/?date=${today}`),
       fetch('/api/standings/'),
     ]);
 
-    if (newsRes.ok) {
-      newsItems.value = await newsRes.json();
-    }
     if (scheduleRes.ok) {
       const sched = await scheduleRes.json();
       schedulePreview.value = sched[0]?.games?.slice(0, 5) ?? [];
@@ -175,6 +159,7 @@ onMounted(async () => {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1.5rem;
   margin: 2rem 0;
+  max-width: 800px;
 }
 
 .feature-card {
@@ -227,7 +212,6 @@ onMounted(async () => {
   border-radius: 0.5rem;
 }
 
-.news,
 .schedule-preview,
 .standings-preview {
   margin-top: 2rem;
@@ -237,7 +221,6 @@ onMounted(async () => {
   text-align: left;
 }
 
-.news ul,
 .schedule-preview ul,
 .standings-preview ul {
   list-style: none;
@@ -245,9 +228,21 @@ onMounted(async () => {
   margin: 0;
 }
 
-.news li,
 .schedule-preview li,
 .standings-preview li {
   margin-bottom: 0.25rem;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.logo-container .logo {
+  margin: 0;
+  margin-right: 50px;
 }
 </style>
