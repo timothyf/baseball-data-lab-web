@@ -133,6 +133,33 @@ class PlayerHeadshotApiTests(TestCase):
         mock_client.fetch_player_headshot.assert_called_once_with(456)
 
 
+class PlayerInfoApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_info_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_player_info.return_value = {
+            'currentTeam': {'id': 111, 'name': 'Team A'},
+            'primaryPosition': {'name': 'Pitcher'},
+        }
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get('/api/players/1/')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['team_id'], 111)
+        self.assertEqual(data['team_name'], 'Team A')
+        self.assertEqual(data['position'], 'Pitcher')
+        mock_client.fetch_player_info.assert_called_once_with(123)
+
+
 class PlayerSearchApiTests(TestCase):
     def setUp(self):
         # Create more than 10 players to ensure the limit works
