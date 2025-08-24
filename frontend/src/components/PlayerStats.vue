@@ -58,34 +58,20 @@ onMounted(async () => {
 const hittingFields = ['avg', 'homeRuns', 'rbi'];
 const pitchingFields = ['era', 'strikeOuts', 'wins', 'losses'];
 
-function buildRows(seasonStats, careerStats, fields) {
-  const rows = [];
-  if (seasonStats) {
-    for (const teamId of seasonStats.team_ids || []) {
-      const team = seasonStats.teams[teamId];
-      const row = { label: team.teamName };
-      fields.forEach(f => { row[f] = team.stats?.[f]; });
-      rows.push(row);
-    }
-    if (seasonStats.season && Object.keys(seasonStats.season).length) {
-      const totalRow = { label: 'Total' };
-      fields.forEach(f => { totalRow[f] = seasonStats.season[f]; });
-      rows.push(totalRow);
-    }
-  }
-  if (careerStats && careerStats.season && Object.keys(careerStats.season).length) {
-    const careerRow = { label: 'Career' };
-    fields.forEach(f => { careerRow[f] = careerStats.season[f]; });
-    rows.push(careerRow);
-  }
-  return rows;
+function buildRows(statData, fields) {
+  const splits = statData?.stats?.[0]?.splits || [];
+  return splits.map(split => {
+    const row = { label: split.season };
+    fields.forEach(f => { row[f] = split.stat?.[f]; });
+    return row;
+  });
 }
 
 const hittingRows = computed(() =>
-  buildRows(stats.value?.season?.batting, stats.value?.career?.batting, hittingFields)
+  buildRows(stats.value?.batting, hittingFields)
 );
 const pitchingRows = computed(() =>
-  buildRows(stats.value?.season?.pitching, stats.value?.career?.pitching, pitchingFields)
+  buildRows(stats.value?.pitching, pitchingFields)
 );
 </script>
 
