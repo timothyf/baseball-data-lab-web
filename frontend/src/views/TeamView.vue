@@ -1,5 +1,5 @@
 <template>
-  <section class="team-view">
+  <section class="team-view" :style="teamColorStyle">
     <div class="team-container">
       <div class="team-header">
         <img
@@ -131,6 +131,7 @@
 
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
+import teamColors from '../data/teamColors.json';
 
 const { id, name } = defineProps({
   id: { type: [String, Number], required: true },
@@ -144,6 +145,15 @@ const roster = ref([]);
 const internalTeamId = ref(null);
 const teamDetails = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
+
+const teamColorStyle = computed(() => {
+  const colors = teamColors[name] || [];
+  return {
+    '--color-primary': colors[0]?.hex || '#1e3a8a',
+    '--color-secondary': colors[1]?.hex || '#1e40af',
+    '--color-accent': colors[2]?.hex || '#fbbf24'
+  };
+});
 
 // fetcher for plain-text URL
 async function loadLogo(teamId) {
