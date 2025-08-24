@@ -228,7 +228,53 @@ def player_headshot(request, player_id: int):
         return HttpResponse(image_bytes, content_type='image/png')
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
-    
+
+@require_GET
+def player_info(request, player_id: int):
+    """Return basic information about a player.
+
+    ``player_id`` may be either the internal ``PlayerIdInfo`` primary key or a
+    raw MLBAM player id. The response includes the player's team id, team
+    name, and primary position.
+    """
+
+    if UnifiedDataClient is None:
+        return JsonResponse(
+            {'error': 'baseball-data-lab library is not installed'}, status=500
+        )
+
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    try:
+        client = UnifiedDataClient()
+        info = client.fetch_player_info(int(key_mlbam))
+        team = info.get("currentTeam", {}) or {}
+        pos = info.get("primaryPosition", {}) or {}
+        data = {
+            "team_id": team.get("id"),
+            "team_name": team.get("name"),
+            "position": pos.get("name"),
+        }
+        return JsonResponse(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
+
 @require_GET
 def team_search(request):
     """Search for teams by name."""
