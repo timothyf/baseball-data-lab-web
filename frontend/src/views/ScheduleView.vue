@@ -99,13 +99,14 @@ async function fetchSchedule(
     return cached;
   }
 
+  if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
+
   const options = {};
   if (!cacheOnly) options.signal = controller.signal;
   const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
   const data = await resp.json();
   scheduleCache.set(dateStr, data);
   if (!cacheOnly) scheduleStore.setSchedule(data);
-  if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
 
   // Fetch win probability predictions for each game in parallel
   // const predictionPromises = [];
