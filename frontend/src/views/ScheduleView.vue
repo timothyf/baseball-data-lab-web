@@ -24,6 +24,7 @@
 import {
   computed,
   onMounted,
+  onBeforeUnmount,
   shallowRef,
   watch,
   defineAsyncComponent
@@ -41,6 +42,8 @@ const { schedule } = storeToRefs(scheduleStore);
 const scheduleCache = new Map();
 
 let controller;
+
+let refreshInterval;
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -85,14 +88,14 @@ const headerDate = computed(() =>
 
 async function fetchSchedule(
   dateStr,
-  { cacheOnly = false, prefetch = true } = {},
+  { cacheOnly = false, prefetch = true, force = false } = {},
 ) {
   if (!cacheOnly) {
     if (controller) controller.abort();
     controller = new AbortController();
   }
 
-  if (scheduleCache.has(dateStr)) {
+  if (!force && scheduleCache.has(dateStr)) {
     const cached = scheduleCache.get(dateStr);
     if (!cacheOnly) scheduleStore.setSchedule(cached);
     if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
@@ -143,7 +146,7 @@ async function prevDay() {
   date.setDate(date.getDate() - 1);
   const iso = date.toISOString().split('T')[0];
   try {
-    await fetchSchedule(iso);
+    await fetchSchedule(iso, { force: iso === today });
   } catch {}
 }
 
@@ -152,7 +155,7 @@ async function nextDay() {
   date.setDate(date.getDate() + 1);
   const iso = date.toISOString().split('T')[0];
   try {
-    await fetchSchedule(iso);
+    await fetchSchedule(iso, { force: iso === today });
   } catch {}
 }
 
@@ -197,10 +200,28 @@ function formatDate(dateStr, locale) {
   return formatted;
 }
 
+watch(
+  currentDate,
+  (newDate) => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+    if (newDate === today) {
+      refreshInterval = setInterval(() => {
+        fetchSchedule(today, { force: true });
+      }, 60000);
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
-  if (!schedule.value.length) {
-    fetchSchedule(today);
-  }
+  fetchSchedule(today, { force: true });
+});
+
+onBeforeUnmount(() => {
+  if (refreshInterval) clearInterval(refreshInterval);
 });
 
 </script>
