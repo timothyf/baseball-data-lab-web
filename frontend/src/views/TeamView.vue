@@ -44,8 +44,8 @@
         </table>
       </div>
 
-      <div v-if="roster.length" class="stats-container">
-        <h2>Roster</h2>
+      <div v-if="batters.length" class="stats-container">
+        <h2>Batters</h2>
         <table class="team-stats">
           <thead>
             <tr>
@@ -53,11 +53,10 @@
               <th>Pos</th>
               <th>G</th>
               <th>AVG</th>
-              <th>ERA</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="player in roster" :key="player.person.id">
+            <tr v-for="player in batters" :key="player.person.id">
               <td>
                 <RouterLink :to="{ name: 'Player', params: { id: player.personid } }">
                   {{ player.person.fullName }}
@@ -66,6 +65,29 @@
               <td>{{ player.position.abbreviation }}</td>
               <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
               <td>{{ player.stats?.avg ?? '' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div v-if="pitchers.length" class="stats-container">
+        <h2>Pitchers</h2>
+        <table class="team-stats">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>G</th>
+              <th>ERA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="player in pitchers" :key="player.person.id">
+              <td>
+                <RouterLink :to="{ name: 'Player', params: { id: player.personid } }">
+                  {{ player.person.fullName }}
+                </RouterLink>
+              </td>
+              <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
               <td>{{ player.stats?.era ?? '' }}</td>
             </tr>
           </tbody>
@@ -248,6 +270,14 @@ const lastThirty = computed(() => {
 const runsScored = computed(() => teamRecord.value?.runsScored ?? "");
 const runsAllowed = computed(() => teamRecord.value?.runsAllowed ?? "");
 const runDifferential = computed(() => teamRecord.value?.runDifferential ?? "");
+
+const batters = computed(() =>
+  roster.value.filter(p => p.position?.abbreviation !== 'P')
+);
+
+const pitchers = computed(() =>
+  roster.value.filter(p => p.position?.abbreviation === 'P')
+);
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
