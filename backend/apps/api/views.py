@@ -276,6 +276,78 @@ def player_info(request, player_id: int):
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
 
+
+@require_GET
+def player_stats(request, player_id: int):
+    """Return season and career statistics for a player.
+
+    ``player_id`` may be either the internal ``PlayerIdInfo`` primary key or a
+    raw MLBAM player id.  The optional ``season`` query parameter selects the
+    season to fetch (defaults to the current year).  The response contains both
+    batting and pitching statistics for the given season along with career
+    totals when available.
+    """
+
+    if UnifiedDataClient is None:
+        return JsonResponse(
+            {'error': 'baseball-data-lab library is not installed'}, status=500
+        )
+
+    # Resolve MLBAM id similar to ``player_info``
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    season_str = request.GET.get('season')
+    if season_str is None:
+        season_str = str(datetime.now().year)
+    try:
+        season = int(season_str)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid season'}, status=400)
+
+    try:
+        client = UnifiedDataClient()
+        batting_season = client.fetch_player_stats_by_season(
+            int(key_mlbam), season, group='batting'
+        )
+        pitching_season = client.fetch_player_stats_by_season(
+            int(key_mlbam), season, group='pitching'
+        )
+        batting_career = client.fetch_player_stats_by_season(
+            int(key_mlbam), 0, group='batting'
+        )
+        pitching_career = client.fetch_player_stats_by_season(
+            int(key_mlbam), 0, group='pitching'
+        )
+        data = {
+            'season': {
+                'batting': batting_season,
+                'pitching': pitching_season,
+            },
+            'career': {
+                'batting': batting_career,
+                'pitching': pitching_career,
+            },
+        }
+        return JsonResponse(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        return JsonResponse({'error': str(exc)}, status=500)
+
 @require_GET
 def team_search(request):
     """Search for teams by name."""

@@ -26,12 +26,14 @@
       <div class="player-details">
         <p class="player-id">ID: {{ id }}</p>
       </div>
+      <PlayerStats :id="id" />
     </div>
   </section>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import PlayerStats from '../components/PlayerStats.vue';
 
 const { id } = defineProps({
   id: String
