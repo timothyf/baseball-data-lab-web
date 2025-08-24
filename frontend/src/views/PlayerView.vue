@@ -1,5 +1,5 @@
 <template>
-  <section class="player-view">
+  <section class="player-view" :style="teamColorStyle">
     <div class="player-container">
       <div class="player-header">
         <img
@@ -43,6 +43,7 @@ import { ref, computed, onMounted } from 'vue';
 import PlayerStats from '../components/PlayerStats.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import teamColors from '../data/teamColors.json';
 
 const { id } = defineProps({
   id: String
@@ -53,6 +54,15 @@ const name = ref('');
 const teamName = ref('');
 const position = ref('');
 const teamLogoSrc = ref('');
+
+const teamColorStyle = computed(() => {
+  const colors = teamColors[teamName.value] || [];
+  return {
+    '--color-primary': colors[0]?.hex || '#1e3a8a',
+    '--color-secondary': colors[1]?.hex || '#1e40af',
+    '--color-accent': colors[2]?.hex || '#fbbf24'
+  };
+});
 
 onMounted(async () => {
   try {
