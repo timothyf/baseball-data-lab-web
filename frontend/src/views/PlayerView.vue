@@ -23,7 +23,17 @@
         </div>
       </div>
 
-      <PlayerStats :id="id" />
+      <TabView>
+        <TabPanel header="Overview">
+          <p>Overview content coming soon.</p>
+        </TabPanel>
+        <TabPanel header="Stats">
+          <PlayerStats :id="id" />
+        </TabPanel>
+        <TabPanel header="Charts & Trends">
+          <p>Charts & Trends coming soon.</p>
+        </TabPanel>
+      </TabView>
     </div>
   </section>
 </template>
@@ -31,6 +41,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import PlayerStats from '../components/PlayerStats.vue';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 
 const { id } = defineProps({
   id: String
