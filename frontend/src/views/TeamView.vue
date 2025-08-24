@@ -44,54 +44,56 @@
         </table>
       </div>
 
-      <div v-if="batters.length" class="stats-container">
-        <h2>Batters</h2>
-        <table class="team-stats">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Pos</th>
-              <th>G</th>
-              <th>AVG</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="player in batters" :key="player.person.id">
-              <td>
-                <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                  {{ player.person.fullName }}
-                </RouterLink>
-              </td>
-              <td>{{ player.position.abbreviation }}</td>
-              <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-              <td>{{ player.stats?.avg ?? '' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div v-if="batters.length || pitchers.length" class="roster-section">
+        <div v-if="batters.length" class="stats-container roster">
+          <h2>Batters</h2>
+          <table class="team-stats roster-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>G</th>
+                <th>AVG</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="player in batters" :key="player.person.id">
+                <td>
+                  <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
+                    {{ player.person.fullName }}
+                  </RouterLink>
+                </td>
+                <td>{{ player.position.abbreviation }}</td>
+                <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
+                <td>{{ player.stats?.avg ?? '' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div v-if="pitchers.length" class="stats-container">
-        <h2>Pitchers</h2>
-        <table class="team-stats">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>G</th>
-              <th>ERA</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="player in pitchers" :key="player.person.id">
-              <td>
-                <RouterLink :to="{ name: 'Player', params: { id: player.personid } }">
-                  {{ player.person.fullName }}
-                </RouterLink>
-              </td>
-              <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-              <td>{{ player.stats?.era ?? '' }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="pitchers.length" class="stats-container roster">
+          <h2>Pitchers</h2>
+          <table class="team-stats roster-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>G</th>
+                <th>ERA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="player in pitchers" :key="player.person.id">
+                <td>
+                  <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
+                    {{ player.person.fullName }}
+                  </RouterLink>
+                </td>
+                <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
+                <td>{{ player.stats?.era ?? '' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     <div class="recent-schedule" v-if="recentSchedule">
@@ -381,6 +383,28 @@ function describeGame(game, includeScore) {
   background-color: var(--color-accent);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+.roster-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.roster {
+  flex: 1 1 45%;
+  margin: 0 auto 1rem;
+  padding: 0.5rem;
+}
+
+.roster-table {
+  font-size: 1.2rem;
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 0.25rem 0.5rem;
 }
 
 .recent-schedule {
