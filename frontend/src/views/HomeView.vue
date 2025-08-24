@@ -228,9 +228,19 @@ onMounted(async () => {
   margin: 0;
 }
 
+.schedule-preview ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem 1rem;
+}
+
 .schedule-preview li,
 .standings-preview li {
   margin-bottom: 0.25rem;
+}
+
+.schedule-preview li {
+  margin-bottom: 0;
 }
 
 .logo-container {
