@@ -5,11 +5,16 @@
       <h1 class="tagline">Data-Driven Baseball Insights</h1>
 
       <div class="feature-cards">
-        <div class="feature-card" v-for="feature in features" :key="feature.title">
+        <router-link
+          v-for="feature in features"
+          :key="feature.title"
+          :to="feature.link"
+          class="feature-card"
+        >
           <i :class="['pi', feature.icon, 'feature-icon']" />
           <h3 class="feature-title">{{ feature.title }}</h3>
           <p class="feature-description">{{ feature.description }}</p>
-        </div>
+        </router-link>
       </div>
 
       <p class="description">
@@ -54,11 +59,6 @@
         </ul>
       </div>
 
-      <div class="cta-buttons">
-        <router-link to="/schedule" class="cta-button">View Schedule</router-link>
-        <router-link to="/players" class="cta-button">Explore Player Stats</router-link>
-        <router-link to="/teams" class="cta-button">Create Your Team</router-link>
-      </div>
     </div>
   </section>
 </template>
@@ -70,22 +70,26 @@ const features = [
   {
     title: 'Schedule',
     icon: 'pi-calendar',
-    description: 'See upcoming games and past results.'
+    description: 'See upcoming games and past results.',
+    link: '/schedule'
   },
   {
     title: 'Standings',
     icon: 'pi-chart-bar',
-    description: 'Track how your favorite teams stack up.'
+    description: 'Track how your favorite teams stack up.',
+    link: '/standings'
   },
   {
     title: 'Teams',
     icon: 'pi-users',
-    description: 'Browse team rosters and stats.'
+    description: 'Browse team rosters and stats.',
+    link: '/teams'
   },
   {
     title: 'Players',
     icon: 'pi-user',
-    description: 'Dive into detailed player analytics.'
+    description: 'Dive into detailed player analytics.',
+    link: '/players'
   }
 ];
 
@@ -179,6 +183,9 @@ onMounted(async () => {
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .feature-card:hover {
@@ -242,28 +249,5 @@ onMounted(async () => {
 .schedule-preview li,
 .standings-preview li {
   margin-bottom: 0.25rem;
-}
-
-.cta-buttons {
-  margin-top: 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.cta-button {
-  background-color: var(--color-accent);
-  color: var(--color-primary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.cta-button:hover {
-  background-color: #f59e0b;
-  transform: translateY(-2px);
 }
 </style>
