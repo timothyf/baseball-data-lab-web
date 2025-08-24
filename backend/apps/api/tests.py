@@ -140,6 +140,14 @@ class PlayerInfoApiTests(TestCase):
         mock_client.fetch_player_info.return_value = {
             'currentTeam': {'id': 111, 'name': 'Team A'},
             'primaryPosition': {'name': 'Pitcher'},
+            'birthDate': '1990-01-01',
+            'birthCity': 'Some City',
+            'birthStateProvince': 'CA',
+            'birthCountry': 'USA',
+            'height': "6'2\"",
+            'weight': 200,
+            'batSide': {'description': 'Right'},
+            'pitchHand': {'description': 'Left'},
         }
 
         PlayerIdInfo.objects.create(
@@ -157,6 +165,12 @@ class PlayerInfoApiTests(TestCase):
         self.assertEqual(data['team_id'], 111)
         self.assertEqual(data['team_name'], 'Team A')
         self.assertEqual(data['position'], 'Pitcher')
+        self.assertEqual(data['birth_date'], '1990-01-01')
+        self.assertEqual(data['birth_place'], 'Some City, CA, USA')
+        self.assertEqual(data['height'], "6'2\"")
+        self.assertEqual(data['weight'], 200)
+        self.assertEqual(data['bat_side'], 'Right')
+        self.assertEqual(data['throw_side'], 'Left')
         mock_client.fetch_player_info.assert_called_once_with(123)
 
 
