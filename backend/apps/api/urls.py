@@ -8,6 +8,7 @@ urlpatterns = [
     path('standings/', views.standings, name='api-standings'),
     path('news/', views.news, name='api-news'),
     path('players/', views.player_search, name='api-player-search'),
+    path('players/<int:player_id>/', views.player_info, name='api-player-info'),
     path('player/<int:player_id>/headshot/', views.player_headshot, name='api-player-headshot'),
     path('teams/', views.team_search, name='api-team-search'),
     path('teams/<int:mlbam_team_id>/', views.team_info, name='api-team-info'),
