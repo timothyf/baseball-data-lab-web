@@ -5,7 +5,7 @@ from django.core.cache import cache
 import logging
 logger = logging.getLogger(__name__)
 
-from .models import PlayerIdInfo, TeamIdInfo
+from .models import PlayerIdInfo, TeamIdInfo, Venue
 
 STANDINGS_CACHE_TIMEOUT = 60 * 60  # one hour
 
@@ -306,14 +306,28 @@ def team_search(request):
 
 
 @require_GET
-def team_info(request, mlbam_team_id: int):
-    """Return basic team information by MLBAM team ID."""
+def team_info(request, team_id: int):
+    """Return basic team information.
+
+    ``team_id`` may be either the MLBAM team id or the internal primary key.
+    The response includes location, abbreviation, and venue information when
+    available.
+    """
+
+    fields = ['id', 'full_name', 'mlbam_team_id', 'location_name', 'abbrev']
     row = (
         TeamIdInfo.objects
-        .filter(mlbam_team_id=mlbam_team_id)
-        .values('id', 'full_name', 'mlbam_team_id')
+        .filter(mlbam_team_id=team_id)
+        .values(*fields)
         .first()
     )
+    if row is None:
+        row = (
+            TeamIdInfo.objects
+            .filter(id=team_id)
+            .values(*fields)
+            .first()
+        )
 
     if row is None:
         return JsonResponse({'error': 'Team not found'}, status=404)
@@ -321,6 +335,31 @@ def team_info(request, mlbam_team_id: int):
     mlbam_team_id_value = row.get('mlbam_team_id')
     if mlbam_team_id_value is not None:
         row['mlbam_team_id'] = str(mlbam_team_id_value)
+
+    venue_id = None
+    if UnifiedDataClient is not None:
+        try:
+            client = UnifiedDataClient()
+            team_data = client.fetch_team(int(mlbam_team_id_value or team_id))
+            venue = team_data.get('venue') or {}
+            venue_id = venue.get('id')
+        except Exception:  # pragma: no cover - defensive
+            venue_id = None
+
+    if venue_id is not None:
+        row['venue_id'] = str(venue_id)
+        venue_row = (
+            Venue.objects
+            .filter(mlbam_id=venue_id)
+            .values('mlbam_id', 'name', 'link', 'active', 'season')
+            .first()
+        )
+        if venue_row:
+            if venue_row.get('mlbam_id') is not None:
+                venue_row['mlbam_id'] = str(venue_row['mlbam_id'])
+            row['venue'] = venue_row
+    else:
+        row['venue_id'] = None
 
     return JsonResponse(row)
 

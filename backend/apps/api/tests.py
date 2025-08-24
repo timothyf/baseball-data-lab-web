@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.test import TestCase, Client
 
-from apps.api.models import PlayerIdInfo, TeamIdInfo
+from apps.api.models import PlayerIdInfo, TeamIdInfo, Venue
 
 
 class ScheduleApiTests(TestCase):
@@ -209,15 +209,30 @@ class TeamSearchApiTests(TestCase):
 
 class TeamInfoApiTests(TestCase):
     def setUp(self):
-        TeamIdInfo.objects.create(id=1, full_name='Red Sox', mlbam_team_id=111)
+        TeamIdInfo.objects.create(
+            id=1,
+            full_name='Red Sox',
+            mlbam_team_id=111,
+            location_name='Boston',
+            abbrev='BOS'
+        )
+        Venue.objects.create(mlbam_id=10, name='Fenway Park', link='link', active=True, season=2024)
 
-    def test_team_info_returns_team(self):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_team_info_returns_team(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_team.return_value = {'venue': {'id': 10}}
+
         client = Client()
         response = client.get('/api/teams/111/')
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data['full_name'], 'Red Sox')
         self.assertEqual(data['mlbam_team_id'], '111')
+        self.assertEqual(data['location_name'], 'Boston')
+        self.assertEqual(data['abbrev'], 'BOS')
+        self.assertEqual(data['venue_id'], '10')
+        self.assertEqual(data['venue']['name'], 'Fenway Park')
 
     def test_team_info_not_found(self):
         client = Client()
