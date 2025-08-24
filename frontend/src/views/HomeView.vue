@@ -114,12 +114,12 @@ onMounted(async () => {
 
     if (scheduleRes.ok) {
       const sched = await scheduleRes.json();
-      schedulePreview.value = sched[0]?.games?.slice(0, 5) ?? [];
+      schedulePreview.value = sched[0]?.games ?? [];
     }
     if (standingsRes.ok) {
       const standings = await standingsRes.json();
       standingsPreview.value =
-        standings.records?.[0]?.teamRecords?.slice(0, 5) ?? [];
+        standings.records?.[0]?.teamRecords ?? [];
     }
   } catch (e) {
     // Ignore errors for dynamic content

@@ -138,7 +138,7 @@ async function fetchStandings() {
         return response.json();
       })
       .then((data) => {
-        for (const record of data?.records || []) {
+        for (const record of data || []) {
           for (const teamRecord of record?.teamRecords || []) {
             const team = teamRecord?.team;
             if (team?.id != null) {
