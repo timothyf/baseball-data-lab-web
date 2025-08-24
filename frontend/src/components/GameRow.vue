@@ -110,7 +110,7 @@ const recordCache = new Map();
 </script>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { gameTime, teamAbbrev, shortName } from '../composables/gameHelpers';
 
 const { game } = defineProps({
@@ -130,12 +130,12 @@ const playerLink = (player) => ({
 const homeRecord = ref(null);
 const awayRecord = ref(null);
 
-async function fetchTeamRecord(teamId) {
+async function fetchTeamRecord(teamId, { signal } = {}) {
   if (recordCache.has(teamId)) {
     return recordCache.get(teamId);
   }
   try {
-    const response = await fetch(`/api/teams/${teamId}/record/`);
+    const response = await fetch(`/api/teams/${teamId}/record/`, { signal });
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
@@ -144,18 +144,27 @@ async function fetchTeamRecord(teamId) {
     recordCache.set(teamId, record);
     return record;
   } catch (e) {
-    console.error(e);
+    if (e.name !== 'AbortError') {
+      console.error(e);
+    }
     return null;
   }
 }
 
+let controller;
+
 onMounted(async () => {
+  controller = new AbortController();
   const [awayRecordRes, homeRecordRes] = await Promise.all([
-    fetchTeamRecord(game.teams.away.team.id),
-    fetchTeamRecord(game.teams.home.team.id)
+    fetchTeamRecord(game.teams.away.team.id, { signal: controller.signal }),
+    fetchTeamRecord(game.teams.home.team.id, { signal: controller.signal })
   ]);
   awayRecord.value = awayRecordRes;
   homeRecord.value = homeRecordRes;
+});
+
+onUnmounted(() => {
+  controller?.abort();
 });
 
 const rowStyle = {
