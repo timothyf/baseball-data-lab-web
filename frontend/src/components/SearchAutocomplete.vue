@@ -35,6 +35,10 @@ const props = defineProps({
   routeName: {
     type: String,
     required: true
+  },
+  idField: {
+    type: String,
+    default: 'id'
   }
 });
 
@@ -62,9 +66,10 @@ async function search(event) {
 
 function onSelect(event) {
   const item = event.value;
+  const routeId = item[props.idField];
   router.push({
     name: props.routeName,
-    params: { id: item.id },
+    params: { id: routeId },
     query: { name: item[props.optionLabel] }
   });
 }

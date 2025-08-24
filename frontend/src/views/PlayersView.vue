@@ -7,6 +7,7 @@
         optionLabel="name_full"
         searchEndpoint="/api/players/"
         routeName="Player"
+        idField="key_mlbam"
       />
     </div>
   </section>
