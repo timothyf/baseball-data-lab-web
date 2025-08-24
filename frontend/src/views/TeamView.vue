@@ -59,7 +59,7 @@
           <tbody>
             <tr v-for="player in roster" :key="player.person.id">
               <td>
-                <RouterLink :to="{ name: 'Player', params: { id: player.personid } }">
+                <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
                   {{ player.person.fullName }}
                 </RouterLink>
               </td>
