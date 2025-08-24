@@ -10,7 +10,6 @@
         />
         <div class="player-info">
           <h1>{{ name }}</h1>
-          <p v-if="position" class="position">{{ position }}</p>
           <div v-if="teamName" class="team-info">
             <img
               v-if="teamLogoSrc"
@@ -18,7 +17,11 @@
               alt="Team logo"
               class="team-logo"
             />
-            <span>{{ teamName }}</span>
+            <div class="player-details">
+              <span class="position">{{ position }}</span>
+              <span class="team-name">{{ teamName }}</span>
+              <span class="mlbam-id">MLBAM_ID: {{ id }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -202,16 +205,12 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   padding: 1rem;
-  margin: 0 auto;
+  margin: 0 !important;
+  padding: 1rem;
   max-width: 400px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.player-details:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .player-id {
@@ -234,6 +233,27 @@ onMounted(async () => {
 
 .bio-list strong {
   font-weight: 600;
+}
+
+.player-details {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 0 auto;
+  max-width: 400px;
+  text-align: left;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-name {
+  font-weight: 600;
+}
+
+.mlbam-id {
+  color: #888;
 }
 </style>
 
