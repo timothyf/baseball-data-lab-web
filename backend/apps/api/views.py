@@ -270,6 +270,7 @@ def player_info(request, player_id: int):
             "team_id": team.get("id"),
             "team_name": team.get("name"),
             "position": pos.get("name"),
+            "name": info.get("fullName")
         }
         return JsonResponse(data)
     except Exception as exc:  # pragma: no cover - defensive

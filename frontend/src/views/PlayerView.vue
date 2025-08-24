@@ -33,12 +33,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
-const { id, name } = defineProps({
-  id: String,
-  name: String
+const { id } = defineProps({
+  id: String
 });
 
 const headshotSrc = computed(() => `/api/player/${id}/headshot/`);
+const name = ref('');
 const teamName = ref('');
 const position = ref('');
 const teamLogoSrc = ref('');
@@ -48,6 +48,7 @@ onMounted(async () => {
     const resp = await fetch(`/api/players/${id}/`);
     if (resp.ok) {
       const data = await resp.json();
+      name.value = data.name || '';
       teamName.value = data.team_name || '';
       position.value = data.position || '';
       if (data.team_id) {
