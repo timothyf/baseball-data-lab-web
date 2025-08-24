@@ -16,6 +16,9 @@
             {{ formatRank(teamRecord.divisionRank) }}
           </p>
           <p v-else>Loading data...</p>
+          <p v-if="teamDetails">
+            {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
+          </p>
         </div>
       </div>
 
@@ -139,6 +142,7 @@ const teamRecord = ref(null);
 const recentSchedule = ref(null);
 const roster = ref([]);
 const internalTeamId = ref(null);
+const teamDetails = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 // fetcher for plain-text URL
@@ -178,6 +182,7 @@ async function resolveTeamId(teamId) {
   } catch (e) {
     internalTeamId.value = teamId;
   }
+  await loadTeamDetails(internalTeamId.value);
   await loadRecentSchedule(internalTeamId.value);
   await loadRoster(internalTeamId.value);
 }
@@ -194,6 +199,7 @@ watch(
     recentSchedule.value = null;
     roster.value = [];
     internalTeamId.value = null;
+    teamDetails.value = null;
     resolveTeamId(newId);
   }
 );
@@ -244,6 +250,17 @@ async function loadRoster(teamId) {
   } catch (e) {
     console.error("Failed to fetch roster:", e);
     roster.value = [];
+  }
+}
+
+async function loadTeamDetails(teamId) {
+  try {
+    const res = await fetch(`/api/teams/${teamId}/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    teamDetails.value = await res.json();
+  } catch (e) {
+    console.error("Failed to fetch team info:", e);
+    teamDetails.value = null;
   }
 }
 
