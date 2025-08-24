@@ -463,15 +463,8 @@ def team_logo(request, team_id: int):
 @require_GET
 def team_record(request, mlbam_team_id: int):
     """Return a team's record for a given season."""
-    logger.info("team_record called with mlbam_team_id=%s", mlbam_team_id)
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-
-    # mlbam_team_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
 
     if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)

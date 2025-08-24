@@ -23,9 +23,6 @@
         </div>
       </div>
 
-      <div class="player-details">
-        <p class="player-id">ID: {{ id }}</p>
-      </div>
       <PlayerStats :id="id" />
     </div>
   </section>

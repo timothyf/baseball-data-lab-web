@@ -16,7 +16,7 @@
             {{ formatRank(teamRecord.divisionRank) }}
           </p>
           <p v-else>Loading data...</p>
-          <p v-if="teamDetails">
+          <p class="venue-name" v-if="teamDetails">
             {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
           </p>
         </div>
@@ -333,6 +333,10 @@ function describeGame(game, includeScore) {
   max-width: 800px;
   margin: 0 auto;
 }
+
+  .team-info p.venue-name {
+    font-size: 22px;
+  }
 
 .team-header {
   display: flex;

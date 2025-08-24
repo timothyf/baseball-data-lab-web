@@ -13,6 +13,7 @@ declare module 'vue' {
     DataView: typeof import('primevue/dataview')['default']
     GameRow: typeof import('./components/GameRow.vue')['default']
     HelloComponent: typeof import('./components/HelloComponent.vue')['default']
+    PlayerStats: typeof import('./components/PlayerStats.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchAutocomplete: typeof import('./components/SearchAutocomplete.vue')['default']
