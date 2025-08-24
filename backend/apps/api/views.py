@@ -377,6 +377,7 @@ def team_roster(request, team_id: int):
         .values_list('mlbam_team_id', flat=True)
         .first()
     )
+    season = datetime.now().year
 
     logger.info("team_roster called with team_id=%s, mlbam_team_id=%s", team_id, mlbam_team_id)
 
@@ -385,7 +386,7 @@ def team_roster(request, team_id: int):
 
     try:
         client = UnifiedDataClient()
-        roster = client.fetch_active_roster(int(mlbam_team_id))
+        roster = client.fetch_active_roster(int(mlbam_team_id), year=season)
         return JsonResponse(roster, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_roster: %s", exc)

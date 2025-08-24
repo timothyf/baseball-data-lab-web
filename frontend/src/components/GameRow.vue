@@ -57,8 +57,6 @@
     <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
       <span v-if="game.decisions?.winner" style="padding:4px">
         <strong>W:</strong>
-
-
                 <RouterLink
                   :to="{
                     name: 'Player',
@@ -68,7 +66,6 @@
                 >
                  {{ shortName(game.decisions.winner.fullName) }}
                 </RouterLink>
-
       </span>
       <span v-if="game.decisions?.loser" style="padding:4px">
         <strong>L:</strong>

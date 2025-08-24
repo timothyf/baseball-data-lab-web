@@ -57,13 +57,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="player in roster" :key="player.id">
+            <tr v-for="player in roster" :key="player.person.id">
               <td>
-                <RouterLink :to="{ name: 'Player', params: { id: player.id } }">
-                  {{ player.fullName }}
+                <RouterLink :to="{ name: 'Player', params: { id: player.personid } }">
+                  {{ player.person.fullName }}
                 </RouterLink>
               </td>
-              <td>{{ player.primaryPosition?.abbreviation }}</td>
+              <td>{{ player.position.abbreviation }}</td>
               <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
               <td>{{ player.stats?.avg ?? '' }}</td>
               <td>{{ player.stats?.era ?? '' }}</td>
