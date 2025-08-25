@@ -43,12 +43,14 @@ import { ref, onMounted, computed } from 'vue';
 const { id } = defineProps({ id: String });
 
 const stats = ref(null);
+const teamAbbrevs = ref({});
 
 onMounted(async () => {
   try {
     const resp = await fetch(`/api/players/${id}/stats/`);
     if (resp.ok) {
       stats.value = await resp.json();
+      await fetchTeamAbbrevs(stats.value?.stats);
     }
   } catch (e) {
     console.error('Failed to fetch player stats', e);
@@ -74,12 +76,37 @@ const fieldLabels = {
   team: 'Team'
 };
 
+async function fetchTeamAbbrevs(statGroups) {
+  const ids = new Set();
+  statGroups?.forEach(group => {
+    group?.splits?.forEach(split => {
+      const tid = split.team?.id;
+      if (tid) ids.add(tid);
+    });
+  });
+  await Promise.all(
+    Array.from(ids).map(async tid => {
+      if (teamAbbrevs.value[tid]) return;
+      try {
+        const resp = await fetch(`/api/teams/${tid}/`);
+        if (resp.ok) {
+          const data = await resp.json();
+          teamAbbrevs.value[tid] = data.abbrev || tid;
+        }
+      } catch (e) {
+        console.error('Failed to fetch team info', e);
+      }
+    })
+  );
+}
+
 function buildRows(statData, fields) {
   const splits = statData?.splits || [];
   return splits.map(split => {
     const row = { label: split.season };
     fields.forEach(f => { row[f] = split.stat?.[f]; });
-    row.team = split.team?.id || 'N/A';
+    const teamId = split.team?.id;
+    row.team = teamAbbrevs.value[teamId] || (teamId ?? 'N/A');
     return row;
   });
 }
