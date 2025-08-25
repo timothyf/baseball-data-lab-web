@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 from django.core.cache import cache
 import logging
+import re
 logger = logging.getLogger(__name__)
 
 from .models import PlayerIdInfo, TeamIdInfo, Venue
@@ -530,3 +531,74 @@ def team_roster(request, team_id: int):
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_roster: %s", exc)
         return JsonResponse({'error': str(exc)}, status=500)
+
+
+@require_GET
+def team_leaders(request, team_id: int):
+    """Return basic batting and pitching leaders for a team.
+
+    Leaders include batting HR, AVG, RBI and pitching ERA, SO using
+    ``UnifiedDataClient`` leaderboards filtered for the specified team.
+    """
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    team_row = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values('abbrev')
+        .first()
+    )
+    if team_row is None:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+
+    abbrev = team_row.get('abbrev')
+    season = datetime.now().year
+
+    try:
+        client = UnifiedDataClient()
+        bat_df = client.fetch_batting_leaderboards(season)
+        pit_df = client.fetch_pitching_leaderboards(season)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error fetching leaderboards: %s", exc)
+        return JsonResponse({'error': str(exc)}, status=500)
+
+    def _clean_name(name):
+        if not isinstance(name, str):
+            return ""
+        return re.sub('<[^<]+?>', '', name)
+
+    leaders = {'batting': {}, 'pitching': {}}
+
+    # Batting leaders
+    bat = bat_df[bat_df.get('TeamNameAbb') == abbrev]
+    if 'PA' in bat.columns:
+        bat = bat[bat['PA'] > 0]
+    for stat in ['HR', 'AVG', 'RBI']:
+        if stat in bat.columns and not bat.empty:
+            row = bat.sort_values(stat, ascending=False).iloc[0]
+            leaders['batting'][stat] = {
+                'id': str(int(row.get('xMLBAMID'))),
+                'name': _clean_name(row.get('Name')),
+                'value': row.get(stat),
+            }
+
+    # Pitching leaders
+    pit = pit_df[pit_df.get('TeamNameAbb') == abbrev]
+    if 'IP' in pit.columns:
+        pit = pit[pit['IP'] > 0]
+    if 'ERA' in pit.columns and not pit.empty:
+        row = pit.sort_values('ERA').iloc[0]
+        leaders['pitching']['ERA'] = {
+            'id': str(int(row.get('xMLBAMID'))),
+            'name': _clean_name(row.get('Name')),
+            'value': row.get('ERA'),
+        }
+    if 'SO' in pit.columns and not pit.empty:
+        row = pit.sort_values('SO', ascending=False).iloc[0]
+        leaders['pitching']['SO'] = {
+            'id': str(int(row.get('xMLBAMID'))),
+            'name': _clean_name(row.get('Name')),
+            'value': row.get('SO'),
+        }
+
+    return JsonResponse(leaders)
