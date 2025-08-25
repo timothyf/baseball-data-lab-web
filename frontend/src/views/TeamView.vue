@@ -12,6 +12,30 @@
         <div class="team-info">
           <h1 v-if="teamRecord">{{ teamRecord.teamName }}</h1>
         </div>
+          <div v-if="teamRecord" class="stats-container">
+            <table class="team-stats">
+              <thead>
+                <tr>
+                  <th>Streak</th>
+                  <th>Last 10</th>
+                  <th>Last 30</th>
+                  <th>RS</th>
+                  <th>RA</th>
+                  <th>rDiff</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{ streakCode }}</td>
+                  <td>{{ lastTen }}</td>
+                  <td>{{ lastThirty }}</td>
+                  <td>{{ runsScored }}</td>
+                  <td>{{ runsAllowed }}</td>
+                  <td>{{ runDifferential }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
       </div>
       <TabView>
         <TabPanel header="Summary">
@@ -170,30 +194,7 @@
         </TabPanel>
 
         <TabPanel header="Stats">
-          <div v-if="teamRecord" class="stats-container">
-            <table class="team-stats">
-              <thead>
-                <tr>
-                  <th>Streak</th>
-                  <th>Last 10</th>
-                  <th>Last 30</th>
-                  <th>RS</th>
-                  <th>RA</th>
-                  <th>rDiff</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ streakCode }}</td>
-                  <td>{{ lastTen }}</td>
-                  <td>{{ lastThirty }}</td>
-                  <td>{{ runsScored }}</td>
-                  <td>{{ runsAllowed }}</td>
-                  <td>{{ runDifferential }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          Content coming soon...
         </TabPanel>
 
         <TabPanel header="Schedule">
