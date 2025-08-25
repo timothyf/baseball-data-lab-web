@@ -572,8 +572,8 @@ def team_leaders(request, team_id: int):
     # Batting leaders
     bat = bat_df[bat_df.get('TeamNameAbb') == abbrev]
     if 'PA' in bat.columns:
-        bat = bat[bat['PA'] > 0]
-    for stat in ['HR', 'AVG', 'RBI']:
+        bat = bat[bat['PA'] > 50]
+    for stat in ['HR', 'AVG', 'RBI', 'SB', 'SLG', 'OPS']:
         if stat in bat.columns and not bat.empty:
             row = bat.sort_values(stat, ascending=False).iloc[0]
             leaders['batting'][stat] = {
@@ -584,8 +584,16 @@ def team_leaders(request, team_id: int):
 
     # Pitching leaders
     pit = pit_df[pit_df.get('TeamNameAbb') == abbrev]
+
+    # Keep only pitchers (handle possible column name variants)
+    for pos_col in ('Pos', 'Position', 'POS'):
+        if pos_col in pit.columns:
+            pit = pit[pit[pos_col].astype(str).str.upper().str.startswith('P')]
+            break
+
     if 'IP' in pit.columns:
-        pit = pit[pit['IP'] > 0]
+        pit = pit[pit['IP'] > 20]
+
     if 'ERA' in pit.columns and not pit.empty:
         row = pit.sort_values('ERA').iloc[0]
         leaders['pitching']['ERA'] = {
@@ -600,5 +608,25 @@ def team_leaders(request, team_id: int):
             'name': _clean_name(row.get('Name')),
             'value': row.get('SO'),
         }
-
+        if 'G' in pit.columns and not pit.empty:
+            row = pit.sort_values('G', ascending=False).iloc[0]
+            leaders['pitching']['G'] = {
+            'id': str(int(row.get('xMLBAMID'))),
+            'name': _clean_name(row.get('Name')),
+            'value': row.get('G'),
+            }
+        if 'W' in pit.columns and not pit.empty:
+            row = pit.sort_values('W', ascending=False).iloc[0]
+            leaders['pitching']['W'] = {
+                'id': str(int(row.get('xMLBAMID'))),
+                'name': _clean_name(row.get('Name')),
+                'value': row.get('W'),
+            }
+        if 'SV' in pit.columns and not pit.empty:
+            row = pit.sort_values('SV', ascending=False).iloc[0]
+            leaders['pitching']['SV'] = {
+                'id': str(int(row.get('xMLBAMID'))),
+                'name': _clean_name(row.get('Name')),
+                'value': row.get('SV'),
+            }
     return JsonResponse(leaders)

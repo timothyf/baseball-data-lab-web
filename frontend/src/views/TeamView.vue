@@ -49,11 +49,12 @@
               </tbody>
             </table>
           </div>
+        </TabPanel>
+
+        <TabPanel header="Leaders">
           <div v-if="leaders" class="leader-cards">
-            <div
-              v-if="leaders.batting && Object.keys(leaders.batting).length"
-              class="stats-container leader-card"
-            >
+          <div v-if="leaders.batting || leaders.pitching" class="leaders-section">
+            <div v-if="leaders.batting" class="stats-container">
               <h2>Batting Leaders</h2>
               <ul>
                 <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat">
@@ -63,14 +64,11 @@
                   >
                     {{ data.name }}
                   </RouterLink>
-                  {{ data.value }}
+                  {{ ['AVG','SLG','OPS'].includes(stat) && data.value != null ? parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }}
                 </li>
               </ul>
             </div>
-            <div
-              v-if="leaders.pitching && Object.keys(leaders.pitching).length"
-              class="stats-container leader-card"
-            >
+            <div v-if="leaders.pitching" class="stats-container">
               <h2>Pitching Leaders</h2>
               <ul>
                 <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat">
@@ -80,10 +78,11 @@
                   >
                     {{ data.name }}
                   </RouterLink>
-                  {{ data.value }}
+                    {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) : data.value }}
                 </li>
               </ul>
             </div>
+          </div>
           </div>
         </TabPanel>
 
@@ -95,9 +94,11 @@
                 <thead>
                   <tr>
                     <th>Name</th>
+                    <th>Age</th>
                     <th>Pos</th>
-                    <th>G</th>
-                    <th>AVG</th>
+                    <th>Bats</th>
+                    <th>#</th>
+                    <th>MLB ID</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -107,9 +108,19 @@
                         {{ player.person.fullName }}
                       </RouterLink>
                     </td>
+                    <td>{{ player.person?.currentAge ?? '' }}</td>
                     <td>{{ player.position.abbreviation }}</td>
-                    <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-                    <td>{{ player.stats?.avg ?? '' }}</td>
+                    <td>{{ player.person?.batSide?.code ?? '' }}</td>
+                    <td>{{ player.person?.primaryNumber ?? '' }}</td>
+                    <td>
+                      <a
+                        :href="`https://www.mlb.com/player/${player.person.id}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {{ player.person.id ?? '' }}
+                      </a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -121,8 +132,10 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>G</th>
-                    <th>ERA</th>
+                    <th>Age</th>
+                    <th>Throws</th>
+                    <th>#</th>
+                    <th>MLB ID</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -132,8 +145,18 @@
                         {{ player.person.fullName }}
                       </RouterLink>
                     </td>
-                    <td>{{ player.stats?.gamesPlayed ?? '' }}</td>
-                    <td>{{ player.stats?.era ?? '' }}</td>
+                    <td>{{ player.person?.currentAge ?? '' }}</td>
+                    <td>{{ player.person?.pitchHand?.code ?? '' }}</td>
+                    <td>{{ player.person?.primaryNumber ?? '' }}</td>
+                    <td>
+                      <a
+                        :href="`https://www.mlb.com/player/${player.person.id}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {{ player.person.id ?? '' }}
+                      </a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -221,6 +244,7 @@ const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
+
 
 const teamColorStyle = computed(() => {
   const colors = teamColors[name] || [];
@@ -448,7 +472,7 @@ function describeGame(game, includeScore) {
   padding: 2rem 1rem;
 }
 .team-container {
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
