@@ -1,18 +1,35 @@
 <template>
   <div class="player-stats" v-if="stats">
-    <div v-if="hittingRows.length">
-      <h2>Hitting</h2>
+    <div v-if="standardHittingRows.length">
+      <h2>Standard Hitting</h2>
       <table class="stats-table">
         <thead>
           <tr>
             <th>Season</th>
-            <th v-for="field in hittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+            <th v-for="field in standardHittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in hittingRows" :key="row.label">
+          <tr v-for="row in standardHittingRows" :key="row.label">
             <td>{{ row.label }}</td>
-            <td v-for="field in hittingFields" :key="field">{{ row[field] ?? '-' }}</td>
+            <td v-for="field in standardHittingFields" :key="field">{{ row[field] ?? '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="advancedHittingRows.length">
+      <h2>Advanced Hitting</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th v-for="field in advancedHittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in advancedHittingRows" :key="row.label">
+            <td>{{ row.label }}</td>
+            <td v-for="field in advancedHittingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -23,13 +40,13 @@
         <thead>
           <tr>
             <th>Season</th>
-            <th v-for="field in pitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+            <th v-for="field in standardPitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="row in pitchingRows" :key="row.label">
             <td>{{ row.label }}</td>
-            <td v-for="field in pitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
+            <td v-for="field in standardPitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -57,10 +74,14 @@ onMounted(async () => {
   }
 });
 
-const hittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
+const standardHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
                       'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
                       'obp', 'slg', 'ops'];
-const pitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+const advancedHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
+                      'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
+                      'obp', 'slg', 'ops'];
+const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+const advancedPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 
 const fieldLabels = {
   atBats: 'AB',
@@ -128,11 +149,14 @@ function findGroup(name) {
   );
 }
 
-const hittingRows = computed(() =>
-  buildRows(findGroup('hitting'), hittingFields)
+const standardHittingRows = computed(() =>
+  buildRows(findGroup('hitting'), standardHittingFields)
+);
+const advancedHittingRows = computed(() =>
+  buildRows(findGroup('hitting'), advancedHittingFields)
 );
 const pitchingRows = computed(() =>
-  buildRows(findGroup('pitching'), pitchingFields)
+  buildRows(findGroup('pitching'), standardPitchingFields)
 );
 </script>
 
