@@ -1,0 +1,58 @@
+export const standardHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi',
+  'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
+  'obp', 'slg', 'ops'];
+
+export const advancedHittingFields = ['team','plateAppearances', 'totalBases', 'extraBaseHits', 'hitByPitch', 'sacBunts',
+  'sacFlies','babip', 'gidp','gidpOpp', 'numberOfPitches', 'pitchesPerPlateAppearance',
+  'reachedOnError', 'leftOnBase', 'walkOffs'];
+
+export const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+
+export const advancedPitchingFields = ['team','qualityStarts','gamesFinished', 'doubles', 'triples', 'gidp','gidpOpp',
+  'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
+  'pitchesPerInning','pitchesPerPlateAppearance'];
+
+export const fieldLabels = {
+  atBats: 'AB',
+  hits: 'H',
+  doubles: '2B',
+  triples: '3B',
+  avg: 'AVG',
+  runs: 'R',
+  homeRuns: 'HR',
+  rbi: 'RBI',
+  inningsPitched: 'IP',
+  era: 'ERA',
+  strikeOuts: 'SO',
+  wins: 'W',
+  losses: 'L',
+  team: 'Team',
+  baseOnBalls: 'BB',
+  intentionalWalks: 'IBB',
+  stolenBases: 'SB',
+  caughtStealing: 'CS',
+  obp: 'OBP',
+  slg: 'SLG',
+  ops: 'OPS',
+  totalBases: 'TB',
+  extraBaseHits: 'XBH',
+  plateAppearances: 'PA',
+  hitByPitch: 'HBP',
+  sacBunts: 'SAC B',
+  sacFlies: 'SAC F',
+  babip: 'BABIP',
+  gidp: 'GIDP',
+  gidpOpp: 'GIDPO',
+  numberOfPitches: 'NP',
+  pitchesPerPlateAppearance: 'P/PA',
+  reachedOnError: 'ROE',
+  leftOnBase: 'LOB',
+  walkOffs: 'WO',
+  qualityStarts: 'QS',
+  gamesFinished: 'GF',
+  wildPitches: 'WP',
+  balks: 'BK',
+  pickoffs: 'PK',
+  strikePercentage: 'S%',
+  pitchesPerInning: 'P/IP',
+};

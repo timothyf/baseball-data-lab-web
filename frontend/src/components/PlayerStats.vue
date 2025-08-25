@@ -73,6 +73,14 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import {
+  standardHittingFields,
+  advancedHittingFields,
+  standardPitchingFields,
+  advancedPitchingFields,
+  fieldLabels
+} from '../config/playerStatsConfig.js';
+
 
 const { id } = defineProps({ id: String });
 
@@ -91,66 +99,7 @@ onMounted(async () => {
   }
 });
 
-const standardHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
-                      'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
-                      'obp', 'slg', 'ops'];
-const advancedHittingFields = ['team','plateAppearances', 'totalBases', 'extraBaseHits', 'hitByPitch', 'sacBunts', 
-                               'sacFlies','babip', 'gidp','gidpOpp', 'numberOfPitches', 'pitchesPerPlateAppearance', 
-                               'reachedOnError', 'leftOnBase', 'walkOffs'];
-const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
-const advancedPitchingFields = ['team','qualityStarts','gamesFinished', 'doubles', 'triples', 'gidp','gidpOpp',
-                                'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
-                                'pitchesPerInning','pitchesPerPlateAppearance'
-];
 
-const fieldLabels = {
-  atBats: 'AB',
-  hits: 'H',
-  doubles: '2B',
-  triples: '3B',
-  avg: 'AVG',
-  runs: 'R',
-  homeRuns: 'HR',
-  rbi: 'RBI',
-  inningsPitched: 'IP',
-  era: 'ERA',
-  strikeOuts: 'SO',
-  wins: 'W',
-  losses: 'L',
-  team: 'Team',
-  baseOnBalls: 'BB',
-  intentionalWalks: 'IBB',
-  strikeOuts: 'SO',
-  stolenBases: 'SB',
-  caughtStealing: 'CS',
-  obp: 'OBP',
-  slg: 'SLG',
-  ops: 'OPS',
-  totalBases: 'TB',
-  extraBaseHits: 'XBH',
-  plateAppearances: 'PA',
-  hitByPitch: 'HBP',
-  sacBunts: 'SAC B',
-  sacFlies: 'SAC F',
-  babip: 'BABIP',
-  gidp: 'GIDP',
-  gidpOpp: 'GIDPO',
-  numberOfPitches: 'NP',
-  pitchesPerPlateAppearance: 'P/PA',
-  reachedOnError: 'ROE',
-  leftOnBase: 'LOB',
-  walkOffs: 'WO',
-  qualityStarts: 'QS',
-  gamesFinished: 'GF',
-  doubles: '2B',
-  triples: '3B',
-  wildPitches: 'WP',
-  balks: 'BK',
-  pickoffs: 'PK',
-  strikePercentage: 'S%',
-  pitchesPerInning: 'P/IP',
-  pitchesPerPlateAppearance: 'P/PA'
-};
 
 async function fetchTeamAbbrevs(statGroups) {
   const ids = new Set();
