@@ -55,8 +55,8 @@ onMounted(async () => {
   }
 });
 
-const hittingFields = ['avg', 'homeRuns', 'rbi'];
-const pitchingFields = ['era', 'strikeOuts', 'wins', 'losses'];
+const hittingFields = ['atBats', 'hits', 'doubles', 'triples', 'avg', 'homeRuns', 'rbi'];
+const pitchingFields = ['inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 
 function buildRows(statData, fields) {
   const splits = statData?.splits || [];
