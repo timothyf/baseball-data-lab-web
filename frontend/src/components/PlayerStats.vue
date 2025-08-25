@@ -5,7 +5,7 @@
       <table class="stats-table">
         <thead>
           <tr>
-            <th>Split</th>
+            <th>Season</th>
             <th v-for="field in hittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
@@ -22,7 +22,7 @@
       <table class="stats-table">
         <thead>
           <tr>
-            <th>Split</th>
+            <th>Season</th>
             <th v-for="field in pitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
@@ -55,22 +55,23 @@ onMounted(async () => {
   }
 });
 
-const hittingFields = ['atBats', 'hits', 'doubles', 'triples', 'avg', 'homeRuns', 'rbi'];
-const pitchingFields = ['inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+const hittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'homeRuns', 'rbi'];
+const pitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 
 const fieldLabels = {
-  atBats: 'At Bats',
-  hits: 'Hits',
-  doubles: 'Doubles',
-  triples: 'Triples',
-  avg: 'Average',
-  homeRuns: 'Home Runs',
+  atBats: 'AB',
+  hits: 'H',
+  doubles: '2B',
+  triples: '3B',
+  avg: 'AVG',
+  homeRuns: 'HR',
   rbi: 'RBI',
-  inningsPitched: 'Innings Pitched',
+  inningsPitched: 'IP',
   era: 'ERA',
-  strikeOuts: 'Strikeouts',
-  wins: 'Wins',
-  losses: 'Losses'
+  strikeOuts: 'SO',
+  wins: 'W',
+  losses: 'L',
+  team: 'Team'
 };
 
 function buildRows(statData, fields) {
@@ -78,6 +79,7 @@ function buildRows(statData, fields) {
   return splits.map(split => {
     const row = { label: split.season };
     fields.forEach(f => { row[f] = split.stat?.[f]; });
+    row.team = split.team?.id || 'N/A';
     return row;
   });
 }
