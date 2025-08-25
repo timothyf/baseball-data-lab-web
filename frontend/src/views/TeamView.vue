@@ -89,9 +89,9 @@
         <TabPanel header="Roster">
           <div v-if="batters.length || pitchers.length" class="roster-section">
             <div v-if="batters.length" class="stats-container roster">
-              <h2>Batters</h2>
+              <h2>Batters ({{ batters.length }})</h2>
               <table class="team-stats roster-table">
-                <thead>
+                <thead class="roster-head">
                   <tr>
                     <th>Name</th>
                     <th>Age</th>
@@ -132,9 +132,9 @@
             </div>
 
             <div v-if="pitchers.length" class="stats-container roster">
-              <h2>Pitchers</h2>
+              <h2>Pitchers ({{ pitchers.length }})</h2>
               <table class="team-stats roster-table">
-                <thead>
+                <thead class="roster-head">
                   <tr>
                     <th>Name</th>
                     <th>Age</th>
@@ -254,9 +254,9 @@ const mlbamTeamId = computed(() => recentSchedule.value?.id);
 const teamColorStyle = computed(() => {
   const colors = teamColors[name] || [];
   return {
-    '--color-primary': colors[0]?.hex || '#1e3a8a',
-    '--color-secondary': colors[1]?.hex || '#1e40af',
-    '--color-accent': colors[2]?.hex || '#fbbf24'
+    '--color-primary': colors[0]?.hex || '#1e3a8a', // Navy, default: blue
+    '--color-secondary': colors[1]?.hex || '#1e40af', // Orange, default: dark blue
+    '--color-accent': colors[2]?.hex || '#1e3a8a' // default: blue
   };
 });
 
@@ -642,6 +642,10 @@ function describeGame(game, includeScore) {
 
 .schedule-card li {
   margin-bottom: 0.25rem;
+}
+
+.roster-head tr th {
+  color: white;
 }
 
 @media (max-width: 600px) {
