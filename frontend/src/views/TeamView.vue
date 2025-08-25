@@ -25,6 +25,30 @@
               {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
             </p>
           </div>
+          <div v-if="divisionStandings.length" class="stats-container">
+            <table class="team-stats division-standings">
+              <thead>
+                <tr>
+                  <th>Team</th>
+                  <th>W</th>
+                  <th>L</th>
+                  <th>PCT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="record in divisionStandings"
+                  :key="record.team.id"
+                  :class="{ 'current-team': record.team.id === mlbamTeamId }"
+                >
+                  <td>{{ record.team.name }}</td>
+                  <td>{{ record.wins }}</td>
+                  <td>{{ record.losses }}</td>
+                  <td>{{ record.winningPercentage }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </TabPanel>
 
         <TabPanel header="Roster">
@@ -158,6 +182,7 @@ const recentSchedule = ref(null);
 const roster = ref([]);
 const internalTeamId = ref(null);
 const teamDetails = ref(null);
+const divisionStandings = ref([]);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 const teamColorStyle = computed(() => {
@@ -187,9 +212,26 @@ async function loadRecord(teamId) {
     const res = await fetch(`/api/teams/${teamId}/record/`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     teamRecord.value = await res.json();
+    await loadStandings();
   } catch (e) {
     console.error("Failed to fetch team record:", e);
     teamRecord.value = null;
+    divisionStandings.value = [];
+  }
+}
+
+async function loadStandings() {
+  try {
+    const res = await fetch(`/api/standings/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const records = data.records || data;
+    const divisionId = teamRecord.value?.divisionId;
+    const division = records.find(r => r.division?.id === divisionId);
+    divisionStandings.value = division?.teamRecords || [];
+  } catch (e) {
+    console.error("Failed to fetch standings:", e);
+    divisionStandings.value = [];
   }
 }
 
@@ -224,6 +266,7 @@ watch(
     roster.value = [];
     internalTeamId.value = null;
     teamDetails.value = null;
+    divisionStandings.value = [];
     resolveTeamId(newId);
   }
 );
@@ -240,6 +283,7 @@ watch(
     } else {
       teamLogoSrc.value = "";
       teamRecord.value = null;
+      divisionStandings.value = [];
     }
   }
 );
@@ -504,6 +548,12 @@ function describeGame(game, includeScore) {
   .schedule-section {
     width: 100%;
   }
+}
+
+.division-standings .current-team {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 </style>
