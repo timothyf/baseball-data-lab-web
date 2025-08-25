@@ -377,14 +377,14 @@ def team_info(request, team_id: int):
     fields = ['id', 'full_name', 'mlbam_team_id', 'location_name', 'abbrev']
     row = (
         TeamIdInfo.objects
-        .filter(mlbam_team_id=team_id)
+        .filter(mlbam_team_id=team_id, active_to__isnull=True)
         .values(*fields)
         .first()
     )
     if row is None:
         row = (
             TeamIdInfo.objects
-            .filter(id=team_id)
+            .filter(id=team_id, active_to__isnull=True)
             .values(*fields)
             .first()
         )

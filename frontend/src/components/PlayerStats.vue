@@ -106,7 +106,7 @@ function buildRows(statData, fields) {
     const row = { label: split.season };
     fields.forEach(f => { row[f] = split.stat?.[f]; });
     const teamId = split.team?.id;
-    row.team = teamAbbrevs.value[teamId] || (teamId ?? 'N/A');
+    row.team = teamAbbrevs.value[teamId] || (teamId ?? 'Total');
     return row;
   });
 }
