@@ -34,8 +34,8 @@
         </tbody>
       </table>
     </div>
-    <div v-if="pitchingRows.length">
-      <h2>Pitching</h2>
+    <div v-if="standardPitchingRows.length">
+      <h2>Standard Pitching</h2>
       <table class="stats-table">
         <thead>
           <tr>
@@ -44,9 +44,26 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in pitchingRows" :key="row.label">
+          <tr v-for="row in standardPitchingRows" :key="row.label">
             <td>{{ row.label }}</td>
             <td v-for="field in standardPitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="advancedPitchingRows.length">
+      <h2>Advanced Pitching</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th v-for="field in advancedPitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in advancedPitchingRows" :key="row.label">
+            <td>{{ row.label }}</td>
+            <td v-for="field in advancedPitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -81,7 +98,10 @@ const advancedHittingFields = ['team','plateAppearances', 'totalBases', 'extraBa
                                'sacFlies','babip', 'gidp','gidpOpp', 'numberOfPitches', 'pitchesPerPlateAppearance', 
                                'reachedOnError', 'leftOnBase', 'walkOffs'];
 const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
-const advancedPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+const advancedPitchingFields = ['team','qualityStarts','gamesFinished', 'doubles', 'triples', 'gidp','gidpOpp',
+                                'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
+                                'pitchesPerInning','pitchesPerPlateAppearance'
+];
 
 const fieldLabels = {
   atBats: 'AB',
@@ -119,7 +139,17 @@ const fieldLabels = {
   pitchesPerPlateAppearance: 'P/PA',
   reachedOnError: 'ROE',
   leftOnBase: 'LOB',
-  walkOffs: 'WO'
+  walkOffs: 'WO',
+  qualityStarts: 'QS',
+  gamesFinished: 'GF',
+  doubles: '2B',
+  triples: '3B',
+  wildPitches: 'WP',
+  balks: 'BK',
+  pickoffs: 'PK',
+  strikePercentage: 'S%',
+  pitchesPerInning: 'P/IP',
+  pitchesPerPlateAppearance: 'P/PA'
 };
 
 async function fetchTeamAbbrevs(statGroups) {
@@ -169,9 +199,13 @@ const standardHittingRows = computed(() =>
 const advancedHittingRows = computed(() =>
   buildRows(findGroup('hitting', 'yearByYearAdvanced'), advancedHittingFields)
 );
-const pitchingRows = computed(() =>
+const standardPitchingRows = computed(() =>
   buildRows(findGroup('pitching', 'yearByYear'), standardPitchingFields)
 );
+const advancedPitchingRows = computed(() =>
+  buildRows(findGroup('pitching', 'yearByYearAdvanced'), advancedPitchingFields)
+);
+
 </script>
 
 <style scoped>
