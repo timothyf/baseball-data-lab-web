@@ -2,81 +2,136 @@
   <section class="standings">
     <div class="standings-container">
       <div v-if="standingsStore.standings.length">
-        <nav class="division-links">
-          <div class="league-row">
-            <a
-              v-for="record in standingsStore.standingsByLeague.al"
-              :key="record.division?.id"
-              :href="`#division-${record.division?.id}`"
-            >
-              {{ getDivisionName(record.division?.id) }}
-            </a>
-          </div>
-          <div class="league-row">
-            <a
-              v-for="record in standingsStore.standingsByLeague.nl"
-              :key="record.division?.id"
-              :href="`#division-${record.division?.id}`"
-            >
-              {{ getDivisionName(record.division?.id) }}
-            </a>
-          </div>
-        </nav>
-        <div
-          v-for="record in standingsStore.standings"
-          :key="record.division?.id"
-          class="division-card"
-          :id="`division-${record.division?.id}`"
-        >
-          <h3>{{ getDivisionName(record.division?.id)  }}</h3>
-          <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
-            <Column header="Team" style="width:180px">
-              <template #body="{ data }">
-                <RouterLink
-                  :to="{
-                    name: 'Team',
-                    params: { id: data.team.id },
-                    query: { name: data.team.name }
-                  }"
+        <TabView>
+          <TabPanel header="Standard">
+            <nav class="division-links">
+              <div class="league-row">
+                <a
+                  v-for="record in standingsStore.standingsByLeague.al"
+                  :key="record.division?.id"
+                  :href="`#standard-division-${record.division?.id}`"
                 >
-                  {{ data.team.name }}
-                </RouterLink>
-              </template>
-            </Column>
-            <Column field="wins" header="W"></Column>
-            <Column field="losses" header="L"></Column>
-            <Column field="winningPercentage" header="PCT"></Column>
-            <Column field="divisionGamesBack" header="GB"></Column>
-            <Column field="wildCardGamesBack" header="WCGB"></Column>
-            <Column field="runsScored" header="RS"></Column>
-            <Column field="runsAllowed" header="RA"></Column>
-            <Column field="runDifferential" header="rDiff">
-              <template #body="{ data }">
-                {{ formatRunDifferential(data.runDifferential) }}
-              </template>
-            </Column>
-            <Column header="xWL">
-              <template #body="{ data }">
-                {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
-              </template>
-            </Column>
-            <Column header="Home">
-              <template #body="{ data }">
-                {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
-              </template>
-            </Column>
-            <Column header="Away">
-              <template #body="{ data }">
-                {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
-              </template>
-            </Column>
-            <Column header="Division">
-              <template #body="{ data }">
-                {{ divisionRecord(data, record.division?.id) }}
-              </template>
-            </Column>
-          </DataTable>
-        </div>
+                  {{ getDivisionName(record.division?.id) }}
+                </a>
+              </div>
+              <div class="league-row">
+                <a
+                  v-for="record in standingsStore.standingsByLeague.nl"
+                  :key="record.division?.id"
+                  :href="`#standard-division-${record.division?.id}`"
+                >
+                  {{ getDivisionName(record.division?.id) }}
+                </a>
+              </div>
+            </nav>
+            <div
+              v-for="record in standingsStore.standings"
+              :key="record.division?.id"
+              class="division-card"
+              :id="`standard-division-${record.division?.id}`"
+            >
+              <h3>{{ getDivisionName(record.division?.id) }}</h3>
+              <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
+                <Column header="Team" style="width:180px">
+                  <template #body="{ data }">
+                    <RouterLink
+                      :to="{
+                        name: 'Team',
+                        params: { id: data.team.id },
+                        query: { name: data.team.name }
+                      }"
+                    >
+                      {{ data.team.name }}
+                    </RouterLink>
+                  </template>
+                </Column>
+                <Column field="wins" header="W"></Column>
+                <Column field="losses" header="L"></Column>
+                <Column field="winningPercentage" header="PCT"></Column>
+                <Column field="divisionGamesBack" header="GB"></Column>
+                <Column field="wildCardGamesBack" header="WCGB"></Column>
+              </DataTable>
+            </div>
+          </TabPanel>
+
+          <TabPanel header="Expanded">
+            <nav class="division-links">
+              <div class="league-row">
+                <a
+                  v-for="record in standingsStore.standingsByLeague.al"
+                  :key="record.division?.id"
+                  :href="`#expanded-division-${record.division?.id}`"
+                >
+                  {{ getDivisionName(record.division?.id) }}
+                </a>
+              </div>
+              <div class="league-row">
+                <a
+                  v-for="record in standingsStore.standingsByLeague.nl"
+                  :key="record.division?.id"
+                  :href="`#expanded-division-${record.division?.id}`"
+                >
+                  {{ getDivisionName(record.division?.id) }}
+                </a>
+              </div>
+            </nav>
+            <div
+              v-for="record in standingsStore.standings"
+              :key="record.division?.id"
+              class="division-card"
+              :id="`expanded-division-${record.division?.id}`"
+            >
+              <h3>{{ getDivisionName(record.division?.id) }}</h3>
+              <DataTable class="standings-table" :value="record.teamRecords" responsiveLayout="scroll">
+                <Column header="Team" style="width:180px">
+                  <template #body="{ data }">
+                    <RouterLink
+                      :to="{
+                        name: 'Team',
+                        params: { id: data.team.id },
+                        query: { name: data.team.name }
+                      }"
+                    >
+                      {{ data.team.name }}
+                    </RouterLink>
+                  </template>
+                </Column>
+                <Column field="wins" header="W"></Column>
+                <Column field="losses" header="L"></Column>
+                <Column field="winningPercentage" header="PCT"></Column>
+                <Column field="divisionGamesBack" header="GB"></Column>
+                <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column field="runsScored" header="RS"></Column>
+                <Column field="runsAllowed" header="RA"></Column>
+                <Column field="runDifferential" header="rDiff">
+                  <template #body="{ data }">
+                    {{ formatRunDifferential(data.runDifferential) }}
+                  </template>
+                </Column>
+                <Column header="xWL">
+                  <template #body="{ data }">
+                    {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
+                  </template>
+                </Column>
+                <Column header="Home">
+                  <template #body="{ data }">
+                    {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
+                  </template>
+                </Column>
+                <Column header="Away">
+                  <template #body="{ data }">
+                    {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
+                  </template>
+                </Column>
+                <Column header="Division">
+                  <template #body="{ data }">
+                    {{ divisionRecord(data, record.division?.id) }}
+                  </template>
+                </Column>
+              </DataTable>
+            </div>
+          </TabPanel>
+        </TabView>
       </div>
       <div v-else>
         <p>Standings data is loading.</p>
@@ -88,6 +143,8 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useStandingsStore } from '../store/standings';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
 
 const standingsStore = useStandingsStore();
 
