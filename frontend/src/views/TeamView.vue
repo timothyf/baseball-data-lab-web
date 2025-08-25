@@ -44,10 +44,11 @@
               {{ teamRecord.wins }}-{{ teamRecord.losses }} -
               {{ formatRank(teamRecord.divisionRank) }}
             </p>
-            <p v-else>Loading data...</p>
+            <Skeleton v-else width="200px" height="2rem" />
             <p class="venue-name" v-if="teamDetails">
               {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
             </p>
+            <Skeleton v-else width="300px" height="1.5rem" />
           </div>
           <div v-if="divisionStandings.length" class="stats-container">
             <table class="team-stats division-standings">
@@ -77,36 +78,39 @@
 
         <TabPanel header="Leaders">
           <div v-if="leaders" class="leader-cards">
-          <div v-if="leaders.batting || leaders.pitching" class="leaders-section">
-            <div v-if="leaders.batting" class="stats-container">
-              <h2>Batting Leaders</h2>
-              <ul>
-                <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat">
-                  {{ stat }}:
-                  <RouterLink
-                    :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
-                  >
-                    {{ data.name }}
-                  </RouterLink>
-                  {{ ['AVG','SLG','OPS'].includes(stat) && data.value != null ? parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }}
-                </li>
-              </ul>
-            </div>
-            <div v-if="leaders.pitching" class="stats-container">
-              <h2>Pitching Leaders</h2>
-              <ul>
-                <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat">
-                  {{ stat }}:
-                  <RouterLink
-                    :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
-                  >
-                    {{ data.name }}
-                  </RouterLink>
-                    {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) : data.value }}
-                </li>
-              </ul>
+            <div v-if="leaders.batting || leaders.pitching" class="leaders-section">
+              <div v-if="leaders.batting" class="stats-container">
+                <h2>Batting Leaders</h2>
+                <ul>
+                  <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat">
+                    {{ stat }}:
+                    <RouterLink
+                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
+                    >
+                      {{ data.name }}
+                    </RouterLink>
+                    {{ ['AVG','SLG','OPS'].includes(stat) && data.value != null ? parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }}
+                  </li>
+                </ul>
+              </div>
+              <div v-if="leaders.pitching" class="stats-container">
+                <h2>Pitching Leaders</h2>
+                <ul>
+                  <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat">
+                    {{ stat }}:
+                    <RouterLink
+                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
+                    >
+                      {{ data.name }}
+                    </RouterLink>
+                      {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) : data.value }}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
+          <div v-else class="leader-cards">
+            <Skeleton v-for="n in 2" :key="n" width="45%" height="10rem" />
           </div>
         </TabPanel>
 
@@ -191,6 +195,9 @@
               </table>
             </div>
           </div>
+          <div v-else class="roster-section">
+            <Skeleton v-for="n in 2" :key="n" class="stats-container roster" height="15rem" />
+          </div>
         </TabPanel>
 
         <TabPanel header="Stats">
@@ -224,6 +231,9 @@
               </div>
             </div>
           </div>
+          <div v-else class="recent-schedule">
+            <Skeleton v-for="n in 2" :key="n" class="schedule-card" height="8rem" width="45%" />
+          </div>
         </TabPanel>
       </TabView>
     </div>
@@ -234,6 +244,7 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import Skeleton from 'primevue/skeleton';
 import teamColors from '../data/teamColors.json';
 
 const { id, name } = defineProps({
