@@ -102,26 +102,31 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="player in batters" :key="player.person.id">
-                    <td>
-                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                        {{ player.person.fullName }}
-                      </RouterLink>
-                    </td>
-                    <td>{{ player.person?.currentAge ?? '' }}</td>
-                    <td>{{ player.position.abbreviation }}</td>
-                    <td>{{ player.person?.batSide?.code ?? '' }}</td>
-                    <td>{{ player.person?.primaryNumber ?? '' }}</td>
-                    <td>
-                      <a
-                        :href="`https://www.mlb.com/player/${player.person.id}`"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {{ player.person.id ?? '' }}
-                      </a>
-                    </td>
-                  </tr>
+                  <template v-for="group in battersByPosition" :key="group.position">
+                    <tr class="position-row">
+                      <th colspan="6">{{ group.position }}</th>
+                    </tr>
+                    <tr v-for="player in group.players" :key="player.person.id">
+                      <td>
+                        <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
+                          {{ player.person.fullName }}
+                        </RouterLink>
+                      </td>
+                      <td>{{ player.person?.currentAge ?? '' }}</td>
+                      <td>{{ player.position.abbreviation }}</td>
+                      <td>{{ player.person?.batSide?.code ?? '' }}</td>
+                      <td>{{ player.person?.primaryNumber ?? '' }}</td>
+                      <td>
+                        <a
+                          :href="`https://www.mlb.com/player/${player.person.id}`"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {{ player.person.id ?? '' }}
+                        </a>
+                      </td>
+                    </tr>
+                  </template>
                 </tbody>
               </table>
             </div>
@@ -440,6 +445,31 @@ const pitchers = computed(() =>
   roster.value.filter(p => p.position?.abbreviation === 'P')
 );
 
+const battersByPosition = computed(() => {
+  const order = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'];
+  const groups = batters.value.reduce((acc, player) => {
+    const pos = player.position?.abbreviation || 'Other';
+    if (!acc[pos]) acc[pos] = [];
+    acc[pos].push(player);
+    return acc;
+  }, {});
+  return Object.keys(groups)
+    .sort((a, b) => {
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+      if (ai === -1 && bi === -1) return a.localeCompare(b);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    })
+    .map((pos) => ({
+      position: pos,
+      players: groups[pos].sort((a, b) =>
+        (a.person?.fullName ?? '').localeCompare(b.person?.fullName ?? '')
+      ),
+    }));
+});
+
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   return isNaN(d) ? dateStr : d.toLocaleDateString();
@@ -639,6 +669,12 @@ function describeGame(game, includeScore) {
   background-color: var(--color-accent);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+.position-row th {
+  background-color: var(--color-secondary);
+  color: #fff;
+  text-align: left;
 }
 
 </style>
