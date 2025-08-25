@@ -318,10 +318,13 @@ async function resolveTeamId(teamId) {
   } catch (e) {
     internalTeamId.value = teamId;
   }
-  await loadTeamDetails(internalTeamId.value);
-  await loadRecentSchedule(internalTeamId.value);
-  await loadRoster(internalTeamId.value);
-  await loadLeaders(internalTeamId.value);
+  const id = internalTeamId.value;
+  await Promise.all([
+    loadTeamDetails(id).catch(() => {}),
+    loadRecentSchedule(id).catch(() => {}),
+    loadRoster(id).catch(() => {}),
+    loadLeaders(id).catch(() => {}),
+  ]);
 }
 
 onMounted(() => {
