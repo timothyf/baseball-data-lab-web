@@ -176,7 +176,8 @@ const pitchingRows = computed(() =>
   text-align: center;
 }
 .stats-table th {
-  background: rgba(0,0,0,0.05);
+  background: var(--color-primary);
+  color: #fff;
 }
 </style>
 
