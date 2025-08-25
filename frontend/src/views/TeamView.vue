@@ -274,31 +274,39 @@ async function loadLogo(teamId) {
 }
 
 async function loadRecord(teamId) {
-  try {
-    const res = await fetch(`/api/teams/${teamId}/record/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    teamRecord.value = await res.json();
-    await loadStandings();
-  } catch (e) {
-    console.error("Failed to fetch team record:", e);
-    teamRecord.value = null;
-    divisionStandings.value = [];
-  }
+  const recordPromise = fetch(`/api/teams/${teamId}/record/`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .catch((e) => {
+      console.error("Failed to fetch team record:", e);
+      return null;
+    });
+
+  const standingsPromise = loadStandings(teamId).catch((e) => {
+    console.error("Failed to fetch standings:", e);
+    return [];
+  });
+
+  const [record, standings] = await Promise.all([
+    recordPromise,
+    standingsPromise,
+  ]);
+
+  teamRecord.value = record;
+  divisionStandings.value = standings;
 }
 
-async function loadStandings() {
-  try {
-    const res = await fetch(`/api/standings/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const records = data.records || data;
-    const divisionId = teamRecord.value?.divisionId;
-    const division = records.find(r => r.division?.id === divisionId);
-    divisionStandings.value = division?.teamRecords || [];
-  } catch (e) {
-    console.error("Failed to fetch standings:", e);
-    divisionStandings.value = [];
-  }
+async function loadStandings(teamId) {
+  const res = await fetch(`/api/standings/`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const records = data.records || data;
+  const division = records.find(r =>
+    r.teamRecords?.some(record => record.team.id === Number(teamId))
+  );
+  return division?.teamRecords || [];
 }
 
 
