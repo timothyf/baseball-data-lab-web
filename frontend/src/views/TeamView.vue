@@ -263,7 +263,7 @@ const divisionStandings = ref([]);
 const leaders = ref(null);
 const teamsStore = useTeamsStore();
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const mlbamTeamId = ref(id);
+const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 
 const teamColorStyle = computed(() => {
