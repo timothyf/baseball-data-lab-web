@@ -257,13 +257,12 @@ const teamLogoSrc = ref("");
 const teamRecord = ref(null);
 const recentSchedule = ref(null);
 const roster = ref([]);
-const internalTeamId = ref(id);
 const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
 const teamsStore = useTeamsStore();
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const mlbamTeamId = computed(() => recentSchedule.value?.id);
+const mlbamTeamId = ref(id);
 
 
 const teamColorStyle = computed(() => {
@@ -359,7 +358,7 @@ async function resolveTeamId(teamId) {
     if (resp.ok) {
       const data = await resp.json();
       const canonical = data.id;
-      internalTeamId.value = canonical;
+      mlbamTeamId.value = canonical;
       if (canonical !== teamId) {
         loadTeamDetails(canonical).catch(() => {});
         loadRecentSchedule(canonical).catch(() => {});
@@ -367,10 +366,10 @@ async function resolveTeamId(teamId) {
         loadLeaders(canonical).catch(() => {});
       }
     } else {
-      internalTeamId.value = teamId;
+      mlbamTeamId.value = teamId;
     }
   } catch (e) {
-    internalTeamId.value = teamId;
+    mlbamTeamId.value = teamId;
   }
 }
 
@@ -388,7 +387,6 @@ watch(
     teamDetails.value = null;
     divisionStandings.value = [];
     leaders.value = null;
-    internalTeamId.value = newId;
     mlbamTeamId.value = newId;
     resolveTeamId(newId);
   }
@@ -398,10 +396,8 @@ watch(
   mlbamTeamId,
   (newId) => {
     if (newId) {
-      // team_logo expects the internal team ID, whereas team_record
-      // expects the MLBAM team ID. Use the appropriate identifier for
-      // each API call.
-      loadLogo(internalTeamId.value);
+      // Fetch team data using the MLBAM team ID for all API calls.
+      loadLogo(newId);
       loadRecord(newId);
     } else {
       teamLogoSrc.value = "";
@@ -452,7 +448,7 @@ async function loadRoster(teamId) {
       const oldData = teamsStore.getRoster(teamId);
       if (!deepEqual(parsed, oldData)) {
         teamsStore.setRoster(teamId, parsed);
-        if (teamId === internalTeamId.value) {
+        if (teamId === mlbamTeamId.value) {
           roster.value = parsed;
         }
       }
@@ -485,7 +481,7 @@ async function loadLeaders(teamId) {
       const oldData = teamsStore.getLeaders(teamId);
       if (!deepEqual(data, oldData)) {
         teamsStore.setLeaders(teamId, data);
-        if (teamId === internalTeamId.value) {
+        if (teamId === mlbamTeamId.value) {
           leaders.value = data;
         }
       }
@@ -518,7 +514,7 @@ async function loadTeamDetails(teamId) {
       const oldData = teamsStore.getDetails(teamId);
       if (!deepEqual(data, oldData)) {
         teamsStore.setDetails(teamId, data);
-        if (teamId === internalTeamId.value) {
+        if (teamId === mlbamTeamId.value) {
           teamDetails.value = data;
         }
       }
