@@ -8,6 +8,7 @@
         >
           {{ player.name }}
         </RouterLink>
+        <span v-if="player.value != null"> {{ formatValue(player.value) }}</span>
       </li>
     </ul>
   </div>
@@ -26,6 +27,17 @@ const props = defineProps({
     required: true
   }
 });
+
+const formatValue = (val) => {
+  const num = Number(val);
+  if (!isNaN(num)) {
+    if (num < 1) {
+      return num.toFixed(3).replace(/^0\./, '.');
+    }
+    return num.toString();
+  }
+  return val;
+};
 </script>
 
 <style scoped>

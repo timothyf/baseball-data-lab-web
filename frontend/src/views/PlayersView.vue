@@ -12,9 +12,26 @@
         />
       </div>
       <aside class="sidebar">
-        <PlayerQuickList title="Popular Players" :players="popularPlayers" />
-        <PlayerQuickList title="Popular Batters" :players="popularBatters" />
-        <PlayerQuickList title="Popular Pitchers" :players="popularPitchers" />
+        <PlayerQuickList
+          v-if="leaders?.batting?.HR"
+          title="HR Leaders"
+          :players="leaders.batting.HR"
+        />
+        <PlayerQuickList
+          v-if="leaders?.batting?.AVG"
+          title="AVG Leaders"
+          :players="leaders.batting.AVG"
+        />
+        <PlayerQuickList
+          v-if="leaders?.pitching?.ERA"
+          title="ERA Leaders"
+          :players="leaders.pitching.ERA"
+        />
+        <PlayerQuickList
+          v-if="leaders?.pitching?.SO"
+          title="SO Leaders"
+          :players="leaders.pitching.SO"
+        />
       </aside>
     </div>
   </section>
@@ -23,30 +40,19 @@
 <script setup>
 import SearchAutocomplete from '../components/SearchAutocomplete.vue';
 import PlayerQuickList from '../components/PlayerQuickList.vue';
+import { onMounted, ref } from 'vue';
 
-const popularPlayers = [
-  { id: '660271', name: 'Shohei Ohtani' },
-  { id: '545361', name: 'Mike Trout' },
-  { id: '592450', name: 'Aaron Judge' },
-  { id: '605141', name: 'Mookie Betts' },
-  { id: '514888', name: 'Jose Altuve' }
-];
+const leaders = ref(null);
 
-const popularBatters = [
-  { id: '518692', name: 'Freddie Freeman' },
-  { id: '665742', name: 'Juan Soto' },
-  { id: '547180', name: 'Bryce Harper' },
-  { id: '665489', name: 'Vladimir Guerrero Jr.' },
-  { id: '646240', name: 'Rafael Devers' }
-];
-
-const popularPitchers = [
-  { id: '594798', name: 'Jacob deGrom' },
-  { id: '453286', name: 'Max Scherzer' },
-  { id: '434378', name: 'Justin Verlander' },
-  { id: '543037', name: 'Gerrit Cole' },
-  { id: '477132', name: 'Clayton Kershaw' }
-];
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/leaders/');
+    leaders.value = await res.json();
+  } catch (e) {
+    console.error('Failed to fetch league leaders:', e);
+    leaders.value = null;
+  }
+});
 </script>
 
 <style scoped>
