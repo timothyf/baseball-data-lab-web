@@ -217,11 +217,7 @@
               <div class="schedule-card">
                 <ul>
                   <li v-for="game in nextGames" :key="`next-` + game.gamePk">
-                    <RouterLink
-                      :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
-                    >
-                      {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
-                    </RouterLink>
+                    {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
                   </li>
                 </ul>
               </div>
