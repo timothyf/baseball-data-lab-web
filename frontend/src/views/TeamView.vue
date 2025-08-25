@@ -257,7 +257,7 @@ const teamLogoSrc = ref("");
 const teamRecord = ref(null);
 const recentSchedule = ref(null);
 const roster = ref([]);
-const internalTeamId = ref(null);
+const internalTeamId = ref(id);
 const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
@@ -347,24 +347,31 @@ async function loadStandings(teamId) {
 
 
 async function resolveTeamId(teamId) {
+  // Display cached data right away
+  loadTeamDetails(teamId).catch(() => {});
+  loadRecentSchedule(teamId).catch(() => {});
+  loadRoster(teamId).catch(() => {});
+  loadLeaders(teamId).catch(() => {});
+
+  // Resolve canonical team ID and revalidate if different
   try {
     const resp = await fetch(`/api/teams/${teamId}/`);
     if (resp.ok) {
       const data = await resp.json();
-      internalTeamId.value = data.id;
+      const canonical = data.id;
+      internalTeamId.value = canonical;
+      if (canonical !== teamId) {
+        loadTeamDetails(canonical).catch(() => {});
+        loadRecentSchedule(canonical).catch(() => {});
+        loadRoster(canonical).catch(() => {});
+        loadLeaders(canonical).catch(() => {});
+      }
     } else {
       internalTeamId.value = teamId;
     }
   } catch (e) {
     internalTeamId.value = teamId;
   }
-  const id = internalTeamId.value;
-  await Promise.all([
-    loadTeamDetails(id).catch(() => {}),
-    loadRecentSchedule(id).catch(() => {}),
-    loadRoster(id).catch(() => {}),
-    loadLeaders(id).catch(() => {}),
-  ]);
 }
 
 onMounted(() => {
@@ -378,16 +385,17 @@ watch(
     teamRecord.value = null;
     recentSchedule.value = null;
     roster.value = [];
-    internalTeamId.value = null;
     teamDetails.value = null;
     divisionStandings.value = [];
     leaders.value = null;
+    internalTeamId.value = newId;
+    mlbamTeamId.value = newId;
     resolveTeamId(newId);
   }
 );
 
 watch(
-  () => mlbamTeamId.value,
+  mlbamTeamId,
   (newId) => {
     if (newId) {
       // team_logo expects the internal team ID, whereas team_record
@@ -400,7 +408,8 @@ watch(
       teamRecord.value = null;
       divisionStandings.value = [];
     }
-  }
+  },
+  { immediate: true }
 );
 
 function formatRank(rank) {
@@ -417,7 +426,11 @@ async function loadRecentSchedule(teamId) {
   try {
     const res = await fetch(`/api/teams/${teamId}/recent_schedule/`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    recentSchedule.value = await res.json();
+    const data = await res.json();
+    recentSchedule.value = data;
+    if (data?.id && data.id !== mlbamTeamId.value) {
+      mlbamTeamId.value = data.id;
+    }
   } catch (e) {
     console.error("Failed to fetch recent schedule:", e);
     recentSchedule.value = null;
