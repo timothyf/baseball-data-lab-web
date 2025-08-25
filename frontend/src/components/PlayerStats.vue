@@ -6,7 +6,7 @@
         <thead>
           <tr>
             <th>Split</th>
-            <th v-for="field in hittingFields" :key="field">{{ field }}</th>
+            <th v-for="field in hittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
         <thead>
           <tr>
             <th>Split</th>
-            <th v-for="field in pitchingFields" :key="field">{{ field }}</th>
+            <th v-for="field in pitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
@@ -57,6 +57,21 @@ onMounted(async () => {
 
 const hittingFields = ['atBats', 'hits', 'doubles', 'triples', 'avg', 'homeRuns', 'rbi'];
 const pitchingFields = ['inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+
+const fieldLabels = {
+  atBats: 'At Bats',
+  hits: 'Hits',
+  doubles: 'Doubles',
+  triples: 'Triples',
+  avg: 'Average',
+  homeRuns: 'Home Runs',
+  rbi: 'RBI',
+  inningsPitched: 'Innings Pitched',
+  era: 'ERA',
+  strikeOuts: 'Strikeouts',
+  wins: 'Wins',
+  losses: 'Losses'
+};
 
 function buildRows(statData, fields) {
   const splits = statData?.splits || [];
