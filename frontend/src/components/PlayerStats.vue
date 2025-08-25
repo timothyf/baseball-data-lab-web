@@ -57,7 +57,9 @@ onMounted(async () => {
   }
 });
 
-const hittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'homeRuns', 'rbi'];
+const hittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
+                      'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
+                      'obp', 'slg', 'ops'];
 const pitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 
 const fieldLabels = {
@@ -66,6 +68,7 @@ const fieldLabels = {
   doubles: '2B',
   triples: '3B',
   avg: 'AVG',
+  runs: 'R',
   homeRuns: 'HR',
   rbi: 'RBI',
   inningsPitched: 'IP',
@@ -73,7 +76,15 @@ const fieldLabels = {
   strikeOuts: 'SO',
   wins: 'W',
   losses: 'L',
-  team: 'Team'
+  team: 'Team',
+  baseOnBalls: 'BB',
+  intentionalWalks: 'IBB',
+  strikeOuts: 'SO',
+  stolenBases: 'SB',
+  caughtStealing: 'CS',
+  obp: 'OBP',
+  slg: 'SLG',
+  ops: 'OPS'
 };
 
 async function fetchTeamAbbrevs(statGroups) {
