@@ -77,9 +77,9 @@ onMounted(async () => {
 const standardHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
                       'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
                       'obp', 'slg', 'ops'];
-const advancedHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi', 
-                      'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
-                      'obp', 'slg', 'ops'];
+const advancedHittingFields = ['team','plateAppearances', 'totalBases', 'extraBaseHits', 'hitByPitch', 'sacBunts', 
+                               'sacFlies','babip', 'gidp','gidpOpp', 'numberOfPitches', 'pitchesPerPlateAppearance', 
+                               'reachedOnError', 'leftOnBase', 'walkOffs'];
 const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 const advancedPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
 
@@ -105,7 +105,21 @@ const fieldLabels = {
   caughtStealing: 'CS',
   obp: 'OBP',
   slg: 'SLG',
-  ops: 'OPS'
+  ops: 'OPS',
+  totalBases: 'TB',
+  extraBaseHits: 'XBH',
+  plateAppearances: 'PA',
+  hitByPitch: 'HBP',
+  sacBunts: 'SAC B',
+  sacFlies: 'SAC F',
+  babip: 'BABIP',
+  gidp: 'GIDP',
+  gidpOpp: 'GIDPO',
+  numberOfPitches: 'NP',
+  pitchesPerPlateAppearance: 'P/PA',
+  reachedOnError: 'ROE',
+  leftOnBase: 'LOB',
+  walkOffs: 'WO'
 };
 
 async function fetchTeamAbbrevs(statGroups) {
@@ -143,20 +157,20 @@ function buildRows(statData, fields) {
   });
 }
 
-function findGroup(name) {
+function findGroup(name, statType) {
   return stats.value?.stats?.find(
-    s => s.group?.displayName?.toLowerCase() === name
+    s => s.group?.displayName === name && s.type?.displayName === statType
   );
 }
 
 const standardHittingRows = computed(() =>
-  buildRows(findGroup('hitting'), standardHittingFields)
+  buildRows(findGroup('hitting', 'yearByYear'), standardHittingFields)
 );
 const advancedHittingRows = computed(() =>
-  buildRows(findGroup('hitting'), advancedHittingFields)
+  buildRows(findGroup('hitting', 'yearByYearAdvanced'), advancedHittingFields)
 );
 const pitchingRows = computed(() =>
-  buildRows(findGroup('pitching'), standardPitchingFields)
+  buildRows(findGroup('pitching', 'yearByYear'), standardPitchingFields)
 );
 </script>
 

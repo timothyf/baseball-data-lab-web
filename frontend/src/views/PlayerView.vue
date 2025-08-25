@@ -65,6 +65,9 @@
         <TabPanel header="Stats">
           <PlayerStats :id="id" />
         </TabPanel>
+        <TabPanel header="Splits">
+          <p>Splits coming soon.</p>
+        </TabPanel>
         <TabPanel header="Charts & Trends">
           <p>Charts & Trends coming soon.</p>
         </TabPanel>
