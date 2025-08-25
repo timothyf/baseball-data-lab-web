@@ -246,6 +246,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Skeleton from 'primevue/skeleton';
 import teamColors from '../data/teamColors.json';
+import { useTeamsStore } from '../store/teams';
 
 const { id, name } = defineProps({
   id: { type: [String, Number], required: true },
@@ -260,6 +261,8 @@ const internalTeamId = ref(null);
 const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
+const teamsStore = useTeamsStore();
+const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 
@@ -286,28 +289,49 @@ async function loadLogo(teamId) {
 }
 
 async function loadRecord(teamId) {
-  const recordPromise = fetch(`/api/teams/${teamId}/record/`)
-    .then(async (res) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .catch((e) => {
-      console.error("Failed to fetch team record:", e);
-      return null;
+  const cached = teamsStore.getStandings(teamId);
+  if (cached) {
+    teamRecord.value = cached.record;
+    divisionStandings.value = cached.standings;
+  }
+
+  const fetchAndUpdate = async () => {
+    const recordPromise = fetch(`/api/teams/${teamId}/record/`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .catch((e) => {
+        console.error("Failed to fetch team record:", e);
+        return null;
+      });
+
+    const standingsPromise = loadStandings(teamId).catch((e) => {
+      console.error("Failed to fetch standings:", e);
+      return [];
     });
 
-  const standingsPromise = loadStandings(teamId).catch((e) => {
-    console.error("Failed to fetch standings:", e);
-    return [];
-  });
+    const [record, standings] = await Promise.all([
+      recordPromise,
+      standingsPromise,
+    ]);
 
-  const [record, standings] = await Promise.all([
-    recordPromise,
-    standingsPromise,
-  ]);
+    const newData = { record, standings };
+    const oldData = teamsStore.getStandings(teamId);
+    if (!deepEqual(newData, oldData)) {
+      teamsStore.setStandings(teamId, newData);
+      if (teamId === mlbamTeamId.value) {
+        teamRecord.value = record;
+        divisionStandings.value = standings;
+      }
+    }
+  };
 
-  teamRecord.value = record;
-  divisionStandings.value = standings;
+  if (cached) {
+    fetchAndUpdate();
+    return;
+  }
+  await fetchAndUpdate();
 }
 
 async function loadStandings(teamId) {
@@ -401,37 +425,103 @@ async function loadRecentSchedule(teamId) {
 }
 
 async function loadRoster(teamId) {
-  try {
-    const res = await fetch(`/api/teams/${teamId}/roster/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    roster.value = data?.roster ?? data ?? [];
-  } catch (e) {
-    console.error("Failed to fetch roster:", e);
-    roster.value = [];
+  const cached = teamsStore.getRoster(teamId);
+  if (cached) {
+    roster.value = cached;
   }
+
+  const fetchAndUpdate = async () => {
+    try {
+      const res = await fetch(`/api/teams/${teamId}/roster/`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const parsed = data?.roster ?? data ?? [];
+      const oldData = teamsStore.getRoster(teamId);
+      if (!deepEqual(parsed, oldData)) {
+        teamsStore.setRoster(teamId, parsed);
+        if (teamId === internalTeamId.value) {
+          roster.value = parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch roster:", e);
+      if (!cached) {
+        roster.value = [];
+      }
+    }
+  };
+
+  if (cached) {
+    fetchAndUpdate();
+    return;
+  }
+  await fetchAndUpdate();
 }
 
 async function loadLeaders(teamId) {
-  try {
-    const res = await fetch(`/api/teams/${teamId}/leaders/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    leaders.value = await res.json();
-  } catch (e) {
-    console.error("Failed to fetch team leaders:", e);
-    leaders.value = null;
+  const cached = teamsStore.getLeaders(teamId);
+  if (cached) {
+    leaders.value = cached;
   }
+
+  const fetchAndUpdate = async () => {
+    try {
+      const res = await fetch(`/api/teams/${teamId}/leaders/`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const oldData = teamsStore.getLeaders(teamId);
+      if (!deepEqual(data, oldData)) {
+        teamsStore.setLeaders(teamId, data);
+        if (teamId === internalTeamId.value) {
+          leaders.value = data;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch team leaders:", e);
+      if (!cached) {
+        leaders.value = null;
+      }
+    }
+  };
+
+  if (cached) {
+    fetchAndUpdate();
+    return;
+  }
+  await fetchAndUpdate();
 }
 
 async function loadTeamDetails(teamId) {
-  try {
-    const res = await fetch(`/api/teams/${teamId}/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    teamDetails.value = await res.json();
-  } catch (e) {
-    console.error("Failed to fetch team info:", e);
-    teamDetails.value = null;
+  const cached = teamsStore.getDetails(teamId);
+  if (cached) {
+    teamDetails.value = cached;
   }
+
+  const fetchAndUpdate = async () => {
+    try {
+      const res = await fetch(`/api/teams/${teamId}/`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const oldData = teamsStore.getDetails(teamId);
+      if (!deepEqual(data, oldData)) {
+        teamsStore.setDetails(teamId, data);
+        if (teamId === internalTeamId.value) {
+          teamDetails.value = data;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch team info:", e);
+      if (!cached) {
+        teamDetails.value = null;
+      }
+    }
+  };
+
+  if (cached) {
+    fetchAndUpdate();
+    return;
+  }
+  await fetchAndUpdate();
 }
 
 const previousGames = computed(() => {
