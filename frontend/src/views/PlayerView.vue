@@ -68,6 +68,9 @@
         <TabPanel header="Splits">
           <p>Splits coming soon.</p>
         </TabPanel>
+        <TabPanel header="Game Log">
+          <p>Game Log coming soon.</p>
+        </TabPanel>
         <TabPanel header="Charts & Trends">
           <p>Charts & Trends coming soon.</p>
         </TabPanel>
