@@ -330,18 +330,10 @@ def player_stats(request, player_id: int):
 
     try:
         client = UnifiedDataClient()
-        batting_career = client.fetch_player_stats_career(
-            int(key_mlbam), group='batting'
-        )
-        pitching_career = client.fetch_player_stats_career(
-            int(key_mlbam), group='pitching'
-        )
-        data = {
-            'batting': batting_career,
-            'pitching': pitching_career,
-        }
+        data = client.fetch_player_stats_career(int(key_mlbam))
         return JsonResponse(data)
     except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error fetching career stats for player_id=%s, key_mlbam=%s: %s", player_id, key_mlbam, exc)
         return JsonResponse({'error': str(exc)}, status=500)
 
 @require_GET
