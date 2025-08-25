@@ -534,6 +534,75 @@ def team_roster(request, team_id: int):
 
 
 @require_GET
+def league_leaders(request):
+    """Return league-wide batting and pitching leaders."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+
+    season = datetime.now().year
+
+    try:
+        client = UnifiedDataClient()
+        bat_df = client.fetch_batting_leaderboards(season)
+        pit_df = client.fetch_pitching_leaderboards(season)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error fetching leaderboards: %s", exc)
+        return JsonResponse({'error': str(exc)}, status=500)
+
+    def _clean_name(name):
+        if not isinstance(name, str):
+            return ""
+        return re.sub('<[^<]+?>', '', name)
+
+    leaders = {'batting': {}, 'pitching': {}}
+
+    # Batting leaders
+    bat = bat_df.copy()
+    if 'PA' in bat.columns:
+        bat = bat[bat['PA'] > 50]
+    for stat in ['HR', 'AVG', 'RBI', 'SB', 'SLG', 'OPS']:
+        if stat in bat.columns and not bat.empty:
+            sorted_df = bat.sort_values(stat, ascending=False)
+            top_rows = sorted_df.head(5)
+            leaders['batting'][stat] = [
+                {
+                    'id': str(int(row.get('xMLBAMID'))),
+                    'name': _clean_name(row.get('Name')),
+                    'value': row.get(stat),
+                }
+                for _, row in top_rows.iterrows()
+            ]
+
+    # Pitching leaders
+    pit = pit_df.copy()
+
+    # Keep only pitchers (handle possible column name variants)
+    for pos_col in ('Pos', 'Position', 'POS'):
+        if pos_col in pit.columns:
+            pit = pit[pit[pos_col].astype(str).str.upper().str.startswith('P')]
+            break
+
+    if 'IP' in pit.columns:
+        pit = pit[pit['IP'] > 20]
+
+    for stat in ['ERA', 'SO', 'W', 'SV']:
+        if stat in pit.columns and not pit.empty:
+            sort_ascending = stat == 'ERA'
+            sorted_df = pit.sort_values(stat, ascending=sort_ascending)
+            top_rows = sorted_df.head(5)
+            leaders['pitching'][stat] = [
+                {
+                    'id': str(int(row.get('xMLBAMID'))),
+                    'name': _clean_name(row.get('Name')),
+                    'value': row.get(stat),
+                }
+                for _, row in top_rows.iterrows()
+            ]
+
+    return JsonResponse(leaders)
+
+
+@require_GET
 def team_leaders(request, team_id: int):
     """Return basic batting and pitching leaders for a team.
 

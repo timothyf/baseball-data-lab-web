@@ -17,5 +17,6 @@ urlpatterns = [
     path('teams/<int:mlbam_team_id>/record/', views.team_record, name='api-team-record'),
     path('teams/<int:team_id>/recent_schedule/', views.team_recent_schedule, name='api-team-recent-schedule'),
     path('teams/<int:team_id>/roster/', views.team_roster, name='api-team-roster'),
+    path('leaders/', views.league_leaders, name='api-league-leaders'),
     path('teams/<int:team_id>/leaders/', views.team_leaders, name='api-team-leaders'),
 ]
