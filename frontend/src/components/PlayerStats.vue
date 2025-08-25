@@ -59,7 +59,7 @@ const hittingFields = ['avg', 'homeRuns', 'rbi'];
 const pitchingFields = ['era', 'strikeOuts', 'wins', 'losses'];
 
 function buildRows(statData, fields) {
-  const splits = statData?.stats?.[0]?.splits || [];
+  const splits = statData?.splits || [];
   return splits.map(split => {
     const row = { label: split.season };
     fields.forEach(f => { row[f] = split.stat?.[f]; });
@@ -67,11 +67,17 @@ function buildRows(statData, fields) {
   });
 }
 
+function findGroup(name) {
+  return stats.value?.stats?.find(
+    s => s.group?.displayName?.toLowerCase() === name
+  );
+}
+
 const hittingRows = computed(() =>
-  buildRows(stats.value?.batting, hittingFields)
+  buildRows(findGroup('hitting'), hittingFields)
 );
 const pitchingRows = computed(() =>
-  buildRows(stats.value?.pitching, pitchingFields)
+  buildRows(findGroup('pitching'), pitchingFields)
 );
 </script>
 
