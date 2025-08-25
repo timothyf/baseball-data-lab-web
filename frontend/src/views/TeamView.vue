@@ -49,6 +49,42 @@
               </tbody>
             </table>
           </div>
+          <div v-if="leaders" class="leader-cards">
+            <div
+              v-if="leaders.batting && Object.keys(leaders.batting).length"
+              class="stats-container leader-card"
+            >
+              <h2>Batting Leaders</h2>
+              <ul>
+                <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat">
+                  {{ stat }}:
+                  <RouterLink
+                    :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
+                  >
+                    {{ data.name }}
+                  </RouterLink>
+                  {{ data.value }}
+                </li>
+              </ul>
+            </div>
+            <div
+              v-if="leaders.pitching && Object.keys(leaders.pitching).length"
+              class="stats-container leader-card"
+            >
+              <h2>Pitching Leaders</h2>
+              <ul>
+                <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat">
+                  {{ stat }}:
+                  <RouterLink
+                    :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
+                  >
+                    {{ data.name }}
+                  </RouterLink>
+                  {{ data.value }}
+                </li>
+              </ul>
+            </div>
+          </div>
         </TabPanel>
 
         <TabPanel header="Roster">
@@ -183,6 +219,7 @@ const roster = ref([]);
 const internalTeamId = ref(null);
 const teamDetails = ref(null);
 const divisionStandings = ref([]);
+const leaders = ref(null);
 const mlbamTeamId = computed(() => recentSchedule.value?.id);
 
 const teamColorStyle = computed(() => {
@@ -251,6 +288,7 @@ async function resolveTeamId(teamId) {
   await loadTeamDetails(internalTeamId.value);
   await loadRecentSchedule(internalTeamId.value);
   await loadRoster(internalTeamId.value);
+  await loadLeaders(internalTeamId.value);
 }
 
 onMounted(() => {
@@ -267,6 +305,7 @@ watch(
     internalTeamId.value = null;
     teamDetails.value = null;
     divisionStandings.value = [];
+    leaders.value = null;
     resolveTeamId(newId);
   }
 );
@@ -318,6 +357,17 @@ async function loadRoster(teamId) {
   } catch (e) {
     console.error("Failed to fetch roster:", e);
     roster.value = [];
+  }
+}
+
+async function loadLeaders(teamId) {
+  try {
+    const res = await fetch(`/api/teams/${teamId}/leaders/`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    leaders.value = await res.json();
+  } catch (e) {
+    console.error("Failed to fetch team leaders:", e);
+    leaders.value = null;
   }
 }
 
@@ -479,6 +529,17 @@ function describeGame(game, includeScore) {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.leader-cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.leader-card {
+  flex: 1 1 45%;
 }
 
 .roster {
