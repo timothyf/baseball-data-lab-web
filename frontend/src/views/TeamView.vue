@@ -10,7 +10,7 @@
         />
 
         <div class="team-info">
-          <h1>{{ name }}</h1>
+          <h1 v-if="teamRecord">{{ teamRecord.teamName }}</h1>
         </div>
       </div>
       <TabView>
@@ -521,7 +521,7 @@ function describeGame(game, includeScore) {
   padding: 3rem;
   font-family: var(--font-base);
   margin: 0 auto;
-  max-width: 43.75rem;
+  max-width: 1100px;
   width: 100%;
   text-align: center;
 }
