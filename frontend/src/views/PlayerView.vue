@@ -20,7 +20,16 @@
             <div class="player-details">
               <span class="position">{{ position }}</span>
               <span class="team-name">{{ teamName }}</span>
-              <span class="mlbam-id">MLBAM_ID: {{ id }}</span>
+              <span class="mlbam-id">
+                MLBAM_ID:
+                <a
+                  :href="mlbPlayerUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ id }}
+                </a>
+              </span>
             </div>
           </div>
         </div>
@@ -76,6 +85,7 @@ const { id } = defineProps({
 });
 
 const headshotSrc = computed(() => `/api/player/${id}/headshot/`);
+const mlbPlayerUrl = computed(() => `https://www.mlb.com/player/${id}`);
 const name = ref('');
 const teamName = ref('');
 const position = ref('');
@@ -254,6 +264,10 @@ onMounted(async () => {
 
 .mlbam-id {
   color: #888;
+}
+
+.mlbam-id a {
+  color: inherit;
 }
 </style>
 
