@@ -20,7 +20,11 @@
         </div>
         <button @click="callEndpoint">Fetch</button>
       </div>
-      <pre v-if="result">{{ result }}</pre>
+      <div v-if="result">
+        <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
+        <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
+        <a v-else :href="result" download>Download result</a>
+      </div>
     </div>
   </section>
 </template>
@@ -32,7 +36,8 @@ const endpoints = ref([]);
 const selected = ref(null);
 const params = ref({});
 const query = ref('');
-const result = ref('');
+const result = ref(null);
+const resultType = ref('');
 
 onMounted(async () => {
   try {
@@ -47,9 +52,13 @@ onMounted(async () => {
 });
 
 watch(selected, () => {
+  if (resultType.value === 'image' && result.value) {
+    URL.revokeObjectURL(result.value);
+  }
   params.value = {};
   query.value = '';
-  result.value = '';
+  result.value = null;
+  resultType.value = '';
 });
 
 async function callEndpoint() {
@@ -62,11 +71,23 @@ async function callEndpoint() {
     url += `?${query.value}`;
   }
   const resp = await fetch(url);
-  try {
+  const contentType = resp.headers.get('Content-Type') || '';
+  resultType.value = '';
+  if (contentType.includes('application/json')) {
     const data = await resp.json();
     result.value = JSON.stringify(data, null, 2);
-  } catch (e) {
-    result.value = 'Invalid JSON response';
+    resultType.value = 'json';
+  } else if (contentType.startsWith('text/')) {
+    result.value = await resp.text();
+    resultType.value = 'text';
+  } else if (contentType.startsWith('image/')) {
+    const blob = await resp.blob();
+    result.value = URL.createObjectURL(blob);
+    resultType.value = 'image';
+  } else {
+    const blob = await resp.blob();
+    result.value = URL.createObjectURL(blob);
+    resultType.value = 'blob';
   }
 }
 </script>
