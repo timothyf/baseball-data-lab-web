@@ -50,6 +50,11 @@
                 <Column field="winningPercentage" header="PCT"></Column>
                 <Column field="divisionGamesBack" header="GB"></Column>
                 <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column header="STRK">
+                  <template #body="{ data }">
+                    {{ data.streak?.streakCode }}
+                  </template>
+                </Column>
               </DataTable>
             </div>
           </TabPanel>
