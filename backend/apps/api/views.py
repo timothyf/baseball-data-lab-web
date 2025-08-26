@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.urls import URLPattern
 import logging
 import re
+from inspect import signature, Parameter
 logger = logging.getLogger(__name__)
 
 from .models import PlayerIdInfo, TeamIdInfo, Venue
@@ -708,3 +709,60 @@ def team_leaders(request, mlbam_team_id: int):
             }
     logger.info("Team leaders for mlbam_team_id=%s: %s", mlbam_team_id, leaders)
     return JsonResponse(leaders)
+
+
+@require_GET
+def unified_client_methods(request):
+    """Return a list of ``UnifiedDataClient`` methods and required params."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+    client = UnifiedDataClient()
+    methods = []
+    for name in dir(client):
+        if name.startswith('_'):
+            continue
+        attr = getattr(client, name)
+        if callable(attr):
+            sig = signature(attr)
+            params = [
+                p.name
+                for p in sig.parameters.values()
+                if p.kind in (Parameter.POSITIONAL_OR_KEYWORD, Parameter.KEYWORD_ONLY)
+                and p.default is Parameter.empty
+            ]
+            methods.append({'name': name, 'params': params})
+    methods.sort(key=lambda m: m['name'])
+    return JsonResponse({'methods': methods})
+
+
+@require_GET
+def unified_client_call(request, method_name: str):
+    """Invoke a ``UnifiedDataClient`` method with query parameters."""
+    if UnifiedDataClient is None:
+        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
+    client = UnifiedDataClient()
+    if not hasattr(client, method_name):
+        return JsonResponse({'error': 'method not found'}, status=404)
+    method = getattr(client, method_name)
+    sig = signature(method)
+    kwargs = {}
+    for p in sig.parameters.values():
+        if p.name == 'self' or p.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
+            continue
+        if p.default is Parameter.empty and p.name not in request.GET:
+            return JsonResponse({'error': f'missing required parameter: {p.name}'}, status=400)
+        if p.name in request.GET:
+            val = request.GET[p.name]
+            kwargs[p.name] = int(val) if isinstance(val, str) and val.isdigit() else val
+    try:
+        result = method(**kwargs)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error calling %s: %s", method_name, exc)
+        return JsonResponse({'error': str(exc)}, status=500)
+    if isinstance(result, (dict, list)):
+        return JsonResponse(result, safe=False)
+    if isinstance(result, bytes):
+        return HttpResponse(result, content_type='application/octet-stream')
+    if isinstance(result, str):
+        return HttpResponse(result, content_type='text/plain')
+    return JsonResponse({'result': str(result)})

@@ -33,7 +33,27 @@
       <p>This section allows you to explore the backend API endpoints. BaseballDataLab provides a unified interface to
         access various baseball data.</p>
       <div class="backend explorer-container">
-        <div class="explorer-main"></div>
+        <div class="explorer-main">
+          <div v-if="backendMethods.length">
+            <label for="method-select">Method:</label>
+            <select id="method-select" v-model="backendSelected">
+              <option :value="null" disabled>Select a method</option>
+              <option v-for="m in backendMethods" :key="m.name" :value="m">{{ m.name }}</option>
+            </select>
+            <div v-if="backendSelected">
+              <div v-for="param in backendSelected.params" :key="param" class="param-input">
+                <label :for="`backend-${param}`">{{ param }}</label>
+                <input :id="`backend-${param}`" v-model="backendParams[param]" />
+              </div>
+              <button @click="callBackend">Fetch</button>
+            </div>
+            <div v-if="backendResult">
+              <pre v-if="backendResultType === 'json' || backendResultType === 'text'">{{ backendResult }}</pre>
+              <img v-else-if="backendResultType === 'image'" :src="backendResult" alt="Response image" />
+              <a v-else :href="backendResult" download>Download result</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <aside class="explorer-sidebar">
@@ -58,6 +78,12 @@ const params = ref({});
 const query = ref('');
 const result = ref(null);
 const resultType = ref('');
+
+const backendMethods = ref([]);
+const backendSelected = ref(null);
+const backendParams = ref({});
+const backendResult = ref(null);
+const backendResultType = ref('');
 
 const queryPlaceholder = computed(() => {
   if (!selected.value || !selected.value.query_params || !selected.value.query_params.length) {
@@ -95,6 +121,15 @@ onMounted(async () => {
   } catch (e) {
     // ignore
   }
+  try {
+    const res = await fetch('/api/unified/methods/');
+    if (res.ok) {
+      const data = await res.json();
+      backendMethods.value = data.methods || [];
+    }
+  } catch (e) {
+    // ignore
+  }
 });
 
 watch(selected, () => {
@@ -105,6 +140,15 @@ watch(selected, () => {
   query.value = '';
   result.value = null;
   resultType.value = '';
+});
+
+watch(backendSelected, () => {
+  if (backendResultType.value === 'image' && backendResult.value) {
+    URL.revokeObjectURL(backendResult.value);
+  }
+  backendParams.value = {};
+  backendResult.value = null;
+  backendResultType.value = '';
 });
 
 async function callEndpoint() {
@@ -134,6 +178,37 @@ async function callEndpoint() {
     const blob = await resp.blob();
     result.value = URL.createObjectURL(blob);
     resultType.value = 'blob';
+  }
+}
+
+async function callBackend() {
+  if (!backendSelected.value) return;
+  if (backendResultType.value === 'image' && backendResult.value) {
+    URL.revokeObjectURL(backendResult.value);
+  }
+  const query = new URLSearchParams();
+  for (const [k, v] of Object.entries(backendParams.value)) {
+    if (v !== '') query.append(k, v);
+  }
+  const url = `/api/unified/${backendSelected.value.name}/?${query.toString()}`;
+  const resp = await fetch(url);
+  const contentType = resp.headers.get('Content-Type') || '';
+  backendResultType.value = '';
+  if (contentType.includes('application/json')) {
+    const data = await resp.json();
+    backendResult.value = JSON.stringify(data, null, 2);
+    backendResultType.value = 'json';
+  } else if (contentType.startsWith('text/')) {
+    backendResult.value = await resp.text();
+    backendResultType.value = 'text';
+  } else if (contentType.startsWith('image/')) {
+    const blob = await resp.blob();
+    backendResult.value = URL.createObjectURL(blob);
+    backendResultType.value = 'image';
+  } else {
+    const blob = await resp.blob();
+    backendResult.value = URL.createObjectURL(blob);
+    backendResultType.value = 'blob';
   }
 }
 </script>
