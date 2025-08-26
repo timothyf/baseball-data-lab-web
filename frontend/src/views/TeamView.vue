@@ -64,7 +64,7 @@
                 <tr
                   v-for="record in divisionStandings"
                   :key="record.team.id"
-                  :class="{ 'current-team': record.team.id === mlbamTeamId }"
+                  :class="{ 'current-team': record.team.id === mlbam_team_id }"
                 >
                   <td>{{ record.team.name }}</td>
                   <td>{{ record.wins }}</td>
@@ -248,9 +248,9 @@ import Skeleton from 'primevue/skeleton';
 import teamColors from '../data/teamColors.json';
 import { useTeamsStore } from '../store/teams';
 
-const { id, name } = defineProps({
-  id: { type: [String, Number], required: true },
-  name: { type: String, required: true }
+const { mlbam_team_id, name } = defineProps({
+  mlbam_team_id: { type: String, required: true },
+  name: { type: String, required: false }
 });
 
 const teamLogoSrc = ref("");
@@ -262,7 +262,6 @@ const divisionStandings = ref([]);
 const leaders = ref(null);
 const teamsStore = useTeamsStore();
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const mlbamTeamId = ref(id);
 
 
 const teamColorStyle = computed(() => {
@@ -275,9 +274,9 @@ const teamColorStyle = computed(() => {
 });
 
 // fetcher for plain-text URL
-async function loadLogo(teamId) {
+async function loadLogo(mlbam_team_id) {
   try {
-    const res = await fetch(`/api/teams/${teamId}/logo/`);
+    const res = await fetch(`/api/teams/${mlbam_team_id}/logo/`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const url = (await res.text()).trim();   // <- plain text, not JSON
     teamLogoSrc.value = url || "";           // handle empty response
@@ -287,15 +286,15 @@ async function loadLogo(teamId) {
   }
 }
 
-async function loadRecord(teamId) {
-  const cached = teamsStore.getStandings(teamId);
+async function loadRecord(mlbam_team_id) {
+  const cached = teamsStore.getStandings(mlbam_team_id);
   if (cached) {
     teamRecord.value = cached.record;
     divisionStandings.value = cached.standings;
   }
 
   const fetchAndUpdate = async () => {
-    const recordPromise = fetch(`/api/teams/${teamId}/record/`)
+    const recordPromise = fetch(`/api/teams/${mlbam_team_id}/record/`)
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -305,7 +304,7 @@ async function loadRecord(teamId) {
         return null;
       });
 
-    const standingsPromise = loadStandings(teamId).catch((e) => {
+    const standingsPromise = loadStandings(mlbam_team_id).catch((e) => {
       console.error("Failed to fetch standings:", e);
       return [];
     });
@@ -316,10 +315,10 @@ async function loadRecord(teamId) {
     ]);
 
     const newData = { record, standings };
-    const oldData = teamsStore.getStandings(teamId);
+    const oldData = teamsStore.getStandings(mlbam_team_id);
     if (!deepEqual(newData, oldData)) {
-      teamsStore.setStandings(teamId, newData);
-      if (teamId === mlbamTeamId.value) {
+      teamsStore.setStandings(mlbam_team_id, newData);
+      if (mlbam_team_id === mlbam_team_id.value) {
         teamRecord.value = record;
         divisionStandings.value = standings;
       }
@@ -333,52 +332,54 @@ async function loadRecord(teamId) {
   await fetchAndUpdate();
 }
 
-async function loadStandings(teamId) {
+async function loadStandings(mlbam_team_id) {
   const res = await fetch(`/api/standings/`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   const records = data.records || data;
   const division = records.find(r =>
-    r.teamRecords?.some(record => record.team.id === Number(teamId))
+    r.teamRecords?.some(record => record.team.id === Number(mlbam_team_id))
   );
   return division?.teamRecords || [];
 }
 
 
-async function resolveTeamId(teamId) {
+async function resolveTeamId(mlbam_team_id) {
   // Display cached data right away
-  loadTeamDetails(teamId).catch(() => {});
-  loadRecentSchedule(teamId).catch(() => {});
-  loadRoster(teamId).catch(() => {});
-  loadLeaders(teamId).catch(() => {});
+  loadLogo(mlbam_team_id).catch(() => {});
+  loadRecord(mlbam_team_id).catch(() => {});
+  loadTeamDetails(mlbam_team_id).catch(() => {});
+  loadRecentSchedule(mlbam_team_id).catch(() => {});
+  loadRoster(mlbam_team_id).catch(() => {});
+  loadLeaders(mlbam_team_id).catch(() => {});
 
   // Resolve canonical team ID and revalidate if different
-  try {
-    const resp = await fetch(`/api/teams/${teamId}/`);
-    if (resp.ok) {
-      const data = await resp.json();
-      const canonical = data.id;
-      mlbamTeamId.value = canonical;
-      if (canonical !== teamId) {
-        loadTeamDetails(canonical).catch(() => {});
-        loadRecentSchedule(canonical).catch(() => {});
-        loadRoster(canonical).catch(() => {});
-        loadLeaders(canonical).catch(() => {});
-      }
-    } else {
-      mlbamTeamId.value = teamId;
-    }
-  } catch (e) {
-    mlbamTeamId.value = teamId;
-  }
+  // try {
+  //   const resp = await fetch(`/api/teams/${mlbam_team_id}/`);
+  //   if (resp.ok) {
+  //     const data = await resp.json();
+  //     const canonical = data.id;
+  //     mlbamTeamId.value = canonical;
+  //     if (canonical !== mlbam_team_id) {
+  //       loadTeamDetails(canonical).catch(() => {});
+  //       loadRecentSchedule(canonical).catch(() => {});
+  //       loadRoster(canonical).catch(() => {});
+  //       loadLeaders(canonical).catch(() => {});
+  //     }
+  //   } else {
+  //     mlbamTeamId.value = teamId;
+  //   }
+  // } catch (e) {
+  //   mlbamTeamId.value = teamId;
+  // }
 }
 
 onMounted(() => {
-  resolveTeamId(id);
+ resolveTeamId(mlbam_team_id);
 });
 
 watch(
-  () => id,
+  () => mlbam_team_id,
   (newId) => {
     teamLogoSrc.value = "";
     teamRecord.value = null;
@@ -387,26 +388,9 @@ watch(
     teamDetails.value = null;
     divisionStandings.value = [];
     leaders.value = null;
-    mlbamTeamId.value = newId;
-    resolveTeamId(newId);
   }
 );
 
-watch(
-  mlbamTeamId,
-  (newId) => {
-    if (newId) {
-      // Fetch team data using the MLBAM team ID for all API calls.
-      loadLogo(newId);
-      loadRecord(newId);
-    } else {
-      teamLogoSrc.value = "";
-      teamRecord.value = null;
-      divisionStandings.value = [];
-    }
-  },
-  { immediate: true }
-);
 
 function formatRank(rank) {
   if (rank == null) return "";
@@ -418,39 +402,34 @@ function formatRank(rank) {
   return `${rank}th Place`;
 }
 
-async function loadRecentSchedule(teamId) {
+async function loadRecentSchedule(mlbam_team_id) {
   try {
-    const res = await fetch(`/api/teams/${teamId}/recent_schedule/`);
+    const res = await fetch(`/api/teams/${mlbam_team_id}/recent_schedule/`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     recentSchedule.value = data;
-    if (data?.id && data.id !== mlbamTeamId.value) {
-      mlbamTeamId.value = data.id;
-    }
   } catch (e) {
     console.error("Failed to fetch recent schedule:", e);
     recentSchedule.value = null;
   }
 }
 
-async function loadRoster(teamId) {
-  const cached = teamsStore.getRoster(teamId);
+async function loadRoster(mlbam_team_id) {
+  const cached = teamsStore.getRoster(mlbam_team_id);
   if (cached) {
     roster.value = cached;
   }
 
   const fetchAndUpdate = async () => {
     try {
-      const res = await fetch(`/api/teams/${teamId}/roster/`);
+      const res = await fetch(`/api/teams/${mlbam_team_id}/roster/`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const parsed = data?.roster ?? data ?? [];
-      const oldData = teamsStore.getRoster(teamId);
+      const oldData = teamsStore.getRoster(mlbam_team_id);
       if (!deepEqual(parsed, oldData)) {
-        teamsStore.setRoster(teamId, parsed);
-        if (teamId === mlbamTeamId.value) {
-          roster.value = parsed;
-        }
+        teamsStore.setRoster(mlbam_team_id, parsed);
+        roster.value = parsed;
       }
     } catch (e) {
       console.error("Failed to fetch roster:", e);
@@ -467,23 +446,21 @@ async function loadRoster(teamId) {
   await fetchAndUpdate();
 }
 
-async function loadLeaders(teamId) {
-  const cached = teamsStore.getLeaders(teamId);
+async function loadLeaders(mlbam_team_id) {
+  const cached = teamsStore.getLeaders(mlbam_team_id);
   if (cached) {
     leaders.value = cached;
   }
 
   const fetchAndUpdate = async () => {
     try {
-      const res = await fetch(`/api/teams/${teamId}/leaders/`);
+      const res = await fetch(`/api/teams/${mlbam_team_id}/leaders/`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const oldData = teamsStore.getLeaders(teamId);
+      const oldData = teamsStore.getLeaders(mlbam_team_id);
       if (!deepEqual(data, oldData)) {
-        teamsStore.setLeaders(teamId, data);
-        if (teamId === mlbamTeamId.value) {
-          leaders.value = data;
-        }
+        teamsStore.setLeaders(mlbam_team_id, data);
+        leaders.value = data;
       }
     } catch (e) {
       console.error("Failed to fetch team leaders:", e);
@@ -500,23 +477,21 @@ async function loadLeaders(teamId) {
   await fetchAndUpdate();
 }
 
-async function loadTeamDetails(teamId) {
-  const cached = teamsStore.getDetails(teamId);
+async function loadTeamDetails(mlbam_team_id) {
+  const cached = teamsStore.getDetails(mlbam_team_id);
   if (cached) {
     teamDetails.value = cached;
   }
 
   const fetchAndUpdate = async () => {
     try {
-      const res = await fetch(`/api/teams/${teamId}/`);
+      const res = await fetch(`/api/teams/${mlbam_team_id}/`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const oldData = teamsStore.getDetails(teamId);
+      const oldData = teamsStore.getDetails(mlbam_team_id);
       if (!deepEqual(data, oldData)) {
-        teamsStore.setDetails(teamId, data);
-        if (teamId === mlbamTeamId.value) {
-          teamDetails.value = data;
-        }
+        teamsStore.setDetails(mlbam_team_id, data);
+        teamDetails.value = data;
       }
     } catch (e) {
       console.error("Failed to fetch team info:", e);
@@ -598,10 +573,9 @@ function formatDate(dateStr) {
 }
 
 function describeGame(game, includeScore) {
-  const teamId = mlbamTeamId.value;
   const home = game.teams.home;
   const away = game.teams.away;
-  const isHome = home.team.id === teamId;
+  const isHome = home.team.id === mlbam_team_id;
   const opponent = isHome ? away.team.name : home.team.name;
   const vsAt = isHome ? 'vs' : '@';
   let result = '';

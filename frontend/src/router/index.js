@@ -31,10 +31,10 @@ const routes = [
     component: TeamsView
   },
   {
-    path: '/team/:id',
+    path: '/team/:mlbam_team_id',
     name: 'Team',
     component: TeamView,
-    props: route => ({ id: route.params.id, name: route.query.name })
+    props: route => ({ mlbam_team_id: route.params.mlbam_team_id, name: route.query.name })
   },
   {
     path: '/game/:game_pk',

@@ -367,7 +367,7 @@ def team_search(request):
 
 
 @require_GET
-def team_info(request, team_id: int):
+def team_info(request, mlbam_team_id: int):
     """Return basic team information.
 
     ``team_id`` may be either the MLBAM team id or the internal primary key.
@@ -378,20 +378,10 @@ def team_info(request, team_id: int):
     fields = ['id', 'full_name', 'mlbam_team_id', 'location_name', 'abbrev']
     row = (
         TeamIdInfo.objects
-        .filter(mlbam_team_id=team_id, active_to__isnull=True)
+        .filter(mlbam_team_id=mlbam_team_id, active_to__isnull=True)
         .values(*fields)
         .first()
     )
-    if row is None:
-        row = (
-            TeamIdInfo.objects
-            .filter(id=team_id, active_to__isnull=True)
-            .values(*fields)
-            .first()
-        )
-
-    if row is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
 
     mlbam_team_id_value = row.get('mlbam_team_id')
     if mlbam_team_id_value is not None:
@@ -426,18 +416,10 @@ def team_info(request, team_id: int):
 
 
 @require_GET
-def team_logo(request, team_id: int):
+def team_logo(request, mlbam_team_id: int):
     """Return a team's logo image."""
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-    mlbam_team_id = (
-        TeamIdInfo.objects.filter(id=team_id)
-        .values_list('mlbam_team_id', flat=True)
-        .first()
-    )
-
-    if mlbam_team_id is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
 
     mlbam_team_id = str(mlbam_team_id)
 
@@ -476,21 +458,10 @@ def team_record(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_recent_schedule(request, team_id: int):
+def team_recent_schedule(request, mlbam_team_id: int):
     """Return the previous and next five games for a team."""
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-
-    mlbam_team_id = (
-        TeamIdInfo.objects.filter(id=team_id)
-        .values_list('mlbam_team_id', flat=True)
-        .first()
-    )
-
-    logger.info("team_recent_schedule called with team_id=%s, mlbam_team_id=%s", team_id, mlbam_team_id)
-
-    if mlbam_team_id is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
 
     try:
         
@@ -507,22 +478,12 @@ def team_recent_schedule(request, team_id: int):
 
 
 @require_GET
-def team_roster(request, team_id: int):
+def team_roster(request, mlbam_team_id: int):
     """Return the current roster for a team."""
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
-    mlbam_team_id = (
-        TeamIdInfo.objects.filter(id=team_id)
-        .values_list('mlbam_team_id', flat=True)
-        .first()
-    )
     season = datetime.now().year
-
-    logger.info("team_roster called with team_id=%s, mlbam_team_id=%s", team_id, mlbam_team_id)
-
-    if mlbam_team_id is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
 
     try:
         client = UnifiedDataClient()
@@ -603,7 +564,7 @@ def league_leaders(request):
 
 
 @require_GET
-def team_leaders(request, team_id: int):
+def team_leaders(request, mlbam_team_id: int):
     """Return basic batting and pitching leaders for a team.
 
     Leaders include batting HR, AVG, RBI and pitching ERA, SO using
@@ -613,7 +574,7 @@ def team_leaders(request, team_id: int):
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     team_row = (
-        TeamIdInfo.objects.filter(id=team_id)
+        TeamIdInfo.objects.filter(id=mlbam_team_id)
         .values('abbrev')
         .first()
     )
