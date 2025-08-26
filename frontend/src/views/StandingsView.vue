@@ -37,7 +37,7 @@
                     <RouterLink
                       :to="{
                         name: 'Team',
-                        params: { id: data.team.id },
+                        params: { mlbam_team_id: data.team.id },
                         query: { name: data.team.name }
                       }"
                     >
@@ -88,7 +88,7 @@
                     <RouterLink
                       :to="{
                         name: 'Team',
-                        params: { id: data.team.id },
+                        params: { mlbam_team_id: data.team.id },
                         query: { name: data.team.name }
                       }"
                     >
@@ -227,7 +227,7 @@ onMounted(() => {
 }
 
 .standings-container {
-  max-width: 1000px;
+  max-width: 1284px;
   margin: 0 auto;
 }
 
@@ -267,4 +267,11 @@ onMounted(() => {
   background-color: var(--color-accent);
   color: var(--color-primary);
 }
+
+.standings-table td a {
+  font-size: 13px;
+  font-family: proxima-nova, "open Sans", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+}
+
 </style>

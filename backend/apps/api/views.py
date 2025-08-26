@@ -12,22 +12,23 @@ from .models import PlayerIdInfo, TeamIdInfo, Venue
 
 STANDINGS_CACHE_TIMEOUT = 60 * 60  # one hour
 
-
-def _get_cached_standings(client, season, league_ids="103,104"):
-    """Return standings data using cache to avoid redundant API calls."""
-    cache_key = f"standings:{season}:{league_ids}"
-    data = cache.get(cache_key)
-    if data is None:
-        data = client.get_standings_data(season=season, league_ids=league_ids)
-        cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
-    return data
-
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
     _bdl_error = None
 except Exception as exc:  # pragma: no cover - handles missing dependency
     UnifiedDataClient = None
     _bdl_error = str(exc)
+
+
+def _get_cached_standings(client, season, league_ids="103,104"):
+    """Return standings data using cache to avoid redundant API calls."""
+    logger.info("Fetching standings for season=%s, league_ids=%s", season, league_ids)
+    cache_key = f"standings:{season}:{league_ids}"
+    data = cache.get(cache_key)
+    if data is None:
+        data = client.get_standings_data(season=season, league_ids=league_ids)
+        cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
+    return data
 
 
 @require_GET
