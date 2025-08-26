@@ -79,6 +79,12 @@ const features = [
     icon: 'pi-user',
     description: 'Dive into detailed player analytics.',
     link: '/players'
+  },
+  {
+    title: 'API Explorer',
+    icon: 'pi-code',
+    description: 'Interact with backend API endpoints.',
+    link: '/developer'
   }
 ];
 

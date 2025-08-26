@@ -8,6 +8,7 @@ import PlayersView from '../views/PlayersView.vue';
 import PlayerView from '../views/PlayerView.vue';
 import GameView from '../views/GameView.vue';
 import NewGameView from '../views/NewGameView.vue';
+import ApiExplorerView from '../views/ApiExplorerView.vue';
 
 const routes = [
   {
@@ -58,6 +59,11 @@ const routes = [
     name: 'Player',
     component: PlayerView,
     props: route => ({ id: route.params.id, name: route.query.name })
+  },
+  {
+    path: '/developer',
+    name: 'ApiExplorer',
+    component: ApiExplorerView
   },
   {
     path: '/game/:game_pk',
