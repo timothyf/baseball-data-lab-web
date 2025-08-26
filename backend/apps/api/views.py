@@ -724,12 +724,18 @@ def unified_client_methods(request):
         attr = getattr(client, name)
         if callable(attr):
             sig = signature(attr)
-            params = [
-                p.name
-                for p in sig.parameters.values()
-                if p.kind in (Parameter.POSITIONAL_OR_KEYWORD, Parameter.KEYWORD_ONLY)
-                and p.default is Parameter.empty
-            ]
+            params = []
+            for p in sig.parameters.values():
+                if p.name == 'self':
+                    continue
+                if p.kind in (Parameter.POSITIONAL_OR_KEYWORD, Parameter.KEYWORD_ONLY):
+                    if p.default is Parameter.empty:
+                        params.append(p.name)
+                    else:
+                        if p.default is None:
+                            params.append(f"{p.name}")
+                        else:
+                            params.append(f"{p.name}={p.default!r}")
             methods.append({'name': name, 'params': params})
     methods.sort(key=lambda m: m['name'])
     return JsonResponse({'methods': methods})

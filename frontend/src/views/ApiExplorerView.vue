@@ -1,7 +1,7 @@
 <template>
   <div class="api-explorer-wrapper">
     <section class="api-explorer">
-      <h2>Frontend API Explorer</h2>
+      <h2 class="explorer-title frontend">Frontend API Explorer</h2>
       <div class="frontend explorer-container">
         <div class="explorer-main">
           <div v-if="endpoints.length">
@@ -29,11 +29,10 @@
           </div>
         </div>
       </div>
-      <h2>Backend API Explorer</h2>
-      <p>This section allows you to explore the backend API endpoints. BaseballDataLab provides a unified interface to
-        access various baseball data.</p>
+      <h2 class="explorer-title backend">Backend API Explorer</h2>
       <div class="backend explorer-container">
         <div class="explorer-main">
+          <p>UnifiedDataClient:</p>
           <div v-if="backendMethods.length">
             <label for="method-select">Method:</label>
             <select id="method-select" v-model="backendSelected">
@@ -216,6 +215,11 @@ async function callBackend() {
 .api-explorer-wrapper {
   display: flex;
   flex-direction: row;;
+  justify-content: space-around;
+}
+
+.api-explorer {
+
 }
 
 .explorer-container {
@@ -241,5 +245,10 @@ pre {
   background: #f5f5f5;
   padding: 1rem;
   overflow: auto;
+}
+
+.explorer-title.backend {
+  margin-top: 80px;
+  margin-bottom: 10px;
 }
 </style>
