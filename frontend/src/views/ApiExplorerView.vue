@@ -55,12 +55,19 @@ const result = ref(null);
 const resultType = ref('');
 
 const samplePlayers = [
+  { id: 669373, name: 'Tarik Skubal' },
+  { id: 682928, name: 'Riley Greene' },
   { id: 545361, name: 'Mike Trout' },
   { id: 605141, name: 'Mookie Betts' },
-  { id: 592450, name: 'Aaron Judge' }
+  { id: 592450, name: 'Aaron Judge' },
+  { id: 621043, name: 'Shohei Ohtani' },
+  { id: 694973, name: 'Paul Skenes' }
 ];
 
 const sampleTeams = [
+  { id: 116, name: 'Detroit Tigers' },
+  { id: 117, name: 'Houston Astros' },
+  { id: 118, name: 'Kansas City Royals' },
   { id: 147, name: 'New York Yankees' },
   { id: 108, name: 'Los Angeles Angels' },
   { id: 119, name: 'Los Angeles Dodgers' }
@@ -121,7 +128,7 @@ async function callEndpoint() {
 
 <style scoped>
 .api-explorer {
-  padding: 2rem;
+  max-width: 1284px;
 }
 .explorer-container {
   display: flex;
