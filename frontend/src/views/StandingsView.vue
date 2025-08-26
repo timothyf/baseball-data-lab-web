@@ -50,6 +50,11 @@
                 <Column field="winningPercentage" header="PCT"></Column>
                 <Column field="divisionGamesBack" header="GB"></Column>
                 <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column header="STRK">
+                  <template #body="{ data }">
+                    {{ data.streak?.streakCode }}
+                  </template>
+                </Column>
               </DataTable>
             </div>
           </TabPanel>
@@ -261,7 +266,6 @@ onMounted(() => {
   text-align: center;
   color: var(--color-accent);
 }
-
 
 :deep(.standings-table .p-datatable-header),
 :deep(.standings-table .p-datatable-thead > tr > th) {

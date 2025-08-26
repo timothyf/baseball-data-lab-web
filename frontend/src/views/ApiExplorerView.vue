@@ -59,11 +59,23 @@
       <h3>Sample IDs</h3>
       <h4>Players</h4>
       <ul>
-        <li v-for="p in samplePlayers" :key="p.id">{{ p.name }} - {{ p.id }}</li>
+        <li
+          v-for="p in samplePlayers"
+          :key="p.id"
+          @click="copyId(p.id)"
+        >
+          {{ p.name }} - {{ p.id }}
+        </li>
       </ul>
       <h4>Teams</h4>
       <ul>
-        <li v-for="t in sampleTeams" :key="t.id">{{ t.name }} - {{ t.id }}</li>
+        <li
+          v-for="t in sampleTeams"
+          :key="t.id"
+          @click="copyId(t.id)"
+        >
+          {{ t.name }} - {{ t.id }}
+        </li>
       </ul>
     </aside>
   </div>
@@ -120,6 +132,10 @@ const sampleTeams = [
   { id: 108, name: 'Los Angeles Angels' },
   { id: 119, name: 'Los Angeles Dodgers' }
 ];
+
+function copyId(id) {
+  navigator.clipboard?.writeText(String(id));
+}
 
 onMounted(async () => {
   try {
@@ -254,6 +270,10 @@ async function callBackend() {
 .explorer-sidebar ul {
   list-style: none;
   padding: 0;
+}
+
+.explorer-sidebar li {
+  cursor: pointer;
 }
 
 .param-input,
