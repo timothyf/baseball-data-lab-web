@@ -56,9 +56,9 @@ const resultType = ref('');
 
 const queryPlaceholder = computed(() => {
   if (!selected.value || !selected.value.query_params || !selected.value.query_params.length) {
-    return 'e.g., param=value';
+    return 'param=value';
   }
-  return `e.g., ${selected.value.query_params.map((p) => `${p}=value`).join('&')}`;
+  return `${selected.value.query_params.map((p) => `${p}=value`).join('&')}`;
 });
 
 const samplePlayers = [
