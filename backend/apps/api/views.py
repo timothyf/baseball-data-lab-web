@@ -2,6 +2,7 @@ from datetime import datetime
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 from django.core.cache import cache
+from django.urls import URLPattern
 import logging
 import re
 logger = logging.getLogger(__name__)
@@ -26,6 +27,26 @@ try:
 except Exception as exc:  # pragma: no cover - handles missing dependency
     UnifiedDataClient = None
     _bdl_error = str(exc)
+
+
+@require_GET
+def list_api_endpoints(request):
+    from . import urls as api_urls
+    endpoints = []
+    for pattern in api_urls.urlpatterns:
+        if isinstance(pattern, URLPattern):
+            route = pattern.pattern._route
+            display = re.sub(r'<[^:>]+:([^>]+)>', r'{\1}', route)
+            params = list(pattern.pattern.converters.keys())
+            endpoints.append(
+                {
+                    'name': pattern.name,
+                    'path': f'/api/{display}',
+                    'template': f'/api/{route}',
+                    'params': params,
+                }
+            )
+    return JsonResponse({'endpoints': endpoints})
 
 
 @require_GET
