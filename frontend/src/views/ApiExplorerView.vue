@@ -1,7 +1,7 @@
 <template>
   <section class="api-explorer">
-    <h2>API Explorer</h2>
-    <div class="explorer-container">
+    <h2>Frontend API Explorer</h2>
+    <div class="frontend explorer-container">
       <div class="explorer-main">
         <div v-if="endpoints.length">
           <label for="endpoint-select">Endpoint:</label>
@@ -40,6 +40,12 @@
           <li v-for="t in sampleTeams" :key="t.id">{{ t.name }} - {{ t.id }}</li>
         </ul>
       </aside>
+    </div>
+    <h2>Backend API Explorer</h2>
+    <p>This section allows you to explore the backend API endpoints. BaseballDataLab provides a unified 
+       interface to access various baseball data.</p>
+    <div class="backend explorer-container">
+      <div class="explorer-main"></div>
     </div>
   </section>
 </template>
