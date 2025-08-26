@@ -5,7 +5,7 @@
       <div class="frontend explorer-container">
         <div class="explorer-main">
           <div v-if="endpoints.length">
-            <label for="endpoint-select">Endpoint:</label>
+            <label for="endpoint-select">Endpoint: </label>
             <select id="endpoint-select" v-model="selected">
               <option :value="null" disabled>Select an endpoint</option>
               <option v-for="ep in endpoints" :key="ep.template" :value="ep"> {{ ep.path }} </option>
@@ -34,14 +34,14 @@
         <div class="explorer-main">
           <p>UnifiedDataClient:</p>
           <div v-if="backendMethods.length">
-            <label for="method-select">Method:</label>
+            <label for="method-select">Method: </label>
             <select id="method-select" v-model="backendSelected">
               <option :value="null" disabled>Select a method</option>
               <option v-for="m in backendMethods" :key="m.name" :value="m">{{ m.name }}</option>
             </select>
               <div v-if="backendSelected">
                 <div v-for="param in backendParsedParams" :key="param.name" class="param-input">
-                  <label :for="`backend-${param.name}`">{{ param.label }}</label>
+                  <label :for="`backend-${param.name}`">{{ param.label }}: </label>
                   <input :id="`backend-${param.name}`" v-model="backendParams[param.name]" />
                 </div>
                 <button @click="callBackend">Fetch</button>
@@ -91,7 +91,7 @@ const backendParsedParams = computed(() => {
     if (defaultVal.startsWith("'") && defaultVal.endsWith("'")) {
       defaultVal = defaultVal.slice(1, -1);
     }
-    return { name, label: p, default: defaultVal };
+    return { name, label: name, default: defaultVal };
   });
 });
 
@@ -249,6 +249,11 @@ async function callBackend() {
 .explorer-sidebar {
   margin-left: 2rem;
   max-width: 250px;
+}
+
+.explorer-sidebar ul {
+  list-style: none;
+  padding: 0;
 }
 
 .param-input,
