@@ -1,30 +1,45 @@
 <template>
   <section class="api-explorer">
     <h2>API Explorer</h2>
-    <div v-if="endpoints.length">
-      <label for="endpoint-select">Endpoint:</label>
-      <select id="endpoint-select" v-model="selected">
-        <option :value="null" disabled>Select an endpoint</option>
-        <option v-for="ep in endpoints" :key="ep.template" :value="ep">
-          {{ ep.path }}
-        </option>
-      </select>
-      <div v-if="selected">
-        <div v-for="param in selected.params" :key="param" class="param-input">
-          <label :for="param">{{ param }}</label>
-          <input :id="param" v-model="params[param]" />
+    <div class="explorer-container">
+      <div class="explorer-main">
+        <div v-if="endpoints.length">
+          <label for="endpoint-select">Endpoint:</label>
+          <select id="endpoint-select" v-model="selected">
+            <option :value="null" disabled>Select an endpoint</option>
+            <option v-for="ep in endpoints" :key="ep.template" :value="ep">
+              {{ ep.path }}
+            </option>
+          </select>
+          <div v-if="selected">
+            <div v-for="param in selected.params" :key="param" class="param-input">
+              <label :for="param">{{ param }}</label>
+              <input :id="param" v-model="params[param]" />
+            </div>
+            <div class="query-input">
+              <label for="query">Query</label>
+              <input id="query" placeholder="e.g., date=2024-04-01" v-model="query" />
+            </div>
+            <button @click="callEndpoint">Fetch</button>
+          </div>
+          <div v-if="result">
+            <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
+            <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
+            <a v-else :href="result" download>Download result</a>
+          </div>
         </div>
-        <div class="query-input">
-          <label for="query">Query</label>
-          <input id="query" placeholder="e.g., date=2024-04-01" v-model="query" />
-        </div>
-        <button @click="callEndpoint">Fetch</button>
       </div>
-      <div v-if="result">
-        <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
-        <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
-        <a v-else :href="result" download>Download result</a>
-      </div>
+      <aside class="explorer-sidebar">
+        <h3>Sample IDs</h3>
+        <h4>Players</h4>
+        <ul>
+          <li v-for="p in samplePlayers" :key="p.id">{{ p.name }} - {{ p.id }}</li>
+        </ul>
+        <h4>Teams</h4>
+        <ul>
+          <li v-for="t in sampleTeams" :key="t.id">{{ t.name }} - {{ t.id }}</li>
+        </ul>
+      </aside>
     </div>
   </section>
 </template>
@@ -38,6 +53,18 @@ const params = ref({});
 const query = ref('');
 const result = ref(null);
 const resultType = ref('');
+
+const samplePlayers = [
+  { id: 545361, name: 'Mike Trout' },
+  { id: 605141, name: 'Mookie Betts' },
+  { id: 592450, name: 'Aaron Judge' }
+];
+
+const sampleTeams = [
+  { id: 147, name: 'New York Yankees' },
+  { id: 108, name: 'Los Angeles Angels' },
+  { id: 119, name: 'Los Angeles Dodgers' }
+];
 
 onMounted(async () => {
   try {
@@ -95,6 +122,16 @@ async function callEndpoint() {
 <style scoped>
 .api-explorer {
   padding: 2rem;
+}
+.explorer-container {
+  display: flex;
+}
+.explorer-main {
+  flex: 1;
+}
+.explorer-sidebar {
+  margin-left: 2rem;
+  max-width: 250px;
 }
 .param-input,
 .query-input {
