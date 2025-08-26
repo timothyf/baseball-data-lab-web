@@ -50,6 +50,11 @@
                 <Column field="winningPercentage" header="PCT"></Column>
                 <Column field="divisionGamesBack" header="GB"></Column>
                 <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column header="L10">
+                  <template #body="{ data }">
+                    {{ lastTenRecord(data) }}
+                  </template>
+                </Column>
                 <Column header="STRK">
                   <template #body="{ data }">
                     {{ data.streak?.streakCode }}
@@ -196,6 +201,13 @@ function divisionRecord(teamRecord, divisionId) {
     divisionId === 201 || divisionId === 204 ? 1 : 2;
   const r = teamRecord.records.divisionRecords[idx] || {};
   return `${r.wins}-${r.losses}`;
+}
+
+function lastTenRecord(teamRecord) {
+  const split = teamRecord.records?.splitRecords?.find(
+    (r) => r.type === 'lastTen'
+  );
+  return split ? `${split.wins}-${split.losses}` : '';
 }
 
 function formatRunDifferential(diff) {
