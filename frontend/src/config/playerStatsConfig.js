@@ -1,12 +1,15 @@
-export const standardHittingFields = ['team','atBats', 'hits', 'doubles', 'triples', 'avg', 'runs','homeRuns', 'rbi',
-  'baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
+export const standardHittingFields = ['team','atBats', 'runs','hits', 'totalBases', 'doubles', 'triples',
+  'homeRuns', 'rbi', 'avg','baseOnBalls', 'intentionalWalks', 'strikeOuts', 'stolenBases', 'caughtStealing',
   'obp', 'slg', 'ops'];
 
 export const advancedHittingFields = ['team','plateAppearances', 'totalBases', 'extraBaseHits', 'hitByPitch', 'sacBunts',
   'sacFlies','babip', 'gidp','gidpOpp', 'numberOfPitches', 'pitchesPerPlateAppearance',
   'reachedOnError', 'leftOnBase', 'walkOffs'];
 
-export const standardPitchingFields = ['team','inningsPitched','era', 'strikeOuts', 'wins', 'losses'];
+export const standardPitchingFields = ['team', 'wins', 'losses', 'era', 'gamesPitched', 'gamesStarted', 'completeGames',
+                                       'strikeOuts','shutouts','holds','saves','saveOpportunities', 'inningsPitched','hits',
+                                      'runs','earnedRuns','homeRuns','numberOfPitches','hitBatsmen','baseOnBalls',
+                                      'intentionalWalks','strikeOuts','avg','whip','groundOutsToAirouts'];
 
 export const advancedPitchingFields = ['team','qualityStarts','gamesFinished', 'doubles', 'triples', 'gidp','gidpOpp',
   'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
@@ -55,4 +58,18 @@ export const fieldLabels = {
   pickoffs: 'PK',
   strikePercentage: 'S%',
   pitchesPerInning: 'P/IP',
+  gamesFinished: 'GF',
+  gamesPitched: 'G',
+  gamesStarted: 'GS',
+  completeGames: 'CG',
+  shutouts: 'SHO',
+  holds: 'H',
+  saves: 'SV',
+  saveOpportunities: 'SVO',
+  runs: 'R',
+  earnedRuns: 'ER',
+  numberOfPitches: 'NP',
+  hitBatsmen: 'HB',
+  whip: 'WHIP',
+  groundOutsToAirouts: 'GO/AO'
 };

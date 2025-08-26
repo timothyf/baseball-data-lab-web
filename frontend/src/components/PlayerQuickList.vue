@@ -8,7 +8,7 @@
         >
           {{ player.name }}
         </RouterLink>
-        <span v-if="player.value != null"> {{ formatValue(player.value) }}</span>
+        <span class="field-value" v-if="player.value != null"> {{ formatValue(player.value) }}</span>
       </li>
     </ul>
   </div>
@@ -58,6 +58,10 @@ const formatValue = (val) => {
 }
 .player-list a {
   color: var(--color-accent);
+}
+
+.field-value {
+  margin-left: 0.5rem;
 }
 </style>
 

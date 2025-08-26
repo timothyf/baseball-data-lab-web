@@ -23,6 +23,11 @@
           :players="leaders.batting.AVG"
         />
         <PlayerQuickList
+          v-if="leaders?.batting?.OPS"
+          title="OPS Leaders"
+          :players="leaders.batting.OPS"
+        />
+        <PlayerQuickList
           v-if="leaders?.pitching?.ERA"
           title="ERA Leaders"
           :players="leaders.pitching.ERA"
@@ -31,6 +36,11 @@
           v-if="leaders?.pitching?.SO"
           title="SO Leaders"
           :players="leaders.pitching.SO"
+        />
+        <PlayerQuickList
+          v-if="leaders?.pitching?.WHIP"
+          title="WHIP Leaders"
+          :players="leaders.pitching.WHIP"
         />
       </aside>
     </div>
@@ -57,15 +67,26 @@ onMounted(async () => {
 
 <style scoped>
 .players-view {
-  align-items: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 .players-view .content {
   display: flex;
-  align-items: flex-start;
+  justify-content: space-around;
   gap: 2rem;
+  width: 1100px;
 }
 .sidebar {
   text-align: left;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 600px;
+}
+.player-list {
+  width: 190px;
 }
 </style>
 

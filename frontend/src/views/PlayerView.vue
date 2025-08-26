@@ -174,7 +174,7 @@ onMounted(async () => {
 }
 
 .player-container {
-  max-width: 1000px;
+  max-width: 1284px;
   margin: 0 auto;
 }
 

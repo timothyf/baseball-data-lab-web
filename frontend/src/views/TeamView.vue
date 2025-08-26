@@ -2,51 +2,41 @@
   <section class="team-view" :style="teamColorStyle">
     <div class="team-container">
       <div class="team-header">
-        <img
-          v-if="teamLogoSrc"
-          :src="teamLogoSrc"
-          alt="Team Logo"
-          class="team-logo"
-        />
-
-        <div class="team-info">
+        <div class="top-header">
+          <img v-if="teamLogoSrc" :src="teamLogoSrc" alt="Team Logo" class="team-logo" />
           <h1 v-if="teamRecord">{{ teamRecord.teamName }}</h1>
         </div>
-          <div v-if="teamRecord" class="stats-container">
-            <table class="team-stats">
-              <thead>
-                <tr>
-                  <th>Streak</th>
-                  <th>Last 10</th>
-                  <th>Last 30</th>
-                  <th>RS</th>
-                  <th>RA</th>
-                  <th>rDiff</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ streakCode }}</td>
-                  <td>{{ lastTen }}</td>
-                  <td>{{ lastThirty }}</td>
-                  <td>{{ runsScored }}</td>
-                  <td>{{ runsAllowed }}</td>
-                  <td>{{ runDifferential }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div v-if="teamRecord" class="stats-container">
+            <p v-if="teamRecord"> {{ teamRecord.wins }}-{{ teamRecord.losses }} - {{ formatRank(teamRecord.divisionRank)
+              }} </p>
+          <table class="team-stats">
+            <thead>
+              <tr>
+                <th>Streak</th>
+                <th>Last 10</th>
+                <th>Last 30</th>
+                <th>RS</th>
+                <th>RA</th>
+                <th>rDiff</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ streakCode }}</td>
+                <td>{{ lastTen }}</td>
+                <td>{{ lastThirty }}</td>
+                <td>{{ runsScored }}</td>
+                <td>{{ runsAllowed }}</td>
+                <td>{{ runDifferential }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <TabView>
         <TabPanel header="Summary">
           <div class="summary-content">
-            <p v-if="teamRecord">
-              {{ teamRecord.wins }}-{{ teamRecord.losses }} -
-              {{ formatRank(teamRecord.divisionRank) }}
-            </p>
-            <Skeleton v-else width="200px" height="2rem" />
-            <p class="venue-name" v-if="teamDetails">
-              {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
+            <p class="venue-name" v-if="teamDetails"> {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
             </p>
             <Skeleton v-else width="300px" height="1.5rem" />
           </div>
@@ -61,11 +51,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="record in divisionStandings"
-                  :key="record.team.id"
-                  :class="{ 'current-team': record.team.id === mlbam_team_id }"
-                >
+                <tr v-for="record in divisionStandings" :key="record.team.id"
+                  :class="{ 'current-team': record.team.id == mlbam_team_id }">
                   <td>{{ record.team.name }}</td>
                   <td>{{ record.wins }}</td>
                   <td>{{ record.losses }}</td>
@@ -75,36 +62,25 @@
             </table>
           </div>
         </TabPanel>
-
         <TabPanel header="Leaders">
           <div v-if="leaders" class="leader-cards">
             <div v-if="leaders.batting || leaders.pitching" class="leaders-section">
               <div v-if="leaders.batting" class="stats-container">
                 <h2>Batting Leaders</h2>
                 <ul>
-                  <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat">
-                    {{ stat }}:
-                    <RouterLink
-                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
-                    >
-                      {{ data.name }}
-                    </RouterLink>
-                    {{ ['AVG','SLG','OPS'].includes(stat) && data.value != null ? parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }}
-                  </li>
+                  <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat"> {{ stat }}: <RouterLink
+                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"> {{ data.name }}
+                    </RouterLink> {{ ['AVG', 'SLG', 'OPS'].includes(stat) && data.value != null ?
+                      parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }} </li>
                 </ul>
               </div>
               <div v-if="leaders.pitching" class="stats-container">
                 <h2>Pitching Leaders</h2>
                 <ul>
-                  <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat">
-                    {{ stat }}:
-                    <RouterLink
-                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"
-                    >
-                      {{ data.name }}
-                    </RouterLink>
-                      {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) : data.value }}
-                  </li>
+                  <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat"> {{ stat }}: <RouterLink
+                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"> {{ data.name }}
+                    </RouterLink> {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) :
+                    data.value }} </li>
                 </ul>
               </div>
             </div>
@@ -113,7 +89,6 @@
             <Skeleton v-for="n in 2" :key="n" width="45%" height="10rem" />
           </div>
         </TabPanel>
-
         <TabPanel header="Roster">
           <div v-if="batters.length || pitchers.length" class="roster-section">
             <div v-if="batters.length" class="stats-container roster">
@@ -136,29 +111,22 @@
                     </tr>
                     <tr v-for="player in group.players" :key="player.person.id">
                       <td>
-                        <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                          {{ player.person.fullName }}
-                        </RouterLink>
+                        <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }"> {{
+                          player.person.fullName }} </RouterLink>
                       </td>
                       <td>{{ player.person?.currentAge ?? '' }}</td>
                       <td>{{ player.position.abbreviation }}</td>
                       <td>{{ player.person?.batSide?.code ?? '' }}</td>
                       <td>{{ player.person?.primaryNumber ?? '' }}</td>
                       <td>
-                        <a
-                          :href="`https://www.mlb.com/player/${player.person.id}`"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {{ player.person.id ?? '' }}
-                        </a>
+                        <a :href="`https://www.mlb.com/player/${player.person.id}`" target="_blank"
+                          rel="noopener noreferrer"> {{ player.person.id ?? '' }} </a>
                       </td>
                     </tr>
                   </template>
                 </tbody>
               </table>
             </div>
-
             <div v-if="pitchers.length" class="stats-container roster">
               <h2>Pitchers ({{ pitchers.length }})</h2>
               <table class="team-stats roster-table">
@@ -174,21 +142,15 @@
                 <tbody>
                   <tr v-for="player in pitchers" :key="player.person.id">
                     <td>
-                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }">
-                        {{ player.person.fullName }}
-                      </RouterLink>
+                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }"> {{ player.person.fullName
+                        }} </RouterLink>
                     </td>
                     <td>{{ player.person?.currentAge ?? '' }}</td>
                     <td>{{ player.person?.pitchHand?.code ?? '' }}</td>
                     <td>{{ player.person?.primaryNumber ?? '' }}</td>
                     <td>
-                      <a
-                        :href="`https://www.mlb.com/player/${player.person.id}`"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {{ player.person.id ?? '' }}
-                      </a>
+                      <a :href="`https://www.mlb.com/player/${player.person.id}`" target="_blank"
+                        rel="noopener noreferrer"> {{ player.person.id ?? '' }} </a>
                     </td>
                   </tr>
                 </tbody>
@@ -199,11 +161,7 @@
             <Skeleton v-for="n in 2" :key="n" class="stats-container roster" height="15rem" />
           </div>
         </TabPanel>
-
-        <TabPanel header="Stats">
-          Content coming soon...
-        </TabPanel>
-
+        <TabPanel header="Stats"> Content coming soon... </TabPanel>
         <TabPanel header="Schedule">
           <div class="recent-schedule" v-if="recentSchedule">
             <div class="schedule-section">
@@ -211,11 +169,8 @@
               <div class="schedule-card">
                 <ul>
                   <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
-                    <RouterLink
-                      :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
-                    >
-                      {{ formatDate(game.gameDate) }} {{ describeGame(game, true) }}
-                    </RouterLink>
+                    <RouterLink :to="{ name: 'Game', params: { game_pk: game.gamePk } }"> {{ formatDate(game.gameDate)
+                      }} {{ describeGame(game, true) }} </RouterLink>
                   </li>
                 </ul>
               </div>
@@ -224,9 +179,8 @@
               <h2>Upcoming Games</h2>
               <div class="schedule-card">
                 <ul>
-                  <li v-for="game in nextGames" :key="`next-` + game.gamePk">
-                    {{ formatDate(game.gameDate) }} {{ describeGame(game, false) }}
-                  </li>
+                  <li v-for="game in nextGames" :key="`next-` + game.gamePk"> {{ formatDate(game.gameDate) }} {{
+                    describeGame(game, false) }} </li>
                 </ul>
               </div>
             </div>
@@ -235,11 +189,11 @@
             <Skeleton v-for="n in 2" :key="n" class="schedule-card" height="8rem" width="45%" />
           </div>
         </TabPanel>
+        <TabPanel header="History"> Content coming soon... </TabPanel>
       </TabView>
     </div>
   </section>
 </template>
-
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
 import TabView from 'primevue/tabview';
@@ -351,12 +305,12 @@ async function loadStandings(mlbam_team_id) {
 
 async function resolveTeamId(mlbam_team_id) {
   // Display cached data right away
-  loadLogo(mlbam_team_id).catch(() => {});
-  loadRecord(mlbam_team_id).catch(() => {});
-  loadTeamDetails(mlbam_team_id).catch(() => {});
-  loadRecentSchedule(mlbam_team_id).catch(() => {});
-  loadRoster(mlbam_team_id).catch(() => {});
-  loadLeaders(mlbam_team_id).catch(() => {});
+  loadLogo(mlbam_team_id).catch(() => { });
+  loadRecord(mlbam_team_id).catch(() => { });
+  loadTeamDetails(mlbam_team_id).catch(() => { });
+  loadRecentSchedule(mlbam_team_id).catch(() => { });
+  loadRoster(mlbam_team_id).catch(() => { });
+  loadLeaders(mlbam_team_id).catch(() => { });
 
   // Resolve canonical team ID and revalidate if different
   // try {
@@ -380,7 +334,7 @@ async function resolveTeamId(mlbam_team_id) {
 }
 
 onMounted(() => {
- resolveTeamId(mlbam_team_id);
+  resolveTeamId(mlbam_team_id);
 });
 
 watch(
@@ -597,23 +551,22 @@ function describeGame(game, includeScore) {
   return `${vsAt} ${opponent}${result}`;
 }
 </script>
-
 <style scoped>
-
 .team-view {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #fff;
   padding: 2rem 1rem;
 }
+
 .team-container {
   max-width: 1100px;
   margin: 0 auto;
 }
 
-  .team-info p.venue-name {
-    font-size: 22px;
-  }
+.team-info p.venue-name {
+  font-size: 22px;
+}
 
 .team-header {
   display: flex;
@@ -631,7 +584,6 @@ function describeGame(game, includeScore) {
   max-width: 7.5rem;
   width: 100%;
   height: auto;
-  margin-right: 5rem;
 }
 
 .team-info h1 {
@@ -774,9 +726,14 @@ function describeGame(game, includeScore) {
   }
 }
 
-.division-standings .current-team {
-  background-color: var(--color-accent);
-  color: var(--color-primary);
+.division-standings thead th {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.division-standings .current-team td {
+  background-color: hsl(210, 100%, 80%);
+  color: white;
   font-weight: 600;
 }
 
@@ -786,4 +743,7 @@ function describeGame(game, includeScore) {
   text-align: left;
 }
 
+.team-header .team-stats th {
+  color: white;
+}
 </style>

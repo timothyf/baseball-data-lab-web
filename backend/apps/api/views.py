@@ -525,14 +525,22 @@ def league_leaders(request):
         if stat in bat.columns and not bat.empty:
             sorted_df = bat.sort_values(stat, ascending=False)
             top_rows = sorted_df.head(5)
-            leaders['batting'][stat] = [
-                {
-                    'id': str(int(row.get('xMLBAMID'))),
-                    'name': _clean_name(row.get('Name')),
-                    'value': row.get(stat),
-                }
-                for _, row in top_rows.iterrows()
-            ]
+            stat_leaders = []
+            for _, row in top_rows.iterrows():
+                value = row.get(stat)
+                if stat == 'OPS':
+                    try:
+                        value = f"{float(value):.3f}"
+                    except (TypeError, ValueError):
+                        pass
+                stat_leaders.append(
+                    {
+                        'id': str(int(row.get('xMLBAMID'))),
+                        'name': _clean_name(row.get('Name')),
+                        'value': value,
+                    }
+                )
+            leaders['batting'][stat] = stat_leaders
 
     # Pitching leaders
     pit = pit_df.copy()
@@ -544,21 +552,29 @@ def league_leaders(request):
             break
 
     if 'IP' in pit.columns:
-        pit = pit[pit['IP'] > 20]
+        pit = pit[pit['IP'] > 50]
 
-    for stat in ['ERA', 'SO', 'W', 'SV']:
+    for stat in ['ERA', 'SO', 'W', 'SV', 'WHIP']:
         if stat in pit.columns and not pit.empty:
-            sort_ascending = stat == 'ERA'
+            sort_ascending = stat in ('ERA', 'WHIP')
             sorted_df = pit.sort_values(stat, ascending=sort_ascending)
             top_rows = sorted_df.head(5)
-            leaders['pitching'][stat] = [
-                {
-                    'id': str(int(row.get('xMLBAMID'))),
-                    'name': _clean_name(row.get('Name')),
-                    'value': row.get(stat),
-                }
-                for _, row in top_rows.iterrows()
-            ]
+            stat_leaders = []
+            for _, row in top_rows.iterrows():
+                value = row.get(stat)
+                if stat in ('ERA', 'WHIP'):
+                    try:
+                        value = round(float(value), 2)
+                    except (TypeError, ValueError):
+                        pass
+                stat_leaders.append(
+                    {
+                        'id': str(int(row.get('xMLBAMID'))),
+                        'name': _clean_name(row.get('Name')),
+                        'value': value,
+                    }
+                )
+            leaders['pitching'][stat] = stat_leaders
 
     return JsonResponse(leaders)
 
@@ -570,11 +586,12 @@ def team_leaders(request, mlbam_team_id: int):
     Leaders include batting HR, AVG, RBI and pitching ERA, SO using
     ``UnifiedDataClient`` leaderboards filtered for the specified team.
     """
+    logger.info("Fetching team leaders for mlbam_team_id=%s", mlbam_team_id)
     if UnifiedDataClient is None:
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     team_row = (
-        TeamIdInfo.objects.filter(id=mlbam_team_id)
+        TeamIdInfo.objects.filter(mlbam_team_id=mlbam_team_id)
         .values('abbrev')
         .first()
     )
@@ -583,7 +600,7 @@ def team_leaders(request, mlbam_team_id: int):
 
     abbrev = team_row.get('abbrev')
     season = datetime.now().year
-
+    logger.info("Using team abbrev=%s for mlbam_team_id=%s", abbrev, mlbam_team_id)
     try:
         client = UnifiedDataClient()
         bat_df = client.fetch_batting_leaderboards(season)
@@ -659,4 +676,5 @@ def team_leaders(request, mlbam_team_id: int):
                 'name': _clean_name(row.get('Name')),
                 'value': row.get('SV'),
             }
+    logger.info("Team leaders for mlbam_team_id=%s: %s", mlbam_team_id, leaders)
     return JsonResponse(leaders)
