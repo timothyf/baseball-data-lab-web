@@ -1,55 +1,54 @@
 <template>
-  <section class="api-explorer">
-    <h2>Frontend API Explorer</h2>
-    <div class="frontend explorer-container">
-      <div class="explorer-main">
-        <div v-if="endpoints.length">
-          <label for="endpoint-select">Endpoint:</label>
-          <select id="endpoint-select" v-model="selected">
-            <option :value="null" disabled>Select an endpoint</option>
-            <option v-for="ep in endpoints" :key="ep.template" :value="ep">
-              {{ ep.path }}
-            </option>
-          </select>
-          <div v-if="selected">
-            <div v-for="param in selected.params" :key="param" class="param-input">
-              <label :for="param">{{ param }}</label>
-              <input :id="param" v-model="params[param]" />
+  <div class="api-explorer-wrapper">
+    <section class="api-explorer">
+      <h2>Frontend API Explorer</h2>
+      <div class="frontend explorer-container">
+        <div class="explorer-main">
+          <div v-if="endpoints.length">
+            <label for="endpoint-select">Endpoint:</label>
+            <select id="endpoint-select" v-model="selected">
+              <option :value="null" disabled>Select an endpoint</option>
+              <option v-for="ep in endpoints" :key="ep.template" :value="ep"> {{ ep.path }} </option>
+            </select>
+            <div v-if="selected">
+              <div v-for="param in selected.params" :key="param" class="param-input">
+                <label :for="param">{{ param }}</label>
+                <input :id="param" v-model="params[param]" />
+              </div>
+              <div v-if="selected.query_params && selected.query_params.length" class="query-input">
+                <label for="query">Query</label>
+                <input id="query" :placeholder="queryPlaceholder" v-model="query" />
+              </div>
+              <button @click="callEndpoint">Fetch</button>
             </div>
-            <div v-if="selected.query_params && selected.query_params.length" class="query-input">
-              <label for="query">Query</label>
-              <input id="query" :placeholder="queryPlaceholder" v-model="query" />
+            <div v-if="result">
+              <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
+              <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
+              <a v-else :href="result" download>Download result</a>
             </div>
-            <button @click="callEndpoint">Fetch</button>
-          </div>
-          <div v-if="result">
-            <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
-            <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
-            <a v-else :href="result" download>Download result</a>
           </div>
         </div>
       </div>
-      <aside class="explorer-sidebar">
-        <h3>Sample IDs</h3>
-        <h4>Players</h4>
-        <ul>
-          <li v-for="p in samplePlayers" :key="p.id">{{ p.name }} - {{ p.id }}</li>
-        </ul>
-        <h4>Teams</h4>
-        <ul>
-          <li v-for="t in sampleTeams" :key="t.id">{{ t.name }} - {{ t.id }}</li>
-        </ul>
-      </aside>
-    </div>
-    <h2>Backend API Explorer</h2>
-    <p>This section allows you to explore the backend API endpoints. BaseballDataLab provides a unified 
-       interface to access various baseball data.</p>
-    <div class="backend explorer-container">
-      <div class="explorer-main"></div>
-    </div>
-  </section>
+      <h2>Backend API Explorer</h2>
+      <p>This section allows you to explore the backend API endpoints. BaseballDataLab provides a unified interface to
+        access various baseball data.</p>
+      <div class="backend explorer-container">
+        <div class="explorer-main"></div>
+      </div>
+    </section>
+    <aside class="explorer-sidebar">
+      <h3>Sample IDs</h3>
+      <h4>Players</h4>
+      <ul>
+        <li v-for="p in samplePlayers" :key="p.id">{{ p.name }} - {{ p.id }}</li>
+      </ul>
+      <h4>Teams</h4>
+      <ul>
+        <li v-for="t in sampleTeams" :key="t.id">{{ t.name }} - {{ t.id }}</li>
+      </ul>
+    </aside>
+  </div>
 </template>
-
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 
@@ -138,25 +137,30 @@ async function callEndpoint() {
   }
 }
 </script>
-
 <style scoped>
-.api-explorer {
-  max-width: 1284px;
+.api-explorer-wrapper {
+  display: flex;
+  flex-direction: row;;
 }
+
 .explorer-container {
   display: flex;
 }
+
 .explorer-main {
   flex: 1;
 }
+
 .explorer-sidebar {
   margin-left: 2rem;
   max-width: 250px;
 }
+
 .param-input,
 .query-input {
   margin-top: 1rem;
 }
+
 pre {
   margin-top: 1rem;
   background: #f5f5f5;
