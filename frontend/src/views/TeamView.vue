@@ -318,11 +318,16 @@ async function loadRecord(mlbam_team_id) {
     const oldData = teamsStore.getStandings(mlbam_team_id);
     if (!deepEqual(newData, oldData)) {
       teamsStore.setStandings(mlbam_team_id, newData);
-      if (mlbam_team_id === mlbam_team_id.value) {
-        teamRecord.value = record;
-        divisionStandings.value = standings;
-      }
     }
+
+    // Always update the local refs with the latest data. Previously this
+    // was guarded by a comparison against a non-existent `mlbam_team_id`
+    // ref which left `teamRecord` and `divisionStandings` unset. As a
+    // result only the team logo rendered and the rest of the header
+    // (including team leaders which depend on the record) never
+    // displayed. Simply assign the values returned from the fetch.
+    teamRecord.value = record;
+    divisionStandings.value = standings;
   };
 
   if (cached) {
@@ -388,6 +393,10 @@ watch(
     teamDetails.value = null;
     divisionStandings.value = [];
     leaders.value = null;
+
+    // When navigating between teams ensure we refetch all of the
+    // information for the newly selected team.
+    resolveTeamId(newId);
   }
 );
 
