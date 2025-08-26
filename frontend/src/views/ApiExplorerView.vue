@@ -16,9 +16,9 @@
               <label :for="param">{{ param }}</label>
               <input :id="param" v-model="params[param]" />
             </div>
-            <div class="query-input">
+            <div v-if="selected.query_params && selected.query_params.length" class="query-input">
               <label for="query">Query</label>
-              <input id="query" placeholder="e.g., date=2024-04-01" v-model="query" />
+              <input id="query" :placeholder="queryPlaceholder" v-model="query" />
             </div>
             <button @click="callEndpoint">Fetch</button>
           </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 
 const endpoints = ref([]);
 const selected = ref(null);
@@ -53,6 +53,13 @@ const params = ref({});
 const query = ref('');
 const result = ref(null);
 const resultType = ref('');
+
+const queryPlaceholder = computed(() => {
+  if (!selected.value || !selected.value.query_params || !selected.value.query_params.length) {
+    return 'e.g., param=value';
+  }
+  return `e.g., ${selected.value.query_params.map((p) => `${p}=value`).join('&')}`;
+});
 
 const samplePlayers = [
   { id: 669373, name: 'Tarik Skubal' },
