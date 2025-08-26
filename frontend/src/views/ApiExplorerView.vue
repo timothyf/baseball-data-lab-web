@@ -39,13 +39,13 @@
               <option :value="null" disabled>Select a method</option>
               <option v-for="m in backendMethods" :key="m.name" :value="m">{{ m.name }}</option>
             </select>
-            <div v-if="backendSelected">
-              <div v-for="param in backendSelected.params" :key="param" class="param-input">
-                <label :for="`backend-${param}`">{{ param }}</label>
-                <input :id="`backend-${param}`" v-model="backendParams[param]" />
+              <div v-if="backendSelected">
+                <div v-for="param in backendParsedParams" :key="param.name" class="param-input">
+                  <label :for="`backend-${param.name}`">{{ param.label }}</label>
+                  <input :id="`backend-${param.name}`" v-model="backendParams[param.name]" />
+                </div>
+                <button @click="callBackend">Fetch</button>
               </div>
-              <button @click="callBackend">Fetch</button>
-            </div>
             <div v-if="backendResult">
               <pre v-if="backendResultType === 'json' || backendResultType === 'text'">{{ backendResult }}</pre>
               <img v-else-if="backendResultType === 'image'" :src="backendResult" alt="Response image" />
@@ -83,6 +83,17 @@ const backendSelected = ref(null);
 const backendParams = ref({});
 const backendResult = ref(null);
 const backendResultType = ref('');
+const backendParsedParams = computed(() => {
+  if (!backendSelected.value) return [];
+  return backendSelected.value.params.map((p) => {
+    const [name, def] = p.split('=');
+    let defaultVal = def ?? '';
+    if (defaultVal.startsWith("'") && defaultVal.endsWith("'")) {
+      defaultVal = defaultVal.slice(1, -1);
+    }
+    return { name, label: p, default: defaultVal };
+  });
+});
 
 const queryPlaceholder = computed(() => {
   if (!selected.value || !selected.value.query_params || !selected.value.query_params.length) {
@@ -148,6 +159,11 @@ watch(backendSelected, () => {
   backendParams.value = {};
   backendResult.value = null;
   backendResultType.value = '';
+  if (backendSelected.value) {
+    for (const p of backendParsedParams.value) {
+      backendParams.value[p.name] = p.default;
+    }
+  }
 });
 
 async function callEndpoint() {
