@@ -262,15 +262,19 @@ onMounted(() => {
   color: var(--color-accent);
 }
 
+
 .standings-table .p-datatable-header,
 .standings-table .p-datatable-thead > tr > th {
   background-color: var(--color-accent);
   color: var(--color-primary);
 }
 
-.standings-table td a {
+.standings-table td {
   font-size: 13px;
   font-family: proxima-nova, "open Sans", Helvetica, Arial, sans-serif;
+}
+
+.standings-table td a {
   font-weight: bold;
 }
 
