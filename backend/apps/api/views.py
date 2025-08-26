@@ -33,6 +33,14 @@ except Exception as exc:  # pragma: no cover - handles missing dependency
 def list_api_endpoints(request):
     from . import urls as api_urls
     endpoints = []
+    # Map endpoint names to query parameters they accept.
+    query_params = {
+        'api-schedule': ['date'],
+        'api-player-search': ['q'],
+        'api-team-search': ['q'],
+        'api-team-record': ['season'],
+    }
+
     for pattern in api_urls.urlpatterns:
         if isinstance(pattern, URLPattern):
             route = pattern.pattern._route
@@ -44,6 +52,7 @@ def list_api_endpoints(request):
                     'path': f'/api/{display}',
                     'template': f'/api/{route}',
                     'params': params,
+                    'query_params': query_params.get(pattern.name, []),
                 }
             )
     return JsonResponse({'endpoints': endpoints})
