@@ -45,64 +45,77 @@
           <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
-      <div v-if="boxscore" class="boxscore">
-        <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
-          <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
-          <table class="boxscore-table">
-            <thead>
-              <tr>
-                <th>Batter</th>
-                <th>AB</th>
-                <th>R</th>
-                <th>H</th>
-                <th>RBI</th>
-                <th>BB</th>
-                <th>SO</th>
-                <th>AVG</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="id in (boxscoreTeams[side]?.batters ?? [])
-                .filter(id => playerStat(side, id, 'batting', 'plateAppearances') > 0)" :key="`bat-` + id">
-                <td>{{ playerName(side, id) }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'baseOnBalls') }}</td>
-                <td>{{ playerStat(side, id, 'batting', 'strikeOuts') }}</td>
-                <td>{{ playerSeasonStat(side, id, 'batting', 'avg') }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <table class="boxscore-table">
-            <thead>
-              <tr>
-                <th>Pitcher</th>
-                <th>IP</th>
-                <th>H</th>
-                <th>R</th>
-                <th>ER</th>
-                <th>BB</th>
-                <th>K</th>
-                <th>ERA</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="id in boxscoreTeams[side]?.pitchers ?? []" :key="`pit-` + id">
-                <td>{{ playerName(side, id) }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'inningsPitched') }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'hits') }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'runs') }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
-                <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
-                <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div v-if="topPerformers.length" class="top-performers card">
+        <h3>Top Performers</h3>
+        <ul>
+          <li v-for="tp in topPerformers" :key="tp.player?.person?.id">
+            <span class="player-name">{{ performerName(tp) }}</span>
+            <span class="player-summary">{{ performerSummary(tp) }}</span>
+          </li>
+        </ul>
       </div>
+        <div v-if="boxscore" class="boxscore">
+          <h3>Boxscore</h3>
+          <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
+            <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
+            <table class="boxscore-table">
+              <thead>
+                <tr>
+                  <th>Batter</th>
+                  <th>AB</th>
+                  <th>R</th>
+                  <th>H</th>
+                  <th>RBI</th>
+                  <th>BB</th>
+                  <th>SO</th>
+                  <th>AVG</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="id in (boxscoreTeams[side]?.batters ?? [])
+                    .filter(id => playerStat(side, id, 'batting', 'plateAppearances') > 0)"
+                  :key="`bat-` + id"
+                >
+                  <td>{{ playerName(side, id) }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'baseOnBalls') }}</td>
+                  <td>{{ playerStat(side, id, 'batting', 'strikeOuts') }}</td>
+                  <td>{{ playerSeasonStat(side, id, 'batting', 'avg') }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="boxscore-table">
+              <thead>
+                <tr>
+                  <th>Pitcher</th>
+                  <th>IP</th>
+                  <th>H</th>
+                  <th>R</th>
+                  <th>ER</th>
+                  <th>BB</th>
+                  <th>K</th>
+                  <th>ERA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="id in boxscoreTeams[side]?.pitchers ?? []" :key="`pit-` + id">
+                  <td>{{ playerName(side, id) }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'inningsPitched') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'hits') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'runs') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
+                  <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
     </div>
   </section>
 </template>
@@ -163,6 +176,21 @@ const linescoreTeams = computed(
 
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
+
+const topPerformers = computed(() => game.value?.topPerformers ?? []);
+
+function performerName(tp) {
+  const person = tp?.player?.person || {};
+  return person.boxscoreName || person.fullName || '';
+}
+
+function performerSummary(tp) {
+  return (
+    tp?.player?.stats?.batting?.summary ||
+    tp?.player?.stats?.pitching?.summary ||
+    ''
+  );
+}
 
 function pitcherName(entry) {
   if (!entry) return '';
@@ -391,5 +419,20 @@ function playerSeasonStat(side, id, statType, field) {
 
 .summary-info .title {
   font-weight: bold;
+}
+
+.top-performers ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.top-performers li {
+  margin-bottom: 0.5rem;
+}
+
+.top-performers .player-name {
+  font-weight: bold;
+  margin-right: 0.25rem;
 }
 </style>
