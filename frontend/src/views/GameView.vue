@@ -39,12 +39,12 @@
           </table>
         </div>
         <div class="summary-info card">
-          <p>Winning Pitcher: {{ winningPitcher }}</p>
-          <p>Losing Pitcher: {{ losingPitcher }}</p>
-          <p>Save: {{ savePitcher }}</p>
-          <p>HRs: {{ homers }}</p>
-          <p>Attendance: {{ attendance }}</p>
-          <p>Game Time: {{ gameDuration }}</p>
+          <p><span class="title">Winning Pitcher:</span> {{ winningPitcher }}</p>
+          <p><span class="title">Losing Pitcher:</span> {{ losingPitcher }}</p>
+          <p v-if="savePitcher && savePitcher !== '—'"><span class="title">Save:</span> {{ savePitcher }}</p>
+          <p><span class="title">HRs:</span> {{ homers }}</p>
+          <p><span class="title">Attendance:</span> {{ attendance }}</p>
+          <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
         <div v-if="boxscore" class="boxscore">
@@ -377,5 +377,9 @@ function playerSeasonStat(side, id, statType, field) {
 
 .summary-info {
   flex: 1;
+}
+
+.summary-info .title {
+  font-weight: bold;
 }
 </style>

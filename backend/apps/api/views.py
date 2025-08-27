@@ -99,11 +99,11 @@ def game_data(request, game_pk: int):
     try:
         client = UnifiedDataClient()
         data = client.get_game_live_feed(game_pk)
-        data['home_team_data']['logo_url'] = client.get_team_spot_url(
-            data['home_team_data']['id'], 32
+        data['gameData']['teams']['home']['logo_url'] = client.get_team_spot_url(
+            data['gameData']['teams']['home']['id'], 32
         )
-        data['away_team_data']['logo_url'] = client.get_team_spot_url(
-            data['away_team_data']['id'], 32
+        data['gameData']['teams']['away']['logo_url'] = client.get_team_spot_url(
+            data['gameData']['teams']['away']['id'], 32
         )
         return JsonResponse(data, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
