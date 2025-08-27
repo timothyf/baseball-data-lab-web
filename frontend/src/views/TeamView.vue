@@ -1,42 +1,12 @@
 <template>
   <section class="team-view" :style="teamColorStyle">
     <div class="team-container">
-      <div class="team-header">
-        <div class="top-header">
-          <img v-if="teamLogoSrc" :src="teamLogoSrc" alt="Team Logo" class="team-logo" />
-          <h1 v-if="teamRecord">{{ teamRecord.teamName }}</h1>
-        </div>
-        <div v-if="teamRecord" class="stats-container">
-            <p v-if="teamRecord"> {{ teamRecord.wins }}-{{ teamRecord.losses }} - {{ formatRank(teamRecord.divisionRank)
-              }} </p>
-          <table class="team-stats">
-            <thead>
-              <tr>
-                <th>Streak</th>
-                <th>Last 10</th>
-                <th>Last 30</th>
-                <th>RS</th>
-                <th>RA</th>
-                <th>rDiff</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ streakCode }}</td>
-                <td>{{ lastTen }}</td>
-                <td>{{ lastThirty }}</td>
-                <td>{{ runsScored }}</td>
-                <td>{{ runsAllowed }}</td>
-                <td>{{ runDifferential }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <TeamHeader :team-logo-src="teamLogoSrc" :team-record="teamRecord" />
       <TabView>
         <TabPanel header="Summary">
           <div class="summary-content">
-            <p class="venue-name" v-if="teamDetails"> {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
+            <p class="venue-name" v-if="teamDetails">
+              {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
             </p>
             <Skeleton v-else width="300px" height="1.5rem" />
           </div>
@@ -63,142 +33,34 @@
           </div>
         </TabPanel>
         <TabPanel header="Leaders">
-          <div v-if="leaders" class="leader-cards">
-            <div v-if="leaders.batting || leaders.pitching" class="leaders-section">
-              <div v-if="leaders.batting" class="stats-container">
-                <h2>Batting Leaders</h2>
-                <ul>
-                  <li v-for="(data, stat) in leaders.batting" :key="`bat-` + stat"> {{ stat }}: <RouterLink
-                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"> {{ data.name }}
-                    </RouterLink> {{ ['AVG', 'SLG', 'OPS'].includes(stat) && data.value != null ?
-                      parseFloat(data.value).toFixed(3).replace(/^0\./, '.') : data.value }} </li>
-                </ul>
-              </div>
-              <div v-if="leaders.pitching" class="stats-container">
-                <h2>Pitching Leaders</h2>
-                <ul>
-                  <li v-for="(data, stat) in leaders.pitching" :key="`pit-` + stat"> {{ stat }}: <RouterLink
-                      :to="{ name: 'Player', params: { id: data.id }, query: { name: data.name } }"> {{ data.name }}
-                    </RouterLink> {{ stat === 'ERA' && data.value != null ? parseFloat(data.value).toFixed(2) :
-                    data.value }} </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div v-else class="leader-cards">
-            <Skeleton v-for="n in 2" :key="n" width="45%" height="10rem" />
-          </div>
+          <TeamLeaders :leaders="leaders" />
         </TabPanel>
         <TabPanel header="Roster">
-          <div v-if="batters.length || pitchers.length" class="roster-section">
-            <div v-if="batters.length" class="stats-container roster">
-              <h2>Batters ({{ batters.length }})</h2>
-              <table class="team-stats roster-table">
-                <thead class="roster-head">
-                  <tr>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Pos</th>
-                    <th>Bats</th>
-                    <th>#</th>
-                    <th>MLB ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <template v-for="group in battersByPosition" :key="group.position">
-                    <tr class="position-row">
-                      <th colspan="6">{{ group.position }}</th>
-                    </tr>
-                    <tr v-for="player in group.players" :key="player.person.id">
-                      <td>
-                        <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }"> {{
-                          player.person.fullName }} </RouterLink>
-                      </td>
-                      <td>{{ player.person?.currentAge ?? '' }}</td>
-                      <td>{{ player.position.abbreviation }}</td>
-                      <td>{{ player.person?.batSide?.code ?? '' }}</td>
-                      <td>{{ player.person?.primaryNumber ?? '' }}</td>
-                      <td>
-                        <a :href="`https://www.mlb.com/player/${player.person.id}`" target="_blank"
-                          rel="noopener noreferrer"> {{ player.person.id ?? '' }} </a>
-                      </td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
-            </div>
-            <div v-if="pitchers.length" class="stats-container roster">
-              <h2>Pitchers ({{ pitchers.length }})</h2>
-              <table class="team-stats roster-table">
-                <thead class="roster-head">
-                  <tr>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Throws</th>
-                    <th>#</th>
-                    <th>MLB ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="player in pitchers" :key="player.person.id">
-                    <td>
-                      <RouterLink :to="{ name: 'Player', params: { id: player.person.id } }"> {{ player.person.fullName
-                        }} </RouterLink>
-                    </td>
-                    <td>{{ player.person?.currentAge ?? '' }}</td>
-                    <td>{{ player.person?.pitchHand?.code ?? '' }}</td>
-                    <td>{{ player.person?.primaryNumber ?? '' }}</td>
-                    <td>
-                      <a :href="`https://www.mlb.com/player/${player.person.id}`" target="_blank"
-                        rel="noopener noreferrer"> {{ player.person.id ?? '' }} </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div v-else class="roster-section">
-            <Skeleton v-for="n in 2" :key="n" class="stats-container roster" height="15rem" />
-          </div>
+          <TeamRoster :roster="roster" />
         </TabPanel>
-        <TabPanel header="Stats"> Content coming soon... </TabPanel>
+        <TabPanel header="Stats">
+          Content coming soon...
+        </TabPanel>
         <TabPanel header="Schedule">
-          <div class="recent-schedule" v-if="recentSchedule">
-            <div class="schedule-section">
-              <h2>Previous Games</h2>
-              <div class="schedule-card">
-                <ul>
-                  <li v-for="game in previousGames" :key="`prev-` + game.gamePk">
-                    <RouterLink :to="{ name: 'Game', params: { game_pk: game.gamePk } }"> {{ formatDate(game.gameDate)
-                      }} {{ describeGame(game, true) }} </RouterLink>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="schedule-section">
-              <h2>Upcoming Games</h2>
-              <div class="schedule-card">
-                <ul>
-                  <li v-for="game in nextGames" :key="`next-` + game.gamePk"> {{ formatDate(game.gameDate) }} {{
-                    describeGame(game, false) }} </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div v-else class="recent-schedule">
-            <Skeleton v-for="n in 2" :key="n" class="schedule-card" height="8rem" width="45%" />
-          </div>
+          <TeamSchedule :recent-schedule="recentSchedule" :mlbam-team-id="mlbam_team_id" />
         </TabPanel>
-        <TabPanel header="History"> Content coming soon... </TabPanel>
+        <TabPanel header="History">
+          Content coming soon...
+        </TabPanel>
       </TabView>
     </div>
   </section>
 </template>
+
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Skeleton from 'primevue/skeleton';
+import TeamHeader from '../components/team/TeamHeader.vue';
+import TeamLeaders from '../components/team/TeamLeaders.vue';
+import TeamRoster from '../components/team/TeamRoster.vue';
+import TeamSchedule from '../components/team/TeamSchedule.vue';
 import teamColors from '../data/teamColors.json';
 import { useTeamsStore } from '../store/teams';
 import {
@@ -226,17 +88,15 @@ const leaders = ref(null);
 const teamsStore = useTeamsStore();
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-
 const teamColorStyle = computed(() => {
   const colors = teamColors[name] || [];
   return {
-    '--color-primary': colors[0]?.hex || '#1e3a8a', // Navy, default: blue
-    '--color-secondary': colors[1]?.hex || '#1e40af', // Orange, default: dark blue
-    '--color-accent': colors[2]?.hex || '#1e3a8a' // default: blue
+    '--color-primary': colors[0]?.hex || '#1e3a8a',
+    '--color-secondary': colors[1]?.hex || '#1e40af',
+    '--color-accent': colors[2]?.hex || '#1e3a8a'
   };
 });
 
-// fetcher for plain-text URL
 async function loadLogo(mlbam_team_id) {
   const url = await fetchTeamLogo(mlbam_team_id);
   teamLogoSrc.value = (url || "").trim();
@@ -261,12 +121,6 @@ async function loadRecord(mlbam_team_id) {
       teamsStore.setStandings(mlbam_team_id, newData);
     }
 
-    // Always update the local refs with the latest data. Previously this
-    // was guarded by a comparison against a non-existent `mlbam_team_id`
-    // ref which left `teamRecord` and `divisionStandings` unset. As a
-    // result only the team logo rendered and the rest of the header
-    // (including team leaders which depend on the record) never
-    // displayed. Simply assign the values returned from the fetch.
     teamRecord.value = record;
     divisionStandings.value = standings;
   };
@@ -287,35 +141,13 @@ async function loadStandings(mlbam_team_id) {
   return division?.teamRecords || [];
 }
 
-
 async function resolveTeamId(mlbam_team_id) {
-  // Display cached data right away
-  loadLogo(mlbam_team_id).catch(() => { });
-  loadRecord(mlbam_team_id).catch(() => { });
-  loadTeamDetails(mlbam_team_id).catch(() => { });
-  loadRecentSchedule(mlbam_team_id).catch(() => { });
-  loadRoster(mlbam_team_id).catch(() => { });
-  loadLeaders(mlbam_team_id).catch(() => { });
-
-  // Resolve canonical team ID and revalidate if different
-  // try {
-  //   const resp = await fetch(`/api/teams/${mlbam_team_id}/`);
-  //   if (resp.ok) {
-  //     const data = await resp.json();
-  //     const canonical = data.id;
-  //     mlbamTeamId.value = canonical;
-  //     if (canonical !== mlbam_team_id) {
-  //       loadTeamDetails(canonical).catch(() => {});
-  //       loadRecentSchedule(canonical).catch(() => {});
-  //       loadRoster(canonical).catch(() => {});
-  //       loadLeaders(canonical).catch(() => {});
-  //     }
-  //   } else {
-  //     mlbamTeamId.value = teamId;
-  //   }
-  // } catch (e) {
-  //   mlbamTeamId.value = teamId;
-  // }
+  loadLogo(mlbam_team_id).catch(() => {});
+  loadRecord(mlbam_team_id).catch(() => {});
+  loadTeamDetails(mlbam_team_id).catch(() => {});
+  loadRecentSchedule(mlbam_team_id).catch(() => {});
+  loadRoster(mlbam_team_id).catch(() => {});
+  loadLeaders(mlbam_team_id).catch(() => {});
 }
 
 onMounted(() => {
@@ -333,22 +165,9 @@ watch(
     divisionStandings.value = [];
     leaders.value = null;
 
-    // When navigating between teams ensure we refetch all of the
-    // information for the newly selected team.
     resolveTeamId(newId);
   }
 );
-
-
-function formatRank(rank) {
-  if (rank == null) return "";
-  const j = rank % 10,
-    k = rank % 100;
-  if (j === 1 && k !== 11) return `${rank}st Place`;
-  if (j === 2 && k !== 12) return `${rank}nd Place`;
-  if (j === 3 && k !== 13) return `${rank}rd Place`;
-  return `${rank}th Place`;
-}
 
 async function loadRecentSchedule(mlbam_team_id) {
   recentSchedule.value = await fetchTeamRecentSchedule(mlbam_team_id);
@@ -429,87 +248,8 @@ async function loadTeamDetails(mlbam_team_id) {
   }
   await fetchAndUpdate();
 }
-
-const previousGames = computed(() => {
-  const dates = recentSchedule.value?.previousGameSchedule?.dates ?? [];
-  return dates.flatMap(d => d.games);
-});
-
-const nextGames = computed(() => {
-  const dates = recentSchedule.value?.nextGameSchedule?.dates ?? [];
-  return dates.flatMap(d => d.games);
-});
-
-const streakCode = computed(() => teamRecord.value?.streak?.streakCode || "");
-
-const lastTen = computed(() => {
-  const split = teamRecord.value?.records?.splitRecords?.find(r => r.type === 'lastTen');
-  return split ? `${split.wins}-${split.losses}` : "";
-});
-
-const lastThirty = computed(() => {
-  const split = teamRecord.value?.records?.splitRecords?.find(r => r.type === 'lastThirty');
-  return split ? `${split.wins}-${split.losses}` : "";
-});
-
-const runsScored = computed(() => teamRecord.value?.runsScored ?? "");
-const runsAllowed = computed(() => teamRecord.value?.runsAllowed ?? "");
-const runDifferential = computed(() => teamRecord.value?.runDifferential ?? "");
-
-const batters = computed(() =>
-  roster.value.filter(p => p.position?.abbreviation !== 'P')
-);
-
-const pitchers = computed(() =>
-  roster.value.filter(p => p.position?.abbreviation === 'P')
-);
-
-const battersByPosition = computed(() => {
-  const order = ['C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'OF', 'DH'];
-  const groups = batters.value.reduce((acc, player) => {
-    const pos = player.position?.abbreviation || 'Other';
-    if (!acc[pos]) acc[pos] = [];
-    acc[pos].push(player);
-    return acc;
-  }, {});
-  return Object.keys(groups)
-    .sort((a, b) => {
-      const ai = order.indexOf(a);
-      const bi = order.indexOf(b);
-      if (ai === -1 && bi === -1) return a.localeCompare(b);
-      if (ai === -1) return 1;
-      if (bi === -1) return -1;
-      return ai - bi;
-    })
-    .map((pos) => ({
-      position: pos,
-      players: groups[pos].sort((a, b) =>
-        (a.person?.fullName ?? '').localeCompare(b.person?.fullName ?? '')
-      ),
-    }));
-});
-
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  return isNaN(d) ? dateStr : d.toLocaleDateString();
-}
-
-function describeGame(game, includeScore) {
-  const home = game.teams.home;
-  const away = game.teams.away;
-  const isHome = home.team.id === mlbam_team_id;
-  const opponent = isHome ? away.team.name : home.team.name;
-  const vsAt = isHome ? 'vs' : '@';
-  let result = '';
-  if (includeScore && home.score != null && away.score != null) {
-    const usScore = isHome ? home.score : away.score;
-    const oppScore = isHome ? away.score : home.score;
-    const outcome = usScore > oppScore ? 'W' : (usScore < oppScore ? 'L' : 'T');
-    result = ` ${outcome} ${usScore}-${oppScore}`;
-  }
-  return `${vsAt} ${opponent}${result}`;
-}
 </script>
+
 <style scoped>
 .team-view {
   min-height: 100vh;
@@ -521,42 +261,6 @@ function describeGame(game, includeScore) {
 .team-container {
   max-width: 1100px;
   margin: 0 auto;
-}
-
-.team-info p.venue-name {
-  font-size: 22px;
-}
-
-.team-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding: 3rem;
-  font-family: var(--font-base);
-  margin: 0 auto;
-  max-width: 1100px;
-  width: 100%;
-  text-align: center;
-}
-
-.team-logo {
-  max-width: 7.5rem;
-  width: 100%;
-  height: auto;
-}
-
-.team-info h1 {
-  margin: 0;
-  font-size: 3.4rem;
-  font-weight: 700;
-}
-
-.team-info p {
-  margin: 0;
-  font-size: 2.2rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  padding-top: 8px;
 }
 
 .stats-container {
@@ -594,97 +298,6 @@ function describeGame(game, includeScore) {
   font-weight: 600;
 }
 
-.roster-section {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.leader-cards {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-}
-
-.leader-card {
-  flex: 1 1 45%;
-}
-
-.roster {
-  flex: 1 1 45%;
-  margin: 0 auto 1rem;
-  padding: 0.5rem;
-}
-
-.roster-table {
-  font-size: 1.2rem;
-}
-
-.roster-table th,
-.roster-table td {
-  padding: 0.25rem 0.5rem;
-}
-
-.recent-schedule {
-  display: flex;
-  margin: 1rem auto 0;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 700px;
-  flex-wrap: wrap;
-}
-
-.schedule-section {
-  margin: 1rem 0;
-  flex: 1 1 45%;
-}
-
-.schedule-card {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  text-align: left;
-  width: 325px;
-}
-
-.schedule-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.schedule-card li {
-  margin-bottom: 0.25rem;
-}
-
-.roster-head tr th {
-  color: white;
-}
-
-@media (max-width: 600px) {
-  .team-header {
-    flex-direction: column;
-    padding: 1.5rem 1rem;
-  }
-
-  .team-logo {
-    margin-right: 0;
-    margin-bottom: 1rem;
-  }
-
-  .recent-schedule {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .schedule-section {
-    width: 100%;
-  }
-}
-
 .division-standings thead th {
   background-color: var(--color-primary);
   color: #fff;
@@ -694,15 +307,5 @@ function describeGame(game, includeScore) {
   background-color: hsl(210, 100%, 80%);
   color: white;
   font-weight: 600;
-}
-
-.position-row th {
-  background-color: var(--color-secondary);
-  color: #fff;
-  text-align: left;
-}
-
-.team-header .team-stats th {
-  color: white;
 }
 </style>
