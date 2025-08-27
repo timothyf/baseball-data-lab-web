@@ -1,0 +1,36 @@
+{
+  "AL": [
+    { "name": "Baltimore Orioles", "mlbam_team_id": 110 },
+    { "name": "Boston Red Sox", "mlbam_team_id": 111 },
+    { "name": "New York Yankees", "mlbam_team_id": 147 },
+    { "name": "Tampa Bay Rays", "mlbam_team_id": 139 },
+    { "name": "Toronto Blue Jays", "mlbam_team_id": 141 },
+    { "name": "Chicago White Sox", "mlbam_team_id": 145 },
+    { "name": "Cleveland Guardians", "mlbam_team_id": 114 },
+    { "name": "Detroit Tigers", "mlbam_team_id": 116 },
+    { "name": "Kansas City Royals", "mlbam_team_id": 118 },
+    { "name": "Minnesota Twins", "mlbam_team_id": 142 },
+    { "name": "Houston Astros", "mlbam_team_id": 117 },
+    { "name": "Los Angeles Angels", "mlbam_team_id": 108 },
+    { "name": "Oakland Athletics", "mlbam_team_id": 133 },
+    { "name": "Seattle Mariners", "mlbam_team_id": 136 },
+    { "name": "Texas Rangers", "mlbam_team_id": 140 }
+  ],
+  "NL": [
+    { "name": "Atlanta Braves", "mlbam_team_id": 144 },
+    { "name": "Miami Marlins", "mlbam_team_id": 146 },
+    { "name": "New York Mets", "mlbam_team_id": 121 },
+    { "name": "Philadelphia Phillies", "mlbam_team_id": 143 },
+    { "name": "Washington Nationals", "mlbam_team_id": 120 },
+    { "name": "Chicago Cubs", "mlbam_team_id": 112 },
+    { "name": "Cincinnati Reds", "mlbam_team_id": 113 },
+    { "name": "Milwaukee Brewers", "mlbam_team_id": 158 },
+    { "name": "Pittsburgh Pirates", "mlbam_team_id": 134 },
+    { "name": "St. Louis Cardinals", "mlbam_team_id": 138 },
+    { "name": "Arizona Diamondbacks", "mlbam_team_id": 109 },
+    { "name": "Colorado Rockies", "mlbam_team_id": 115 },
+    { "name": "Los Angeles Dodgers", "mlbam_team_id": 119 },
+    { "name": "San Diego Padres", "mlbam_team_id": 135 },
+    { "name": "San Francisco Giants", "mlbam_team_id": 137 }
+  ]
+}
