@@ -10,7 +10,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in standardHittingRows" :key="row.label">
+          <tr
+            v-for="row in standardHittingRows"
+            :key="row.label"
+            :class="{ 'career-total': row.label === 'Career' }"
+          >
             <td>{{ row.label }}</td>
             <td v-for="field in standardHittingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
@@ -27,7 +31,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in advancedHittingRows" :key="row.label">
+          <tr
+            v-for="row in advancedHittingRows"
+            :key="row.label"
+            :class="{ 'career-total': row.label === 'Career' }"
+          >
             <td>{{ row.label }}</td>
             <td v-for="field in advancedHittingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
@@ -44,7 +52,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in standardPitchingRows" :key="row.label">
+          <tr
+            v-for="row in standardPitchingRows"
+            :key="row.label"
+            :class="{ 'career-total': row.label === 'Career' }"
+          >
             <td>{{ row.label }}</td>
             <td v-for="field in standardPitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
@@ -61,7 +73,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in advancedPitchingRows" :key="row.label">
+          <tr
+            v-for="row in advancedPitchingRows"
+            :key="row.label"
+            :class="{ 'career-total': row.label === 'Career' }"
+          >
             <td>{{ row.label }}</td>
             <td v-for="field in advancedPitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
@@ -207,6 +223,9 @@ const advancedPitchingRows = computed(() => {
 .stats-table th {
   background: var(--color-primary);
   color: #fff;
+}
+.stats-table tr.career-total {
+  background: #e6f7ff;
 }
 </style>
 
