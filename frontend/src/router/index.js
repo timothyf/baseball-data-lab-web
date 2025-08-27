@@ -1,75 +1,59 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import ScheduleView from '../views/ScheduleView.vue';
-import StandingsView from '../views/StandingsView.vue';
-import TeamsView from '../views/TeamsView.vue';
-import TeamView from '../views/TeamView.vue';
-import PlayersView from '../views/PlayersView.vue';
-import PlayerView from '../views/PlayerView.vue';
-import GameView from '../views/GameView.vue';
-import NewGameView from '../views/NewGameView.vue';
-import ApiExplorerView from '../views/ApiExplorerView.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView
+    component: () => import('../views/HomeView.vue')
   },
   {
     path: '/schedule',
     name: 'Schedule',
-    component: ScheduleView
+    component: () => import('../views/ScheduleView.vue')
   },
   {
     path: '/standings',
     name: 'Standings',
-    component: StandingsView
+    component: () => import('../views/StandingsView.vue')
   },
   {
     path: '/teams',
     name: 'Teams',
-    component: TeamsView
+    component: () => import('../views/TeamsView.vue')
   },
   {
     path: '/team/:mlbam_team_id',
     name: 'Team',
-    component: TeamView,
+    component: () => import('../views/TeamView.vue'),
     props: route => ({ mlbam_team_id: route.params.mlbam_team_id, name: route.query.name })
   },
   {
     path: '/game/:game_pk',
     name: 'Game',
-    component: GameView,
+    component: () => import('../views/GameView.vue'),
     props: route => ({ game_pk: route.params.game_pk })
   },
   {
     path: '/new-game/:game_pk',
     name: 'NewGame',
-    component: NewGameView,
+    component: () => import('../views/NewGameView.vue'),
     props: route => ({ game_pk: route.params.game_pk })
   },
   {
     path: '/players',
     name: 'Players',
-    component: PlayersView
+    component: () => import('../views/PlayersView.vue')
   },
   {
     path: '/player/:id',
     name: 'Player',
-    component: PlayerView,
+    component: () => import('../views/PlayerView.vue'),
     props: route => ({ id: route.params.id, name: route.query.name })
   },
   {
     path: '/developer',
     name: 'ApiExplorer',
-    component: ApiExplorerView
-  },
-  {
-    path: '/game/:game_pk',
-    name: 'Game',
-    component: GameView,
-    props: route => ({ game_pk: route.params.game_pk })
+    component: () => import('../views/ApiExplorerView.vue')
   }
 ];
 
