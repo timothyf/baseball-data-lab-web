@@ -11,7 +11,7 @@ import { useScheduleStore } from './store/schedule';
 import './global.css';
 
 import PrimeVue from 'primevue/config';
-import Aura from '@primeuix/themes/aura';
+import Aura from '@primevue/themes/aura';
 //import 'primeicons/primeicons.css';
 import 'primevue/dataview/style';
 import 'primevue/datatable/style';
@@ -45,18 +45,3 @@ scheduleStore.schedule = scheduleData;
 
 app.mount('#vue-app');
 
-function updateActiveNav(path) {
-  const links = document.querySelectorAll('.top-nav a');
-  const normalizedPath = path.replace(/\/$/, '');
-  links.forEach((link) => {
-    const href = link.getAttribute('href').replace(/\/$/, '');
-    if (href === normalizedPath) {
-      link.classList.add('active');
-    } else {
-      link.classList.remove('active');
-    }
-  });
-}
-
-updateActiveNav(router.currentRoute.value.path);
-router.afterEach((to) => updateActiveNav(to.path));
