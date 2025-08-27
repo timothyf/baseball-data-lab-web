@@ -98,15 +98,13 @@ def game_data(request, game_pk: int):
         return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
     try:
         client = UnifiedDataClient()
-        data = client.get_game_data(game_pk)
-        # Pull additional boxscore details for summary information
-        try:
-            boxscore = client.get_game_boxscore_data(game_pk)
-            data.setdefault('liveData', {})['boxscore'] = boxscore
-        except Exception:  # pragma: no cover - downstream service failure
-            pass
-        data['home_team_data']['logo_url'] = client.get_team_spot_url(data['home_team_data']['id'], 32)
-        data['away_team_data']['logo_url'] = client.get_team_spot_url(data['away_team_data']['id'], 32)
+        data = client.get_game_live_feed(game_pk)
+        data['home_team_data']['logo_url'] = client.get_team_spot_url(
+            data['home_team_data']['id'], 32
+        )
+        data['away_team_data']['logo_url'] = client.get_team_spot_url(
+            data['away_team_data']['id'], 32
+        )
         return JsonResponse(data, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
         return JsonResponse({'error': str(exc)}, status=500)
@@ -126,7 +124,7 @@ def predict_game(request, game_pk: int):
 
     try:
         client = UnifiedDataClient()
-        game_data = client.get_game_data(game_pk)
+        game_data = client.get_game_live_feed(game_pk)
 
         home_id = game_data.get('home_team_data', {}).get('id')
         away_id = game_data.get('away_team_data', {}).get('id')
