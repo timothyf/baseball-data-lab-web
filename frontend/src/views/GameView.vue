@@ -1,5 +1,5 @@
 <template>
-  <section class="game-view" :style="pageStyle">
+  <section class="game-view">
     <div v-if="game" class="game-container">
       <h2 class="matchup-header">
         <img :src="awayTeam.logo_url" alt="Away Logo" class="team-logo" />
@@ -10,7 +10,7 @@
       <h3 class="game-date">{{ gameDate }}</h3>
       <div class="game-summary">
         <div v-if="innings.length" class="card linescore-div">
-          <table class="linescore" :style="{ '--team-color': '#f0f0f0' }">
+          <table class="linescore">
             <thead>
               <tr>
                 <th></th>
@@ -22,14 +22,14 @@
             </thead>
             <tbody>
               <tr>
-                <th :style="{ backgroundColor: awayColor }">{{ awayTeam.name }}</th>
+                <th>{{ awayTeam.name }}</th>
                 <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
               </tr>
               <tr>
-                <th :style="{ backgroundColor: homeColor }">{{ homeTeam.name }}</th>
+                <th>{{ homeTeam.name }}</th>
                 <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
@@ -51,7 +51,7 @@
           <h3>Boxscore</h3>
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
             <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
-            <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
+            <table class="boxscore-table">
               <thead>
                 <tr>
                   <th>Batter</th>
@@ -81,7 +81,7 @@
                 </tr>
               </tbody>
             </table>
-            <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
+            <table class="boxscore-table">
               <thead>
                 <tr>
                   <th>Pitcher</th>
@@ -115,15 +115,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import teamColors from '../data/teamColors.json';
 
 const { game_pk } = defineProps({
   game_pk: { type: [String, Number], required: true }
 });
 
 const game = ref(null);
-const homeColor = ref('#ffffff');
-const awayColor = ref('#ffffff');
 
 const homeTeam = computed(() =>
   game.value?.home_team_data || game.value?.gameData?.teams?.home || {}
@@ -139,18 +136,9 @@ onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
   if (resp.ok) {
     game.value = await resp.json();
-    const awayColors = teamColors[awayTeam.value.name] || [];
-    awayColor.value = awayColors[0]?.hex || '#ffffff';
-    const homeColors = teamColors[homeTeam.value.name] || [];
-    homeColor.value = homeColors[0]?.hex || '#ffffff';
   }
 
 });
-
-const pageStyle = computed(() => ({
-  '--color-primary': homeColor.value,
-  '--color-secondary': awayColor.value
-}));
 
 
 
@@ -259,7 +247,7 @@ function playerSeasonStat(side, id, statType, field) {
 <style scoped>
 .game-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background-color: #f8f8f8;
   padding: 2rem 1rem;
 }
 
@@ -272,7 +260,7 @@ function playerSeasonStat(side, id, statType, field) {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #333;
 }
 
 .team-logo {
@@ -286,13 +274,23 @@ function playerSeasonStat(side, id, statType, field) {
   border-collapse: collapse;
 }
 .linescore thead {
-  background-color: var(--team-color);
+  background-color: #333;
+  color: #fff;
 }
 .linescore th,
 .linescore td {
   border: 1px solid #ccc;
   text-align: center;
-  color: #000;
+}
+.linescore thead th {
+  color: #fff;
+}
+.linescore tbody th {
+  background-color: #e0e0e0;
+  color: #333;
+}
+.linescore td {
+  color: #333;
 }
 
 .linescore th {
@@ -335,22 +333,24 @@ function playerSeasonStat(side, id, statType, field) {
   border-collapse: collapse;
 }
 .boxscore-table thead {
-  background-color: var(--team-color);
+  background-color: #333;
+  color: #fff;
 }
 
 .boxscore-table th,
 .boxscore-table td {
   border: 1px solid #ccc;
   text-align: center;
-  color: #000;
 }
 
 .boxscore-table th {
   padding: 8px 12px;
+  color: #fff;
 }
 
 .boxscore-table td {
   padding: 4px 8px;
+  color: #333;
 }
 .boxscore-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
@@ -367,7 +367,7 @@ function playerSeasonStat(side, id, statType, field) {
 
 .game-date {
   font-size: 1.4rem;
-  color: #fff;
+  color: #333;
   margin: 0 0 1rem;
   text-align: center;
 }
