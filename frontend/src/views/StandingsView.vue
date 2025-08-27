@@ -49,7 +49,11 @@
                 <Column field="losses" header="L"></Column>
                 <Column field="winningPercentage" header="PCT"></Column>
                 <Column field="divisionGamesBack" header="GB"></Column>
-                <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column
+                  field="wildCardGamesBack"
+                  header="WCGB"
+                  style="border-right: 1px solid #ccc"
+                ></Column>
                 <Column header="L10">
                   <template #body="{ data }">
                     {{ lastTenRecord(data) }}
@@ -110,7 +114,11 @@
                 <Column field="losses" header="L"></Column>
                 <Column field="winningPercentage" header="PCT"></Column>
                 <Column field="divisionGamesBack" header="GB"></Column>
-                <Column field="wildCardGamesBack" header="WCGB"></Column>
+                <Column
+                  field="wildCardGamesBack"
+                  header="WCGB"
+                  style="border-right: 1px solid #ccc"
+                ></Column>
                 <Column field="runsScored" header="RS"></Column>
                 <Column field="runsAllowed" header="RA"></Column>
                 <Column field="runDifferential" header="rDiff">
