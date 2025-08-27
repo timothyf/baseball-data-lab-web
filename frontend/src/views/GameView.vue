@@ -47,6 +47,15 @@
           <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
+      <div v-if="topPerformers.length" class="top-performers card">
+        <h3>Top Performers</h3>
+        <ul>
+          <li v-for="tp in topPerformers" :key="tp.player?.person?.id">
+            <span class="player-name">{{ performerName(tp) }}</span>
+            <span class="player-summary">{{ performerSummary(tp) }}</span>
+          </li>
+        </ul>
+      </div>
         <div v-if="boxscore" class="boxscore">
           <h3>Boxscore</h3>
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
@@ -170,6 +179,21 @@ const linescoreTeams = computed(
 
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
+
+const topPerformers = computed(() => game.value?.topPerformers ?? []);
+
+function performerName(tp) {
+  const person = tp?.player?.person || {};
+  return person.boxscoreName || person.fullName || '';
+}
+
+function performerSummary(tp) {
+  return (
+    tp?.player?.stats?.batting?.summary ||
+    tp?.player?.stats?.pitching?.summary ||
+    ''
+  );
+}
 
 function pitcherName(entry) {
   if (!entry) return '';
@@ -385,5 +409,20 @@ function playerSeasonStat(side, id, statType, field) {
 
 .summary-info .title {
   font-weight: bold;
+}
+
+.top-performers ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.top-performers li {
+  margin-bottom: 0.5rem;
+}
+
+.top-performers .player-name {
+  font-weight: bold;
+  margin-right: 0.25rem;
 }
 </style>
