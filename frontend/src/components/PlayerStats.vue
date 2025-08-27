@@ -96,6 +96,7 @@ import {
   advancedPitchingFields,
   fieldLabels
 } from '../config/playerStatsConfig.js';
+import { fetchPlayerStats, fetchTeamDetails } from '../services/api.js';
 
 
 const { id } = defineProps({ id: String });
@@ -104,15 +105,8 @@ const stats = ref(null);
 const teamAbbrevs = ref({});
 
 onMounted(async () => {
-  try {
-    const resp = await fetch(`/api/players/${id}/stats/`);
-    if (resp.ok) {
-      stats.value = await resp.json();
-      await fetchTeamAbbrevs(stats.value?.stats);
-    }
-  } catch (e) {
-    console.error('Failed to fetch player stats', e);
-  }
+  stats.value = await fetchPlayerStats(id);
+  await fetchTeamAbbrevs(stats.value?.stats);
 });
 
 
@@ -128,14 +122,9 @@ async function fetchTeamAbbrevs(statGroups) {
   await Promise.all(
     Array.from(ids).map(async tid => {
       if (teamAbbrevs.value[tid]) return;
-      try {
-        const resp = await fetch(`/api/teams/${tid}/`);
-        if (resp.ok) {
-          const data = await resp.json();
-          teamAbbrevs.value[tid] = data.abbrev || tid;
-        }
-      } catch (e) {
-        console.error('Failed to fetch team info', e);
+      const data = await fetchTeamDetails(tid);
+      if (data) {
+        teamAbbrevs.value[tid] = data.abbrev || tid;
       }
     })
   );

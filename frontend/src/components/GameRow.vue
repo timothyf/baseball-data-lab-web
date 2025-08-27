@@ -110,6 +110,7 @@ let standingsPromise;
 <script setup>
 import { ref, onMounted } from 'vue';
 import { gameTime, teamAbbrev, shortName } from '../composables/gameHelpers';
+import { fetchStandings } from '../services/api.js';
 
 const { game } = defineProps({
   game: {
@@ -128,15 +129,9 @@ const playerLink = (player) => ({
 const homeRecord = ref(null);
 const awayRecord = ref(null);
 
-async function fetchStandings() {
+async function ensureStandings() {
   if (!standingsPromise) {
-    standingsPromise = fetch('/api/standings/')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
+    standingsPromise = fetchStandings()
       .then((data) => {
         for (const record of data || []) {
           for (const teamRecord of record?.teamRecords || []) {
@@ -144,7 +139,7 @@ async function fetchStandings() {
             if (team?.id != null) {
               recordCache.set(team.id, {
                 wins: teamRecord.wins,
-                losses: teamRecord.losses
+                losses: teamRecord.losses,
               });
             }
           }
@@ -159,7 +154,7 @@ async function fetchStandings() {
 
 async function fetchTeamRecord(teamId) {
   if (!recordCache.has(teamId)) {
-    await fetchStandings();
+    await ensureStandings();
   }
   return recordCache.get(teamId) || null;
 }
