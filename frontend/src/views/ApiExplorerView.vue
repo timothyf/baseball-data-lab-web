@@ -79,6 +79,16 @@
           {{ t.name }} - {{ t.id }}
         </li>
       </ul>
+      <h4>Game PKs</h4>
+      <ul>
+        <li
+          v-for="g in sampleGames"
+          :key="g.id"
+          @click="copyId(g.id)"
+        >
+          {{ g.name }} - {{ g.id }}
+        </li>
+      </ul>
     </aside>
   </div>
 </template>
@@ -134,6 +144,16 @@ const sampleTeams = [
   { id: 147, name: 'New York Yankees' },
   { id: 108, name: 'Los Angeles Angels' },
   { id: 119, name: 'Los Angeles Dodgers' }
+];
+
+const sampleGames = [
+  { id: 746865, name: 'Cardinals at Cubs (2024-06-15)' },
+  { id: 744925, name: 'Guardians at Blue Jays (2024-06-15)' },
+  { id: 745329, name: 'Angels at Giants (2024-06-15)' },
+  { id: 747024, name: 'Phillies at Orioles (2024-06-15)' },
+  { id: 744846, name: 'Marlins at Nationals (2024-06-15)' },
+  { id: 746381, name: 'Tigers at Astros (2024-06-15)' },
+  { id: 745805, name: 'Padres at Mets (2024-06-15)' }
 ];
 
 function copyId(id) {
