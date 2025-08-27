@@ -329,19 +329,27 @@ onMounted(() => {
   text-align: center;
 }
 
+:deep(.p-datatable-column-header-content) {
+  text-align: center;
+  display: inline;
+}
+
 :deep(.standings-table .p-datatable-tbody > tr > td) {
   font-size: 13px;
   font-family: proxima-nova, "open Sans", Helvetica, Arial, sans-serif;
   text-align: center;
 }
 
-:deep(.standings-table .p-datatable-tbody > tr > td a) {
-  font-weight: bold;
+:deep(
+    .standings-table .p-datatable-thead > tr > th:first-child,
+    .standings-table .p-datatable-thead > tr > th:first-child .p-datatable-column-header-content,
+    .standings-table .p-datatable-tbody > tr > td:first-child
+  ) {
+  text-align: left;
 }
 
-:deep(.p-datatable-column-header-content) {
-  text-align: center;
-  display: inline;
+:deep(.standings-table .p-datatable-tbody > tr > td a) {
+  font-weight: bold;
 }
 
 </style>
