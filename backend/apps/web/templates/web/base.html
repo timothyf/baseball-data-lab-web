@@ -21,10 +21,10 @@
             margin-left: auto;
         }
         .top-nav a:hover,
-        .top-nav a.active {
+        .top-nav a.router-link-exact-active {
             background-color: #0056b3;
         }
-        .top-nav a.active {
+        .top-nav a.router-link-exact-active {
             font-weight: bold;
         }
     </style>
@@ -32,20 +32,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="top-nav">
-        <a href="{% url 'home' %}"
-           class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
-        <a href="{% url 'schedule' %}"
-           class="{% if request.resolver_match.url_name == 'schedule' %}active{% endif %}">Schedule</a>
-        <a href="{% url 'standings' %}"
-           class="{% if request.resolver_match.url_name == 'standings' %}active{% endif %}">Standings</a>
-        <a href="{% url 'teams' %}"
-           class="{% if request.resolver_match.url_name == 'teams' %}active{% endif %}">Teams</a>
-        <a href="{% url 'players' %}"
-           class="{% if request.resolver_match.url_name == 'players' %}active{% endif %}">Players</a>
-        <a href="{% url 'developer' %}"
-           class="{% if request.resolver_match.url_name == 'developer' %}active{% endif %} developer-link">Developer</a>
-    </nav>
+    
     {% block content %}{% endblock %}
 </body>
 </html>
