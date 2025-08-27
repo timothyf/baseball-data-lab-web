@@ -85,6 +85,7 @@ import PlayerStats from '../components/PlayerStats.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import teamColors from '../data/teamColors.json';
+import { fetchPlayer, fetchTeamLogo } from '../services/api.js';
 
 const { id } = defineProps({
   id: String
@@ -135,32 +136,21 @@ const hasBio = computed(() =>
 );
 
 onMounted(async () => {
-  try {
-    const resp = await fetch(`/api/players/${id}/`);
-    if (resp.ok) {
-      const data = await resp.json();
-      name.value = data.name || '';
-      teamName.value = data.team_name || '';
-      position.value = data.position || '';
-      birthDate.value = data.birth_date || '';
-      birthPlace.value = data.birth_place || '';
-      height.value = data.height || '';
-      weight.value = data.weight || '';
-      batSide.value = data.bat_side || '';
-      throwSide.value = data.throw_side || '';
-      if (data.team_id) {
-        try {
-          const logoResp = await fetch(`/api/teams/${data.team_id}/logo/`);
-          if (logoResp.ok) {
-            teamLogoSrc.value = (await logoResp.text()).trim();
-          }
-        } catch (e) {
-          console.error('Failed to fetch team logo', e);
-        }
-      }
+  const data = await fetchPlayer(id);
+  if (data) {
+    name.value = data.name || '';
+    teamName.value = data.team_name || '';
+    position.value = data.position || '';
+    birthDate.value = data.birth_date || '';
+    birthPlace.value = data.birth_place || '';
+    height.value = data.height || '';
+    weight.value = data.weight || '';
+    batSide.value = data.bat_side || '';
+    throwSide.value = data.throw_side || '';
+    if (data.team_id) {
+      const logo = await fetchTeamLogo(data.team_id);
+      teamLogoSrc.value = (logo || '').trim();
     }
-  } catch (e) {
-    console.error('Failed to load player info', e);
   }
 });
 </script>

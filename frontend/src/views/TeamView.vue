@@ -201,6 +201,15 @@ import TabPanel from 'primevue/tabpanel';
 import Skeleton from 'primevue/skeleton';
 import teamColors from '../data/teamColors.json';
 import { useTeamsStore } from '../store/teams';
+import {
+  fetchTeamLogo,
+  fetchTeamRecord,
+  fetchStandings,
+  fetchTeamDetails,
+  fetchTeamRecentSchedule,
+  fetchTeamRoster,
+  fetchTeamLeaders,
+} from '../services/api.js';
 
 const { mlbam_team_id, name } = defineProps({
   mlbam_team_id: { type: String, required: true },
@@ -229,15 +238,8 @@ const teamColorStyle = computed(() => {
 
 // fetcher for plain-text URL
 async function loadLogo(mlbam_team_id) {
-  try {
-    const res = await fetch(`/api/teams/${mlbam_team_id}/logo/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const url = (await res.text()).trim();   // <- plain text, not JSON
-    teamLogoSrc.value = url || "";           // handle empty response
-  } catch (e) {
-    console.error("Failed to fetch logo:", e);
-    teamLogoSrc.value = "";
-  }
+  const url = await fetchTeamLogo(mlbam_team_id);
+  teamLogoSrc.value = (url || "").trim();
 }
 
 async function loadRecord(mlbam_team_id) {
@@ -248,24 +250,9 @@ async function loadRecord(mlbam_team_id) {
   }
 
   const fetchAndUpdate = async () => {
-    const recordPromise = fetch(`/api/teams/${mlbam_team_id}/record/`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .catch((e) => {
-        console.error("Failed to fetch team record:", e);
-        return null;
-      });
-
-    const standingsPromise = loadStandings(mlbam_team_id).catch((e) => {
-      console.error("Failed to fetch standings:", e);
-      return [];
-    });
-
     const [record, standings] = await Promise.all([
-      recordPromise,
-      standingsPromise,
+      fetchTeamRecord(mlbam_team_id),
+      loadStandings(mlbam_team_id),
     ]);
 
     const newData = { record, standings };
@@ -292,10 +279,8 @@ async function loadRecord(mlbam_team_id) {
 }
 
 async function loadStandings(mlbam_team_id) {
-  const res = await fetch(`/api/standings/`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  const records = data.records || data;
+  const data = await fetchStandings();
+  const records = data?.records || data || [];
   const division = records.find(r =>
     r.teamRecords?.some(record => record.team.id === Number(mlbam_team_id))
   );
@@ -366,15 +351,7 @@ function formatRank(rank) {
 }
 
 async function loadRecentSchedule(mlbam_team_id) {
-  try {
-    const res = await fetch(`/api/teams/${mlbam_team_id}/recent_schedule/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    recentSchedule.value = data;
-  } catch (e) {
-    console.error("Failed to fetch recent schedule:", e);
-    recentSchedule.value = null;
-  }
+  recentSchedule.value = await fetchTeamRecentSchedule(mlbam_team_id);
 }
 
 async function loadRoster(mlbam_team_id) {
@@ -384,21 +361,15 @@ async function loadRoster(mlbam_team_id) {
   }
 
   const fetchAndUpdate = async () => {
-    try {
-      const res = await fetch(`/api/teams/${mlbam_team_id}/roster/`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const parsed = data?.roster ?? data ?? [];
-      const oldData = teamsStore.getRoster(mlbam_team_id);
-      if (!deepEqual(parsed, oldData)) {
-        teamsStore.setRoster(mlbam_team_id, parsed);
-        roster.value = parsed;
-      }
-    } catch (e) {
-      console.error("Failed to fetch roster:", e);
-      if (!cached) {
-        roster.value = [];
-      }
+    const data = await fetchTeamRoster(mlbam_team_id);
+    const parsed = data?.roster ?? data ?? [];
+    const oldData = teamsStore.getRoster(mlbam_team_id);
+    if (!deepEqual(parsed, oldData)) {
+      teamsStore.setRoster(mlbam_team_id, parsed);
+      roster.value = parsed;
+    }
+    if (!data && !cached) {
+      roster.value = [];
     }
   };
 
@@ -416,20 +387,14 @@ async function loadLeaders(mlbam_team_id) {
   }
 
   const fetchAndUpdate = async () => {
-    try {
-      const res = await fetch(`/api/teams/${mlbam_team_id}/leaders/`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const oldData = teamsStore.getLeaders(mlbam_team_id);
-      if (!deepEqual(data, oldData)) {
-        teamsStore.setLeaders(mlbam_team_id, data);
-        leaders.value = data;
-      }
-    } catch (e) {
-      console.error("Failed to fetch team leaders:", e);
-      if (!cached) {
-        leaders.value = null;
-      }
+    const data = await fetchTeamLeaders(mlbam_team_id);
+    const oldData = teamsStore.getLeaders(mlbam_team_id);
+    if (!deepEqual(data, oldData)) {
+      teamsStore.setLeaders(mlbam_team_id, data);
+      leaders.value = data;
+    }
+    if (!data && !cached) {
+      leaders.value = null;
     }
   };
 
@@ -447,20 +412,14 @@ async function loadTeamDetails(mlbam_team_id) {
   }
 
   const fetchAndUpdate = async () => {
-    try {
-      const res = await fetch(`/api/teams/${mlbam_team_id}/`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const oldData = teamsStore.getDetails(mlbam_team_id);
-      if (!deepEqual(data, oldData)) {
-        teamsStore.setDetails(mlbam_team_id, data);
-        teamDetails.value = data;
-      }
-    } catch (e) {
-      console.error("Failed to fetch team info:", e);
-      if (!cached) {
-        teamDetails.value = null;
-      }
+    const data = await fetchTeamDetails(mlbam_team_id);
+    const oldData = teamsStore.getDetails(mlbam_team_id);
+    if (!deepEqual(data, oldData)) {
+      teamsStore.setDetails(mlbam_team_id, data);
+      teamDetails.value = data;
+    }
+    if (!data && !cached) {
+      teamDetails.value = null;
     }
   };
 

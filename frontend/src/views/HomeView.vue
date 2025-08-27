@@ -54,6 +54,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { fetchTopStat, fetchSchedule, fetchStandings } from '../services/api.js';
 
 const features = [
   {
@@ -92,38 +93,16 @@ function formatTime(dateStr) {
 }
 
 onMounted(async () => {
-  try {
-    const response = await fetch('/api/top-stat');
-    if (response.ok) {
-      const data = await response.json();
-      topStat.value = data.stat;
-    }
-  } catch (e) {
-    // Ignore errors
-  }
-  if (!topStat.value) {
-    topStat.value = 'Shohei Ohtani leads the league with 45 HRs.';
-  }
+  const statData = await fetchTopStat();
+  topStat.value = statData?.stat || 'Shohei Ohtani leads the league with 45 HRs.';
 
   const today = new Date().toISOString().split('T')[0];
-  try {
-    const [scheduleRes, standingsRes] = await Promise.all([
-      fetch(`/api/schedule/?date=${today}`),
-      fetch('/api/standings/'),
-    ]);
-
-    if (scheduleRes.ok) {
-      const sched = await scheduleRes.json();
-      schedulePreview.value = sched[0]?.games ?? [];
-    }
-    if (standingsRes.ok) {
-      const standings = await standingsRes.json();
-      standingsPreview.value =
-        standings.records?.[0]?.teamRecords ?? [];
-    }
-  } catch (e) {
-    // Ignore errors for dynamic content
-  }
+  const [schedData, standingsData] = await Promise.all([
+    fetchSchedule(today),
+    fetchStandings(),
+  ]);
+  schedulePreview.value = schedData?.[0]?.games ?? [];
+  standingsPreview.value = standingsData?.records?.[0]?.teamRecords ?? [];
 });
 </script>
 
