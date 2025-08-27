@@ -8,6 +8,7 @@
         .top-nav {
             background-color: #007bff;
             padding: 10px;
+            display: flex;
         }
         .top-nav a {
             color: white;
@@ -15,6 +16,9 @@
             text-decoration: none;
             padding: 5px 10px;
             border-radius: 4px;
+        }
+        .top-nav a.developer-link {
+            margin-left: auto;
         }
         .top-nav a:hover,
         .top-nav a.active {
@@ -29,11 +33,18 @@
 </head>
 <body>
     <nav class="top-nav">
-        <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
-        <a href="{% url 'schedule' %}" class="{% if request.resolver_match.url_name == 'schedule' %}active{% endif %}">Schedule</a>
-        <a href="{% url 'standings' %}" class="{% if request.resolver_match.url_name == 'standings' %}active{% endif %}">Standings</a>
-        <a href="{% url 'teams' %}" class="{% if request.resolver_match.url_name == 'teams' %}active{% endif %}">Teams</a>
-        <a href="{% url 'players' %}" class="{% if request.resolver_match.url_name == 'players' %}active{% endif %}">Players</a>
+        <a href="{% url 'home' %}"
+           class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+        <a href="{% url 'schedule' %}"
+           class="{% if request.resolver_match.url_name == 'schedule' %}active{% endif %}">Schedule</a>
+        <a href="{% url 'standings' %}"
+           class="{% if request.resolver_match.url_name == 'standings' %}active{% endif %}">Standings</a>
+        <a href="{% url 'teams' %}"
+           class="{% if request.resolver_match.url_name == 'teams' %}active{% endif %}">Teams</a>
+        <a href="{% url 'players' %}"
+           class="{% if request.resolver_match.url_name == 'players' %}active{% endif %}">Players</a>
+        <a href="{% url 'developer' %}"
+           class="{% if request.resolver_match.url_name == 'developer' %}active{% endif %} developer-link">Developer</a>
     </nav>
     {% block content %}{% endblock %}
 </body>

@@ -79,3 +79,7 @@ def game(request, game_pk: int):
 
 def new_game(request, game_pk: int = None):
     return render(request, 'web/new_game.html', {'game_pk': game_pk})
+
+
+def developer(request):
+    return render(request, 'web/developer.html')
