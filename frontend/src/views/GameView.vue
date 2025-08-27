@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="game">
+  <section class="game-view" :style="pageStyle">
+    <div v-if="game" class="game-container">
       <h2 class="matchup-header">
         <img :src="game.away_team_data.logo_url" alt="Away Logo" class="team-logo" />
         {{ game.away_team_data.name }} @
@@ -38,7 +38,7 @@
             </tbody>
           </table>
         </div>
-        <div class="summary-info">
+        <div class="summary-info card">
           <p>Winning Pitcher: {{ winningPitcher }}</p>
           <p>Losing Pitcher: {{ losingPitcher }}</p>
           <p>HRs: {{ homers }}</p>
@@ -109,11 +109,12 @@
           </div>
         </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import teamColors from '../data/teamColors.json';
 
 const { game_pk } = defineProps({
   game_pk: { type: [String, Number], required: true }
@@ -127,16 +128,17 @@ onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
   if (resp.ok) {
     game.value = await resp.json();
+    const awayColors = teamColors[game.value.away_team_data.name] || [];
+    awayColor.value = awayColors[0]?.hex || '#ffffff';
+    const homeColors = teamColors[game.value.home_team_data.name] || [];
+    homeColor.value = homeColors[0]?.hex || '#ffffff';
   }
 
 });
 
-const headerStyle = computed(() => ({
-  background: `linear-gradient(to right, ${awayColor.value}, ${homeColor.value})`,
-//  color: '#fff',
-  padding: '8px',
-  borderRadius: '4px',
-  textAlign: 'center'
+const pageStyle = computed(() => ({
+  '--color-primary': homeColor.value,
+  '--color-secondary': awayColor.value
 }));
 
 
@@ -212,11 +214,23 @@ function playerSeasonStat(side, id, statType, field) {
 </script>
 
 <style scoped>
+.game-view {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+  padding: 2rem 1rem;
+}
+
+.game-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .matchup-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: black !important;
+  color: #fff;
 }
 
 .team-logo {
@@ -253,9 +267,7 @@ function playerSeasonStat(side, id, statType, field) {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 20px auto 0;
+  margin-top: 20px;
 }
 
 .boxscore h3 {
@@ -310,19 +322,19 @@ function playerSeasonStat(side, id, statType, field) {
 
 .game-date {
   font-size: 1.4rem;
-  color: #555;
+  color: #fff;
   margin: 0 0 1rem;
   text-align: center;
 }
 
 .game-summary {
   display: flex;
-  max-width: 1200px;
-  margin: auto;
-  background-color: white;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 1rem;
 }
 
 .summary-info {
-  padding-left: 16px;
+  flex: 1;
 }
 </style>
