@@ -59,16 +59,37 @@
                     {{ lastTenRecord(data) }}
                   </template>
                 </Column>
-                <Column header="STRK">
+                <Column header="STRK" style="border-right: 1px solid #ccc">
                   <template #body="{ data }">
                     {{ data.streak?.streakCode }}
                   </template>
                 </Column>
-              </DataTable>
+                <Column field="runsScored" header="RS"></Column>
+                <Column field="runsAllowed" header="RA"></Column>
+                <Column field="runDifferential" header="rDiff">
+                  <template #body="{ data }">
+                    {{ formatRunDifferential(data.runDifferential) }}
+                  </template>
+                </Column>
+                <Column header="X-W/L" style="border-right: 1px solid #ccc">
+                  <template #body="{ data }">
+                    {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
+                  </template>
+                </Column>
+                <Column header="HOME">
+                  <template #body="{ data }">
+                    {{ homeRecord(data) }}
+                  </template>
+                </Column>
+                <Column header="AWAY">
+                  <template #body="{ data }">
+                    {{ awayRecord(data) }}
+                  </template>
+                </Column>              </DataTable>
             </div>
           </TabPanel>
 
-          <TabPanel header="Expanded">
+          <TabPanel header="Expanded">  
             <nav class="division-links">
               <div class="league-row">
                 <a
@@ -126,7 +147,7 @@
                     {{ formatRunDifferential(data.runDifferential) }}
                   </template>
                 </Column>
-                <Column header="xWL">
+                <Column header="X-W/L">
                   <template #body="{ data }">
                     {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
                   </template>
@@ -218,6 +239,20 @@ function lastTenRecord(teamRecord) {
   return split ? `${split.wins}-${split.losses}` : '';
 }
 
+function homeRecord(teamRecord) {
+  const split = teamRecord.records?.splitRecords?.find(
+    (r) => r.type === 'home'
+  );
+  return split ? `${split.wins}-${split.losses}` : '';
+}
+
+function awayRecord(teamRecord) {
+  const split = teamRecord.records?.splitRecords?.find(
+    (r) => r.type === 'away'
+  );
+  return split ? `${split.wins}-${split.losses}` : '';
+}
+
 function formatRunDifferential(diff) {
   return diff > 0 ? `+${diff}` : diff;
 }
@@ -291,15 +326,22 @@ onMounted(() => {
 :deep(.standings-table .p-datatable-thead > tr > th) {
   background-color: var(--color-accent);
   color: var(--color-primary);
+  text-align: center;
 }
 
 :deep(.standings-table .p-datatable-tbody > tr > td) {
   font-size: 13px;
   font-family: proxima-nova, "open Sans", Helvetica, Arial, sans-serif;
+  text-align: center;
 }
 
 :deep(.standings-table .p-datatable-tbody > tr > td a) {
   font-weight: bold;
+}
+
+:deep(.p-datatable-column-header-content) {
+  text-align: center;
+  display: inline;
 }
 
 </style>
