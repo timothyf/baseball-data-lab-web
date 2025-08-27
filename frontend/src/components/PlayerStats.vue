@@ -125,10 +125,10 @@ async function fetchTeamAbbrevs(statGroups) {
   );
 }
 
-function buildRows(statData, fields) {
+function buildRows(statData, fields, defaultLabel) {
   const splits = statData?.splits || [];
   return splits.map(split => {
-    const row = { label: split.season };
+    const row = { label: split.season || defaultLabel };
     fields.forEach(f => { row[f] = split.stat?.[f]; });
     const teamId = split.team?.id;
     row.team = teamAbbrevs.value[teamId] || (teamId ?? 'Total');
@@ -142,18 +142,50 @@ function findGroup(name, statType) {
   );
 }
 
-const standardHittingRows = computed(() =>
-  buildRows(findGroup('hitting', 'yearByYear'), standardHittingFields)
-);
-const advancedHittingRows = computed(() =>
-  buildRows(findGroup('hitting', 'yearByYearAdvanced'), advancedHittingFields)
-);
-const standardPitchingRows = computed(() =>
-  buildRows(findGroup('pitching', 'yearByYear'), standardPitchingFields)
-);
-const advancedPitchingRows = computed(() =>
-  buildRows(findGroup('pitching', 'yearByYearAdvanced'), advancedPitchingFields)
-);
+const standardHittingRows = computed(() => {
+  const year = buildRows(findGroup('hitting', 'yearByYear'), standardHittingFields);
+  const career = buildRows(findGroup('hitting', 'career'), standardHittingFields, 'Career');
+  return [...year, ...career];
+});
+
+const advancedHittingRows = computed(() => {
+  const year = buildRows(
+    findGroup('hitting', 'yearByYearAdvanced'),
+    advancedHittingFields
+  );
+  const career = buildRows(
+    findGroup('hitting', 'careerAdvanced'),
+    advancedHittingFields,
+    'Career'
+  );
+  return [...year, ...career];
+});
+
+const standardPitchingRows = computed(() => {
+  const year = buildRows(
+    findGroup('pitching', 'yearByYear'),
+    standardPitchingFields
+  );
+  const career = buildRows(
+    findGroup('pitching', 'career'),
+    standardPitchingFields,
+    'Career'
+  );
+  return [...year, ...career];
+});
+
+const advancedPitchingRows = computed(() => {
+  const year = buildRows(
+    findGroup('pitching', 'yearByYearAdvanced'),
+    advancedPitchingFields
+  );
+  const career = buildRows(
+    findGroup('pitching', 'careerAdvanced'),
+    advancedPitchingFields,
+    'Career'
+  );
+  return [...year, ...career];
+});
 
 </script>
 
