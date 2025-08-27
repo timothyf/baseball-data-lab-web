@@ -31,6 +31,7 @@
           v-if="leaders?.pitching?.ERA"
           title="ERA Leaders"
           :players="leaders.pitching.ERA"
+          :decimal-places="2"
         />
         <PlayerQuickList
           v-if="leaders?.pitching?.SO"
