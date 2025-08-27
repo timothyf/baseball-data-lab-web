@@ -1,9 +1,8 @@
 <template>
-  <div class="game-row" :style="rowStyle">
+  <div class="game-row">
     <div class="game-teams">
       <span
         class="team-chip away"
-        style="display:inline-flex;align-items:center;padding:2px 6px;margin-right:4px;background:#ffffff;color:var(--color-primary);border-radius:4px;"
       >
         <img
           v-if="game.teams.away.team.logo_url"
@@ -12,12 +11,11 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.away.team) }}
-        <span v-if="awayRecord" style="margin-left:4px;color:#888;">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
+        <span v-if="awayRecord" class="team-record">{{ awayRecord.wins }}-{{ awayRecord.losses }}</span>
       </span>
-      <span style="padding:0 4px;opacity:.6;font-size:1.0rem">@</span>
+      <span class="at-separator">@</span>
       <span
         class="team-chip home"
-        style="display:inline-flex;align-items:center;padding:2px 6px;margin-left:4px;background:#ffffff;color:var(--color-primary);border-radius:4px;"
       >
         <img
           v-if="game.teams.home.team.logo_url"
@@ -26,7 +24,7 @@
           class="team-logo"
         />
         {{ teamAbbrev(game.teams.home.team) }}
-        <span v-if="homeRecord" style="margin-left:4px;color:#888;">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
+        <span v-if="homeRecord" class="team-record">{{ homeRecord.wins }}-{{ homeRecord.losses }}</span>
       </span>
     </div>
     <div class="game-time">
@@ -55,7 +53,7 @@
       {{ game.broadcasts.map(b => b.callSign || b.name).join(', ') }}
     </div>
     <div class="game-pitchers" v-if="game.status?.detailedState === 'Final'">
-      <span v-if="game.decisions?.winner" style="padding:4px">
+      <span v-if="game.decisions?.winner" class="pitcher-result">
         <strong>W:</strong>
                 <RouterLink
                   :to="{
@@ -67,13 +65,13 @@
                  {{ shortName(game.decisions.winner.fullName) }}
                 </RouterLink>
       </span>
-      <span v-if="game.decisions?.loser" style="padding:4px">
+      <span v-if="game.decisions?.loser" class="pitcher-result">
         <strong>L:</strong>
         <RouterLink :to="playerLink(game.decisions.loser)">
           {{ shortName(game.decisions.loser.fullName) }}
         </RouterLink>
       </span>
-      <span v-if="game.decisions?.save" style="padding:4px">
+      <span v-if="game.decisions?.save" class="pitcher-result">
         <strong>S:</strong>
         <RouterLink :to="playerLink(game.decisions.save)">
           {{ shortName(game.decisions.save.fullName) }}
@@ -89,7 +87,7 @@
       </RouterLink>
       <span
         v-if="game.teams.home.probablePitcher"
-        style="padding:4px;opacity:.6;"
+        class="vs-separator"
         >vs</span
       >
       <RouterLink
@@ -102,15 +100,10 @@
   </div>
 </template>
 
-<script>
-const recordCache = new Map();
-let standingsPromise;
-</script>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import { gameTime, teamAbbrev, shortName } from '../composables/gameHelpers';
-import { fetchStandings } from '../services/api.js';
+import { useStandingsStore } from '../store/standings';
 
 const { game } = defineProps({
   game: {
@@ -129,64 +122,68 @@ const playerLink = (player) => ({
 const homeRecord = ref(null);
 const awayRecord = ref(null);
 
-async function ensureStandings() {
-  if (!standingsPromise) {
-    standingsPromise = fetchStandings()
-      .then((data) => {
-        for (const record of data || []) {
-          for (const teamRecord of record?.teamRecords || []) {
-            const team = teamRecord?.team;
-            if (team?.id != null) {
-              recordCache.set(team.id, {
-                wins: teamRecord.wins,
-                losses: teamRecord.losses,
-              });
-            }
-          }
-        }
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  }
-  return standingsPromise;
-}
-
-async function fetchTeamRecord(teamId) {
-  if (!recordCache.has(teamId)) {
-    await ensureStandings();
-  }
-  return recordCache.get(teamId) || null;
-}
+const standingsStore = useStandingsStore();
 
 onMounted(async () => {
   const [awayRecordRes, homeRecordRes] = await Promise.all([
-    fetchTeamRecord(game.teams.away.team.id),
-    fetchTeamRecord(game.teams.home.team.id)
+    standingsStore.fetchTeamRecord(game.teams.away.team.id),
+    standingsStore.fetchTeamRecord(game.teams.home.team.id)
   ]);
   awayRecord.value = awayRecordRes;
   homeRecord.value = homeRecordRes;
 });
-
-const rowStyle = {
-  background: '#ffffff',
-  padding: '10px',
-  border: '1px solid rgba(0,0,0,0.1)',
-  borderRadius: '6px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  fontSize: '.85rem',
-  lineHeight: '1.1',
-  color: '#000',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-};
 </script>
 
 <style scoped>
 .game-row {
   display: flex;
   align-items: center;
+  background: #ffffff;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  gap: 10px;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  background: #ffffff;
+  color: var(--color-primary);
+  border-radius: 4px;
+}
+
+.team-chip.away {
+  margin-right: 4px;
+}
+
+.team-chip.home {
+  margin-left: 4px;
+}
+
+.team-record {
+  margin-left: 4px;
+  color: #888;
+}
+
+.at-separator {
+  padding: 0 4px;
+  opacity: 0.6;
+  font-size: 1rem;
+}
+
+.pitcher-result {
+  padding: 4px;
+}
+
+.vs-separator {
+  padding: 4px;
+  opacity: 0.6;
 }
 
 .game-teams {
