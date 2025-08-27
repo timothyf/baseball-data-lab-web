@@ -2,12 +2,12 @@
   <section class="game-view" :style="pageStyle">
     <div v-if="game" class="game-container">
       <h2 class="matchup-header">
-        <img :src="game.away_team_data.logo_url" alt="Away Logo" class="team-logo" />
-        {{ game.away_team_data.name }} @
-        <img :src="game.home_team_data.logo_url" alt="Home Logo" class="team-logo" />
-        {{ game.home_team_data.name }}
+        <img :src="awayTeam.logo_url" alt="Away Logo" class="team-logo" />
+        {{ awayTeam.name }} @
+        <img :src="homeTeam.logo_url" alt="Home Logo" class="team-logo" />
+        {{ homeTeam.name }}
       </h2>
-      <h3 class="game-date">{{ game.gameDate }}</h3>
+      <h3 class="game-date">{{ gameDate }}</h3>
       <div class="game-summary">
         <div v-if="innings.length" class="card linescore-div">
           <table class="linescore" :style="{ '--team-color': '#f0f0f0' }">
@@ -22,14 +22,14 @@
             </thead>
             <tbody>
               <tr>
-                <th :style="{ backgroundColor: awayColor }">{{ game.away_team_data.name }}</th>
+                <th :style="{ backgroundColor: awayColor }">{{ awayTeam.name }}</th>
                 <td v-for="inning in innings" :key="`away-` + inning.num">{{ inning.away?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.hits ?? '' }}</td>
                 <td>{{ linescoreTeams.away?.errors ?? '' }}</td>
               </tr>
               <tr>
-                <th :style="{ backgroundColor: homeColor }">{{ game.home_team_data.name }}</th>
+                <th :style="{ backgroundColor: homeColor }">{{ homeTeam.name }}</th>
                 <td v-for="inning in innings" :key="`home-` + inning.num">{{ inning.home?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.home?.runs ?? '' }}</td>
                 <td>{{ linescoreTeams.home?.hits ?? '' }}</td>
@@ -50,7 +50,7 @@
         <div v-if="boxscore" class="boxscore">
           <h3>Boxscore</h3>
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
-            <h4>{{ side === 'away' ? game.away_team_data.name : game.home_team_data.name }}</h4>
+            <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
             <table class="boxscore-table" :style="{ '--team-color': side === 'away' ? awayColor : homeColor }">
               <thead>
                 <tr>
@@ -125,13 +125,23 @@ const game = ref(null);
 const homeColor = ref('#ffffff');
 const awayColor = ref('#ffffff');
 
+const homeTeam = computed(() =>
+  game.value?.home_team_data || game.value?.gameData?.teams?.home || {}
+);
+const awayTeam = computed(() =>
+  game.value?.away_team_data || game.value?.gameData?.teams?.away || {}
+);
+const gameDate = computed(
+  () => game.value?.gameDate || game.value?.gameData?.datetime?.originalDate || ''
+);
+
 onMounted(async () => {
   const resp = await fetch(`/api/games/${game_pk}/`);
   if (resp.ok) {
     game.value = await resp.json();
-    const awayColors = teamColors[game.value.away_team_data.name] || [];
+    const awayColors = teamColors[awayTeam.value.name] || [];
     awayColor.value = awayColors[0]?.hex || '#ffffff';
-    const homeColors = teamColors[game.value.home_team_data.name] || [];
+    const homeColors = teamColors[homeTeam.value.name] || [];
     homeColor.value = homeColors[0]?.hex || '#ffffff';
   }
 
@@ -144,11 +154,31 @@ const pageStyle = computed(() => ({
 
 
 
-const homeScore = computed(() => game.value?.teams?.home?.score ?? '');
-const awayScore = computed(() => game.value?.teams?.away?.score ?? '');
+const homeScore = computed(
+  () =>
+    game.value?.teams?.home?.score ??
+    game.value?.liveData?.linescore?.teams?.home?.runs ??
+    ''
+);
+const awayScore = computed(
+  () =>
+    game.value?.teams?.away?.score ??
+    game.value?.liveData?.linescore?.teams?.away?.runs ??
+    ''
+);
 
-const innings = computed(() => game.value?.scoreboard?.linescore?.innings ?? []);
-const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?? {});
+const innings = computed(
+  () =>
+    game.value?.scoreboard?.linescore?.innings ??
+    game.value?.liveData?.linescore?.innings ??
+    []
+);
+const linescoreTeams = computed(
+  () =>
+    game.value?.scoreboard?.linescore?.teams ??
+    game.value?.liveData?.linescore?.teams ??
+    {}
+);
 
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
@@ -182,21 +212,19 @@ const homers = computed(() => {
   if (fromSummary && fromSummary.length) {
     return fromSummary.join(', ');
   }
-  const info = game.value?.liveData?.boxscore?.info ?? [];
+  const info = boxscore.value?.info ?? [];
   const hrEntry = info.find(item => item.label === 'HR');
   return hrEntry ? hrEntry.value : '—';
 });
 
 const attendance = computed(() => {
-  const att =
-    (game.value?.boxscore?.info || []).find(i => i.label === 'Att')?.value;
+  const att = (boxscore.value?.info || []).find(i => i.label === 'Att')?.value;
   if (!att) return '—';
   return typeof att === 'number' ? att.toLocaleString() : att;
 });
 
 const gameDuration = computed(() => {
-  const time =
-    (game.value?.boxscore?.info || []).find(i => i.label === 'T')?.value;
+  const time = (boxscore.value?.info || []).find(i => i.label === 'T')?.value;
   if (!time) return '—';
   return typeof time === 'number' ? time.toLocaleString() : time;
 });
