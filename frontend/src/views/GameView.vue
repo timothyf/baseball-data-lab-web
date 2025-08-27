@@ -55,7 +55,6 @@
         </ul>
       </div>
         <div v-if="boxscore" class="boxscore">
-          <h3>Boxscore</h3>
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
             <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
             <table class="boxscore-table">
@@ -177,7 +176,7 @@ const linescoreTeams = computed(
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
 
-const topPerformers = computed(() => game.value?.topPerformers ?? []);
+const topPerformers = computed(() => game.value?.liveData.boxscore.topPerformers ?? []);
 
 function performerName(tp) {
   const person = tp?.player?.person || {};
