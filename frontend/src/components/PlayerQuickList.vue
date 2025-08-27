@@ -25,12 +25,19 @@ const props = defineProps({
   players: {
     type: Array,
     required: true
-  }
+  },
+  decimalPlaces: {
+    type: Number,
+    default: null,
+  },
 });
 
 const formatValue = (val) => {
   const num = Number(val);
   if (!isNaN(num)) {
+    if (props.decimalPlaces !== null) {
+      return num.toFixed(props.decimalPlaces);
+    }
     if (num < 1) {
       return num.toFixed(3).replace(/^0\./, '.');
     }
