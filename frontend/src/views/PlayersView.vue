@@ -42,6 +42,7 @@
           v-if="leaders?.pitching?.WHIP"
           title="WHIP Leaders"
           :players="leaders.pitching.WHIP"
+          :decimal-places="2"
         />
       </aside>
     </div>
