@@ -13,11 +13,16 @@ declare module 'vue' {
     DataView: typeof import('primevue/dataview')['default']
     GameRow: typeof import('./components/GameRow.vue')['default']
     HelloComponent: typeof import('./components/HelloComponent.vue')['default']
+    JsonViewer: typeof import('./components/JsonViewer.vue')['default']
     PlayerQuickList: typeof import('./components/PlayerQuickList.vue')['default']
     PlayerStats: typeof import('./components/PlayerStats.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchAutocomplete: typeof import('./components/SearchAutocomplete.vue')['default']
+    TeamHeader: typeof import('./components/team/TeamHeader.vue')['default']
+    TeamLeaders: typeof import('./components/team/TeamLeaders.vue')['default']
+    TeamRoster: typeof import('./components/team/TeamRoster.vue')['default']
+    TeamSchedule: typeof import('./components/team/TeamSchedule.vue')['default']
     VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }

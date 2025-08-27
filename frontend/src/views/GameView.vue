@@ -189,18 +189,16 @@ const homers = computed(() => {
 
 const attendance = computed(() => {
   const att =
-    game.value?.summary?.attendance ??
-    (game.value?.liveData?.boxscore?.info || []).find(i => i.label === 'Att')?.value;
+    (game.value?.boxscore?.info || []).find(i => i.label === 'Att')?.value;
   if (!att) return '—';
   return typeof att === 'number' ? att.toLocaleString() : att;
 });
 
 const gameDuration = computed(() => {
-  return (
-    game.value?.summary?.duration ||
-    (game.value?.liveData?.boxscore?.info || []).find(i => i.label === 'T')?.value ||
-    '—'
-  );
+  const time =
+    (game.value?.boxscore?.info || []).find(i => i.label === 'T')?.value;
+  if (!time) return '—';
+  return typeof time === 'number' ? time.toLocaleString() : time;
 });
 
 function player(side, id) {
