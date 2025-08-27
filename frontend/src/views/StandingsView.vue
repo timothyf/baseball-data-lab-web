@@ -340,7 +340,6 @@ onMounted(() => {
   text-align: center;
 }
 
-
 /* Left-align team column header and cells */
 :deep(.standings-table .p-datatable-thead > tr > th:first-child),
 :deep(.standings-table .p-datatable-thead > tr > th:first-child .p-datatable-column-header-content) {
