@@ -85,7 +85,8 @@
                   <template #body="{ data }">
                     {{ awayRecord(data) }}
                   </template>
-                </Column>              </DataTable>
+                </Column>              
+              </DataTable>
             </div>
           </TabPanel>
 
@@ -140,31 +141,64 @@
                   header="WCGB"
                   style="border-right: 1px solid #ccc"
                 ></Column>
-                <Column field="runsScored" header="RS"></Column>
-                <Column field="runsAllowed" header="RA"></Column>
-                <Column field="runDifferential" header="rDiff">
+                <Column header="XTRA">
                   <template #body="{ data }">
-                    {{ formatRunDifferential(data.runDifferential) }}
+                    {{ extraInningRecord(data) }}
                   </template>
                 </Column>
-                <Column header="X-W/L">
+                <Column header="1 RUN" style="border-right: 1px solid #ccc">
                   <template #body="{ data }">
-                    {{ `${data.records.expectedRecords[0].wins}-${data.records.expectedRecords[0].losses}` }}
+                    {{ oneRunRecord(data) }}
                   </template>
                 </Column>
-                <Column header="Home">
+                <Column header="DAY">
                   <template #body="{ data }">
-                    {{ `${data.records.splitRecords[0].wins} - ${data.records.splitRecords[0].losses}` }}
+                    {{ dayRecord(data) }}
                   </template>
                 </Column>
-                <Column header="Away">
+                <Column header="NIGHT">
                   <template #body="{ data }">
-                    {{ `${data.records.splitRecords[1].wins}-${data.records.splitRecords[1].losses}` }}
+                    {{ nightRecord(data) }}
                   </template>
                 </Column>
-                <Column header="Division">
+                <Column header="GRASS">
                   <template #body="{ data }">
-                    {{ divisionRecord(data, record.division?.id) }}
+                    {{ grassRecord(data) }}
+                  </template>
+                </Column>
+                <Column header="TURF" style="border-right: 1px solid #ccc">
+                  <template #body="{ data }">
+                    {{ turfRecord(data) }}
+                  </template>
+                </Column>
+                <Column header="EAST">
+                  <template #body="{ data }">
+                    {{ divisionRecord(data, 201) }}
+                  </template>
+                </Column>
+                <Column header="CENTRAL">
+                  <template #body="{ data }">
+                    {{ divisionRecord(data, 202) }}
+                  </template>
+                </Column>
+                <Column header="WEST">
+                  <template #body="{ data }">
+                    {{ divisionRecord(data, 203) }}
+                  </template>
+                </Column>
+                <Column header="AL/NL" style="border-right: 1px solid #ccc">
+                  <template #body="{ data }">
+                    {{ leagueRecord(data) }}
+                  </template>
+                </Column>
+                <Column header="vs R">
+                  <template #body="{ data }">
+                    {{ splitRecord(data, 'right') }}
+                  </template>
+                </Column>
+                <Column header="vs L">
+                  <template #body="{ data }">
+                    {{ splitRecord(data, 'left') }}
                   </template>
                 </Column>
               </DataTable>
@@ -232,26 +266,31 @@ function divisionRecord(teamRecord, divisionId) {
   return `${r.wins}-${r.losses}`;
 }
 
-function lastTenRecord(teamRecord) {
-  const split = teamRecord.records?.splitRecords?.find(
-    (r) => r.type === 'lastTen'
-  );
+function leagueRecord(teamRecord) {
+  const divisionId = String(teamRecord.division?.id);
+  const isAL = ['200','201','202'].includes(divisionId);
+  // MLB Stats API league ids: 103 = AL, 104 = NL
+  const oppositeLeagueId = isAL ? 103 : 104;
+  const lr = (teamRecord.records?.leagueRecords || [])
+    .find(r => r.league?.id === oppositeLeagueId);
+  if (lr) return `${lr.wins}-${lr.losses}`;
+  return '';
+}
+
+function splitRecord(teamRecord, type) {
+  const split = teamRecord.records?.splitRecords?.find(r => r.type === type);
   return split ? `${split.wins}-${split.losses}` : '';
 }
 
-function homeRecord(teamRecord) {
-  const split = teamRecord.records?.splitRecords?.find(
-    (r) => r.type === 'home'
-  );
-  return split ? `${split.wins}-${split.losses}` : '';
-}
-
-function awayRecord(teamRecord) {
-  const split = teamRecord.records?.splitRecords?.find(
-    (r) => r.type === 'away'
-  );
-  return split ? `${split.wins}-${split.losses}` : '';
-}
+const lastTenRecord      = (tr) => splitRecord(tr, 'lastTen');
+const homeRecord         = (tr) => splitRecord(tr, 'home');
+const awayRecord         = (tr) => splitRecord(tr, 'away');
+const extraInningRecord  = (tr) => splitRecord(tr, 'extraInning');
+const oneRunRecord       = (tr) => splitRecord(tr, 'oneRun');
+const nightRecord        = (tr) => splitRecord(tr, 'night');
+const dayRecord          = (tr) => splitRecord(tr, 'day');
+const grassRecord        = (tr) => splitRecord(tr, 'grass');
+const turfRecord         = (tr) => splitRecord(tr, 'turf');
 
 function formatRunDifferential(diff) {
   return diff > 0 ? `+${diff}` : diff;
@@ -287,7 +326,7 @@ onMounted(() => {
 }
 
 .standings-container {
-  max-width: 1284px;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
