@@ -340,12 +340,15 @@ onMounted(() => {
   text-align: center;
 }
 
-:deep(
-    .standings-table .p-datatable-thead > tr > th:first-child,
-    .standings-table .p-datatable-thead > tr > th:first-child .p-datatable-column-header-content,
-    .standings-table .p-datatable-tbody > tr > td:first-child
-  ) {
+/* Left-align team column header and cells */
+:deep(.standings-table .p-datatable-thead > tr > th:first-child),
+:deep(.standings-table .p-datatable-thead > tr > th:first-child .p-datatable-column-header-content) {
   text-align: left;
+}
+
+:deep(.standings-table .p-datatable-tbody > tr > td:first-child) {
+  text-align: left !important;
+  justify-content: flex-start;
 }
 
 :deep(.standings-table .p-datatable-tbody > tr > td a) {
