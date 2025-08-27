@@ -217,7 +217,6 @@ function playerSeasonStat(side, id, statType, field) {
 .game-view {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: #fff;
   padding: 2rem 1rem;
 }
 
@@ -250,6 +249,7 @@ function playerSeasonStat(side, id, statType, field) {
 .linescore td {
   border: 1px solid #ccc;
   text-align: center;
+  color: #000;
 }
 
 .linescore th {
@@ -299,6 +299,7 @@ function playerSeasonStat(side, id, statType, field) {
 .boxscore-table td {
   border: 1px solid #ccc;
   text-align: center;
+  color: #000;
 }
 
 .boxscore-table th {
