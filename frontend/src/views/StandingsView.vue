@@ -329,19 +329,31 @@ onMounted(() => {
   text-align: center;
 }
 
+:deep(.p-datatable-column-header-content) {
+  text-align: center;
+  display: inline;
+}
+
 :deep(.standings-table .p-datatable-tbody > tr > td) {
   font-size: 13px;
   font-family: proxima-nova, "open Sans", Helvetica, Arial, sans-serif;
   text-align: center;
 }
 
-:deep(.standings-table .p-datatable-tbody > tr > td a) {
-  font-weight: bold;
+
+/* Left-align team column header and cells */
+:deep(.standings-table .p-datatable-thead > tr > th:first-child),
+:deep(.standings-table .p-datatable-thead > tr > th:first-child .p-datatable-column-header-content) {
+  text-align: left;
 }
 
-:deep(.p-datatable-column-header-content) {
-  text-align: center;
-  display: inline;
+:deep(.standings-table .p-datatable-tbody > tr > td:first-child) {
+  text-align: left !important;
+  justify-content: flex-start;
+}
+
+:deep(.standings-table .p-datatable-tbody > tr > td a) {
+  font-weight: bold;
 }
 
 </style>
