@@ -49,6 +49,12 @@
         <h3>Top Performers</h3>
         <ul>
           <li v-for="tp in topPerformers" :key="tp.player?.person?.id">
+            <img
+              v-if="teamLogo(tp)"
+              :src="teamLogo(tp)"
+              alt="Team Logo"
+              class="team-logo"
+            />
             <span class="player-name">{{ performerName(tp) }}</span>
             <span class="player-summary">{{ performerSummary(tp) }}</span>
           </li>
@@ -189,6 +195,10 @@ function performerSummary(tp) {
     tp?.player?.stats?.pitching?.summary ||
     ''
   );
+}
+
+function teamLogo(tp) {
+  return tp?.team?.logo_url || tp?.team?.logo || '';
 }
 
 function pitcherName(entry) {
@@ -427,11 +437,19 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 .top-performers li {
+  display: flex;
+  align-items: center;
   margin-bottom: 0.5rem;
 }
 
 .top-performers .player-name {
   font-weight: bold;
   margin-right: 0.25rem;
+}
+
+.top-performers .team-logo {
+  width: 20px;
+  height: 20px;
+  margin: 0 0.25rem 0 0;
 }
 </style>
