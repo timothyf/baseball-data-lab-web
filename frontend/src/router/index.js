@@ -34,12 +34,6 @@ const routes = [
     props: route => ({ game_pk: route.params.game_pk })
   },
   {
-    path: '/new-game/:game_pk',
-    name: 'NewGame',
-    component: () => import('../views/NewGameView.vue'),
-    props: route => ({ game_pk: route.params.game_pk })
-  },
-  {
     path: '/players',
     name: 'Players',
     component: () => import('../views/PlayersView.vue')
