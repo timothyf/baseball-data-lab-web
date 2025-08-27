@@ -208,13 +208,17 @@ const savePitcher = computed(() => {
 });
 
 const homers = computed(() => {
-  const fromSummary = game.value?.summary?.homers;
-  if (fromSummary && fromSummary.length) {
-    return fromSummary.join(', ');
+  const entries = [];
+  for (const side of ['away', 'home']) {
+    const batters = boxscoreTeams.value[side]?.batters ?? [];
+    for (const id of batters) {
+      const hr = playerStat(side, id, 'batting', 'homeRuns');
+      if (hr && Number(hr) > 0) {
+        entries.push(`${playerName(side, id)} (${hr})`);
+      }
+    }
   }
-  const info = boxscore.value?.info ?? [];
-  const hrEntry = info.find(item => item.label === 'HR');
-  return hrEntry ? hrEntry.value : '—';
+  return entries.length ? entries.join(', ') : '—';
 });
 
 const attendance = computed(() => {
