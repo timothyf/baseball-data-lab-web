@@ -267,8 +267,9 @@ async function callBackend() {
 <style scoped>
 .api-explorer-wrapper {
   display: flex;
-  flex-direction: row;;
+  flex-direction: row;
   justify-content: space-around;
+  align-items: flex-start;
 }
 
 .api-explorer {
@@ -286,6 +287,10 @@ async function callBackend() {
 .explorer-sidebar {
   margin-left: 2rem;
   max-width: 250px;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 .explorer-sidebar ul {
