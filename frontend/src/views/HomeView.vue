@@ -24,11 +24,6 @@
         baseball analytics hub.
       </p>
 
-      <div class="top-stat" v-if="topStat">
-        <h2>Top Stat of the Day</h2>
-        <p>{{ topStat }}</p>
-      </div>
-
       <div class="schedule-preview" v-if="schedulePreview.length">
         <h2>Today's Games</h2>
         <ul>
@@ -83,7 +78,6 @@ const features = [
   }
 ];
 
-const topStat = ref('');
 const schedulePreview = ref([]);
 const standingsPreview = ref([]);
 
@@ -93,9 +87,6 @@ function formatTime(dateStr) {
 }
 
 onMounted(async () => {
-  const statData = await fetchTopStat();
-  topStat.value = statData?.stat || 'Shohei Ohtani leads the league with 45 HRs.';
-
   const today = new Date().toISOString().split('T')[0];
   const [schedData, standingsData] = await Promise.all([
     fetchSchedule(today),
@@ -182,13 +173,6 @@ onMounted(async () => {
 .welcome-message {
   margin-top: 1rem;
   font-size: 1.1rem;
-}
-
-.top-stat {
-  margin-top: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  border-radius: 0.5rem;
 }
 
 .schedule-preview,

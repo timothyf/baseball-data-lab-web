@@ -2,10 +2,8 @@
   <section class="game-view">
     <div v-if="game" class="game-container">
       <h2 class="matchup-header">
-        <img :src="awayTeam.logo_url" alt="Away Logo" class="team-logo" />
-        {{ awayTeam.name }} @
-        <img :src="homeTeam.logo_url" alt="Home Logo" class="team-logo" />
-        {{ homeTeam.name }}
+        <img :src="awayTeam.logo_url" alt="Away Logo" class="team-logo" /> {{ awayTeam.name }} @ <img
+          :src="homeTeam.logo_url" alt="Home Logo" class="team-logo" /> {{ homeTeam.name }}
       </h2>
       <h3 class="game-date">{{ gameDate }}</h3>
       <div class="game-summary">
@@ -47,72 +45,67 @@
           <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
-        <div v-if="boxscore" class="boxscore">
-          <h3>Boxscore</h3>
-          <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
-            <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
-            <table class="boxscore-table">
-              <thead>
-                <tr>
-                  <th>Batter</th>
-                  <th>AB</th>
-                  <th>R</th>
-                  <th>H</th>
-                  <th>RBI</th>
-                  <th>BB</th>
-                  <th>SO</th>
-                  <th>AVG</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="id in (boxscoreTeams[side]?.batters ?? [])
-                    .filter(id => playerStat(side, id, 'batting', 'plateAppearances') > 0)"
-                  :key="`bat-` + id"
-                >
-                  <td>{{ playerName(side, id) }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'baseOnBalls') }}</td>
-                  <td>{{ playerStat(side, id, 'batting', 'strikeOuts') }}</td>
-                  <td>{{ playerSeasonStat(side, id, 'batting', 'avg') }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <table class="boxscore-table">
-              <thead>
-                <tr>
-                  <th>Pitcher</th>
-                  <th>IP</th>
-                  <th>H</th>
-                  <th>R</th>
-                  <th>ER</th>
-                  <th>BB</th>
-                  <th>K</th>
-                  <th>ERA</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="id in boxscoreTeams[side]?.pitchers ?? []" :key="`pit-` + id">
-                  <td>{{ playerName(side, id) }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'inningsPitched') }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'hits') }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'runs') }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
-                  <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
-                  <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div v-if="boxscore" class="boxscore">
+        <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
+          <h4>{{ side === 'away' ? awayTeam.name : homeTeam.name }}</h4>
+          <table class="boxscore-table">
+            <thead>
+              <tr>
+                <th>Batter</th>
+                <th>AB</th>
+                <th>R</th>
+                <th>H</th>
+                <th>RBI</th>
+                <th>BB</th>
+                <th>SO</th>
+                <th>AVG</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="id in (boxscoreTeams[side]?.batters ?? [])
+                .filter(id => playerStat(side, id, 'batting', 'plateAppearances') > 0)" :key="`bat-` + id">
+                <td>{{ playerName(side, id) }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'atBats') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'runs') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'hits') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'rbi') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'baseOnBalls') }}</td>
+                <td>{{ playerStat(side, id, 'batting', 'strikeOuts') }}</td>
+                <td>{{ playerSeasonStat(side, id, 'batting', 'avg') }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="boxscore-table">
+            <thead>
+              <tr>
+                <th>Pitcher</th>
+                <th>IP</th>
+                <th>H</th>
+                <th>R</th>
+                <th>ER</th>
+                <th>BB</th>
+                <th>K</th>
+                <th>ERA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="id in boxscoreTeams[side]?.pitchers ?? []" :key="`pit-` + id">
+                <td>{{ playerName(side, id) }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'inningsPitched') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'hits') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'runs') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
+                <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
+                <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
   </section>
 </template>
-
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 
@@ -243,7 +236,6 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 </script>
-
 <style scoped>
 .game-view {
   min-height: 100vh;
@@ -273,22 +265,27 @@ function playerSeasonStat(side, id, statType, field) {
 .linescore {
   border-collapse: collapse;
 }
+
 .linescore thead {
   background-color: #333;
   color: #fff;
 }
+
 .linescore th,
 .linescore td {
   border: 1px solid #ccc;
   text-align: center;
 }
+
 .linescore thead th {
   color: #fff;
 }
+
 .linescore tbody th {
   background-color: #e0e0e0;
   color: #333;
 }
+
 .linescore td {
   color: #333;
 }
@@ -300,6 +297,7 @@ function playerSeasonStat(side, id, statType, field) {
 .linescore td {
   padding: 4px 8px;
 }
+
 .linescore tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
@@ -312,12 +310,14 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 .boxscore h3 {
-  flex: 0 0 100%; /* always full width */
+  flex: 0 0 100%;
+  /* always full width */
   margin: 0 0 1rem;
 }
 
 .team-boxscore {
-  flex: 0 0 49%; /* each takes half width */
+  flex: 0 0 49%;
+  /* each takes half width */
   box-sizing: border-box;
   padding: 0.5rem;
 }
@@ -332,6 +332,7 @@ function playerSeasonStat(side, id, statType, field) {
   margin-top: 1rem;
   border-collapse: collapse;
 }
+
 .boxscore-table thead {
   background-color: #333;
   color: #fff;
@@ -352,6 +353,7 @@ function playerSeasonStat(side, id, statType, field) {
   padding: 4px 8px;
   color: #333;
 }
+
 .boxscore-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
@@ -381,6 +383,10 @@ function playerSeasonStat(side, id, statType, field) {
 
 .summary-info {
   flex: 1;
+}
+
+.summary-info p {
+  margin: 8px 0;
 }
 
 .summary-info .title {
