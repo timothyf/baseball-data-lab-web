@@ -41,6 +41,7 @@
         <div class="summary-info card">
           <p>Winning Pitcher: {{ winningPitcher }}</p>
           <p>Losing Pitcher: {{ losingPitcher }}</p>
+          <p>Save: {{ savePitcher }}</p>
           <p>HRs: {{ homers }}</p>
           <p>Attendance: {{ attendance }}</p>
           <p>Game Time: {{ gameDuration }}</p>
@@ -152,17 +153,29 @@ const linescoreTeams = computed(() => game.value?.scoreboard?.linescore?.teams ?
 const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.boxscore);
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
 
-const winningPitcher = computed(() =>
-  game.value?.summary?.winningPitcher ||
-  game.value?.liveData?.decisions?.winner?.fullName ||
-  '—'
-);
+function pitcherName(entry) {
+  if (!entry) return '';
+  if (typeof entry === 'string') return entry;
+  return entry.name || entry.fullName || entry.person?.fullName || '';
+}
 
-const losingPitcher = computed(() =>
-  game.value?.summary?.losingPitcher ||
-  game.value?.liveData?.decisions?.loser?.fullName ||
-  '—'
-);
+const winningPitcher = computed(() => {
+  const winner =
+    game.value?.summary?.winningPitcher || game.value?.liveData?.decisions?.winner;
+  return pitcherName(winner) || '—';
+});
+
+const losingPitcher = computed(() => {
+  const loser =
+    game.value?.summary?.losingPitcher || game.value?.liveData?.decisions?.loser;
+  return pitcherName(loser) || '—';
+});
+
+const savePitcher = computed(() => {
+  const saver =
+    game.value?.summary?.savePitcher || game.value?.liveData?.decisions?.save;
+  return pitcherName(saver) || '—';
+});
 
 const homers = computed(() => {
   const fromSummary = game.value?.summary?.homers;
