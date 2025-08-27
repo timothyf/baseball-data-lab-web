@@ -21,7 +21,6 @@ def schedule(request):
         message = (
             f"Using baseball-data-lab UnifiedDataClient to fetch today's schedule. "
         )
-        print(f"[home view] Current time: {current_time}")
         try:
             client = UnifiedDataClient()
             try:
@@ -55,7 +54,7 @@ def schedule(request):
         'message': message,
         'schedule': schedule,
     }
-    return render(request, 'web/index.html', context)
+    return render(request, 'web/schedule.html', context)
 
 def home(request):
     return render(request, 'web/home.html')
