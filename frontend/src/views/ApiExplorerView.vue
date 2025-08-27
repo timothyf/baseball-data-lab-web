@@ -22,7 +22,8 @@
               <button @click="callEndpoint">Fetch</button>
             </div>
             <div v-if="result">
-              <pre v-if="resultType === 'json' || resultType === 'text'">{{ result }}</pre>
+              <JsonViewer v-if="resultType === 'json'" :data="result" />
+              <pre v-else-if="resultType === 'text'">{{ result }}</pre>
               <img v-else-if="resultType === 'image'" :src="result" alt="Response image" />
               <a v-else :href="result" download>Download result</a>
             </div>
@@ -47,7 +48,8 @@
                 <button @click="callBackend">Fetch</button>
               </div>
             <div v-if="backendResult">
-              <pre v-if="backendResultType === 'json' || backendResultType === 'text'">{{ backendResult }}</pre>
+              <JsonViewer v-if="backendResultType === 'json'" :data="backendResult" />
+              <pre v-else-if="backendResultType === 'text'">{{ backendResult }}</pre>
               <img v-else-if="backendResultType === 'image'" :src="backendResult" alt="Response image" />
               <a v-else :href="backendResult" download>Download result</a>
             </div>
@@ -82,6 +84,7 @@
 </template>
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import JsonViewer from '../components/JsonViewer.vue';
 
 const endpoints = ref([]);
 const selected = ref(null);
@@ -195,8 +198,7 @@ async function callEndpoint() {
   const contentType = resp.headers.get('Content-Type') || '';
   resultType.value = '';
   if (contentType.includes('application/json')) {
-    const data = await resp.json();
-    result.value = JSON.stringify(data, null, 2);
+    result.value = await resp.json();
     resultType.value = 'json';
   } else if (contentType.startsWith('text/')) {
     result.value = await resp.text();
@@ -226,8 +228,7 @@ async function callBackend() {
   const contentType = resp.headers.get('Content-Type') || '';
   backendResultType.value = '';
   if (contentType.includes('application/json')) {
-    const data = await resp.json();
-    backendResult.value = JSON.stringify(data, null, 2);
+    backendResult.value = await resp.json();
     backendResultType.value = 'json';
   } else if (contentType.startsWith('text/')) {
     backendResult.value = await resp.text();
