@@ -100,7 +100,7 @@
           </ul>
         </div>
         <div v-if="highestVelos.length" class="highest-velo card">
-          <h3>Highest Velocity</h3>
+          <h3>Highest Velocity Pitches</h3>
           <ul>
             <li
               v-for="hv in highestVelos"
