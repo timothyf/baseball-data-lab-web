@@ -46,7 +46,12 @@
         </div>
       </div>
       <div
-        v-if="topPerformers.length || hardestHits.length || longestHits.length"
+        v-if="
+          topPerformers.length ||
+          hardestHits.length ||
+          longestHits.length ||
+          highestVelos.length
+        "
         class="top-stats"
       >
         <div v-if="topPerformers.length" class="top-performers card">
@@ -91,6 +96,26 @@
               />
               <span class="player-name">{{ lh.batterName }}</span>
               <span class="player-summary">{{ lh.distance.toFixed(0) }} ft</span>
+            </li>
+          </ul>
+        </div>
+        <div v-if="highestVelos.length" class="highest-velo card">
+          <h3>Highest Velocity</h3>
+          <ul>
+            <li
+              v-for="hv in highestVelos"
+              :key="hv.pitcherName + hv.startSpeed"
+            >
+              <img
+                v-if="hv.teamLogo"
+                :src="hv.teamLogo"
+                alt="Team Logo"
+                class="team-logo"
+              />
+              <span class="player-name">{{ hv.pitcherName }}</span>
+              <span class="player-summary">
+                {{ hv.startSpeed.toFixed(1) }} mph
+              </span>
             </li>
           </ul>
         </div>
@@ -259,6 +284,27 @@ const longestHits = computed(() => {
   }
   hits.sort((a, b) => b.distance - a.distance);
   return hits.slice(0, 3);
+});
+
+const highestVelos = computed(() => {
+  const plays = game.value?.liveData?.plays?.allPlays ?? [];
+  const pitches = [];
+  for (const play of plays) {
+    const pitcherName = play.matchup?.pitcher?.fullName || '';
+    const team = play.about?.isTopInning ? homeTeam.value : awayTeam.value;
+    for (const ev of play.playEvents ?? []) {
+      const speed = ev.pitchData?.startSpeed;
+      if (speed) {
+        pitches.push({
+          pitcherName,
+          startSpeed: Number(speed),
+          teamLogo: team?.logo_url || ''
+        });
+      }
+    }
+  }
+  pitches.sort((a, b) => b.startSpeed - a.startSpeed);
+  return pitches.slice(0, 3);
 });
 
 function performerName(tp) {
@@ -585,6 +631,29 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 .longest-hits .team-logo {
+  width: 20px;
+  height: 20px;
+  margin: 0 0.25rem 0 0;
+}
+
+.highest-velo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.highest-velo li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.highest-velo .player-name {
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+
+.highest-velo .team-logo {
   width: 20px;
   height: 20px;
   margin: 0 0.25rem 0 0;
