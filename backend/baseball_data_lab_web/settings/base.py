@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_spectacular',
     'apps.web',
     'apps.api.apps.ApiConfig',
 ]
@@ -80,6 +82,17 @@ LOGGING = {
         "console": {"class": "logging.StreamHandler"},
     },
     "root": {"handlers": ["console"], "level": "INFO"},  # or DEBUG
+}
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Baseball Data Lab API',
+    'DESCRIPTION': 'API for baseball data',
+    'VERSION': '1.0.0',
 }
 
 

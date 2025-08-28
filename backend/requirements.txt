@@ -1,6 +1,8 @@
 Django>=4.2
 git+https://github.com/timothyf/baseball-data-lab.git@main#egg=baseball-data-lab
 #-e ../baseball-data-lab
+djangorestframework
+drf-spectacular
 MLB-StatsAPI
 mplcursors
 pandas

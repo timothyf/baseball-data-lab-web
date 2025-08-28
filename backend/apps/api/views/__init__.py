@@ -1,11 +1,14 @@
 """API view imports and miscellaneous endpoints."""
 
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.http import require_GET
+from django.http import HttpResponse
 from django.urls import URLPattern
 import logging
 import re
 from inspect import signature, Parameter
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
 
 from .schedule import schedule, game_data, predict_game, standings
 from .players import (
@@ -26,6 +29,7 @@ from .teams import (
 )
 
 from ..utils import require_unified_client
+from ..serializers import NewsItemSerializer
 
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
@@ -60,7 +64,8 @@ __all__ = [
 ]
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 def list_api_endpoints(request):
     from .. import urls as api_urls
     endpoints = []
@@ -85,10 +90,11 @@ def list_api_endpoints(request):
                     'query_params': query_params.get(pattern.name, []),
                 }
             )
-    return JsonResponse({'endpoints': endpoints})
+    return Response({'endpoints': endpoints})
 
 
-@require_GET
+@extend_schema(responses=NewsItemSerializer(many=True))
+@api_view(['GET'])
 def news(request):
     """Return a small set of recent league news headlines."""
     news_items = [
@@ -105,10 +111,11 @@ def news(request):
             "url": "https://www.mlb.com/news",
         },
     ]
-    return JsonResponse(news_items, safe=False)
+    return Response(news_items)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def unified_client_methods(request, client):
     """Return a list of ``UnifiedDataClient`` methods and required params."""
@@ -133,15 +140,16 @@ def unified_client_methods(request, client):
                             params.append(f"{p.name}={p.default!r}")
             methods.append({'name': name, 'params': params})
     methods.sort(key=lambda m: m['name'])
-    return JsonResponse({'methods': methods})
+    return Response({'methods': methods})
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def unified_client_call(request, client, method_name: str):
     """Invoke a ``UnifiedDataClient`` method with query parameters."""
     if not hasattr(client, method_name):
-        return JsonResponse({'error': 'method not found'}, status=404)
+        return Response({'error': 'method not found'}, status=404)
     method = getattr(client, method_name)
     sig = signature(method)
     kwargs = {}
@@ -149,7 +157,7 @@ def unified_client_call(request, client, method_name: str):
         if p.name == 'self' or p.kind in (Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD):
             continue
         if p.default is Parameter.empty and p.name not in request.GET:
-            return JsonResponse({'error': f'missing required parameter: {p.name}'}, status=400)
+            return Response({'error': f'missing required parameter: {p.name}'}, status=400)
         if p.name in request.GET:
             val = request.GET[p.name]
             kwargs[p.name] = int(val) if isinstance(val, str) and val.isdigit() else val
@@ -157,11 +165,11 @@ def unified_client_call(request, client, method_name: str):
         result = method(**kwargs)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Error calling %s: %s", method_name, exc)
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
     if isinstance(result, (dict, list)):
-        return JsonResponse(result, safe=False)
+        return Response(result)
     if isinstance(result, bytes):
         return HttpResponse(result, content_type='application/octet-stream')
     if isinstance(result, str):
         return HttpResponse(result, content_type='text/plain')
-    return JsonResponse({'result': str(result)})
+    return Response({'result': str(result)})
