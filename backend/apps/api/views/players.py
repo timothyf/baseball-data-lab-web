@@ -8,13 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_GET
 
 from ..models import PlayerIdInfo
-
-try:
-    from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
-    _bdl_error = None
-except Exception as exc:  # pragma: no cover - handles missing dependency
-    UnifiedDataClient = None
-    _bdl_error = str(exc)
+from ..utils import require_unified_client
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +45,9 @@ def player_search(request):
 
 
 @require_GET
-def player_headshot(request, player_id: int):
+@require_unified_client
+def player_headshot(request, client, player_id: int):
     """Return a player's headshot image."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     key_mlbam = (
         PlayerIdInfo.objects.filter(id=player_id)
@@ -75,7 +68,6 @@ def player_headshot(request, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        client = UnifiedDataClient()
         image_bytes = client.fetch_player_headshot(int(key_mlbam))
         return HttpResponse(image_bytes, content_type='image/png')
     except Exception as exc:  # pragma: no cover - defensive
@@ -83,10 +75,9 @@ def player_headshot(request, player_id: int):
 
 
 @require_GET
-def player_info(request, player_id: int):
+@require_unified_client
+def player_info(request, client, player_id: int):
     """Return basic information about a player."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     key_mlbam = (
         PlayerIdInfo.objects.filter(id=player_id)
@@ -107,7 +98,6 @@ def player_info(request, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        client = UnifiedDataClient()
         info = client.fetch_player_info(int(key_mlbam))
         team = info.get("currentTeam", {}) or {}
         pos = info.get("primaryPosition", {}) or {}
@@ -141,10 +131,9 @@ def player_info(request, player_id: int):
 
 
 @require_GET
-def player_stats(request, player_id: int):
+@require_unified_client
+def player_stats(request, client, player_id: int):
     """Return career statistics for a player."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     key_mlbam = (
         PlayerIdInfo.objects.filter(id=player_id)
@@ -165,7 +154,6 @@ def player_stats(request, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        client = UnifiedDataClient()
         data = client.fetch_player_stats_career(int(key_mlbam))
         return JsonResponse(data)
     except Exception as exc:  # pragma: no cover - defensive
@@ -179,15 +167,13 @@ def player_stats(request, player_id: int):
 
 
 @require_GET
-def league_leaders(request):
+@require_unified_client
+def league_leaders(request, client):
     """Return league-wide batting and pitching leaders."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     season = datetime.now().year
 
     try:
-        client = UnifiedDataClient()
         bat_df = client.fetch_batting_leaderboards(season)
         pit_df = client.fetch_pitching_leaderboards(season)
     except Exception as exc:  # pragma: no cover - defensive
