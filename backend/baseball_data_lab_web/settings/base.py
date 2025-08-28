@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'apps.web',
     'apps.api.apps.ApiConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

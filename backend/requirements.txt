@@ -11,5 +11,7 @@ pybaseball
 requests
 seaborn
 psycopg2-binary
+djangorestframework
+
 
 
