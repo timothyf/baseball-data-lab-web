@@ -26,6 +26,19 @@ A Django based web interface for exploring data from the `baseball-data-lab` lib
    ```
 5. Visit `http://localhost:8000/` to see the home page displaying information from `baseball-data-lab`.
 
+### Environment Variables
+
+Configuration values are read from environment variables. Copy `.env.example` to `.env` and adjust as needed.
+
+| Variable | Description |
+| --- | --- |
+| `SECRET_KEY` | Django secret key |
+| `POSTGRES_DB` | Database name |
+| `POSTGRES_USER` | Database user |
+| `POSTGRES_PASSWORD` | Database password |
+| `POSTGRES_HOST` | Database host |
+| `POSTGRES_PORT` | Database port |
+
 This project is a minimal scaffold and is intended to grow with additional views and data presentations over time.
 
 ## Frontend

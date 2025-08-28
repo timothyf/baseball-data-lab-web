@@ -1,15 +1,6 @@
 from .base import *  # noqa
+from .env import DATABASES as ENV_DATABASES
 
 DEBUG = False
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '3121018Fisher',
-        'HOST': 'db.tigrhjeznfdtpjfgwane.supabase.co',
-        'PORT': 5432,
-    }
-}
+DATABASES = ENV_DATABASES

@@ -1,5 +1,6 @@
 from pathlib import Path
-import os
+
+from .env import SECRET_KEY, DATABASES
 
 #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -9,9 +10,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, '../frontend', 'dist'), # Assuming 'frontend/dist' is your Vite build output
 # ]
-
-
-SECRET_KEY = 'development-secret-key'
 
 DEBUG = False
 
@@ -60,25 +58,6 @@ TEMPLATES = [
 
 
 WSGI_APPLICATION = 'baseball_data_lab_web.wsgi.application'
-
-# if os.environ.get('POSTGRES_DB'):
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'baseball_web_dev',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-    }
-}
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
 
 LANGUAGE_CODE = 'en-us'
 
