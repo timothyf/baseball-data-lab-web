@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
-    DataView: typeof import('primevue/dataview')['default']
     GameRow: typeof import('./components/GameRow.vue')['default']
     HelloComponent: typeof import('./components/HelloComponent.vue')['default']
     JsonViewer: typeof import('./components/JsonViewer.vue')['default']
@@ -23,6 +22,5 @@ declare module 'vue' {
     TeamLeaders: typeof import('./components/team/TeamLeaders.vue')['default']
     TeamRoster: typeof import('./components/team/TeamRoster.vue')['default']
     TeamSchedule: typeof import('./components/team/TeamSchedule.vue')['default']
-    VirtualScroller: typeof import('primevue/virtualscroller')['default']
   }
 }
