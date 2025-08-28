@@ -198,14 +198,14 @@ function performerSummary(tp) {
 }
 
 function teamLogo(tp) {
-  const teamId = tp?.team?.id;
-  if (teamId === homeTeam.value?.id) {
-    return homeTeam.value?.logo_url || '';
+  const teamId = tp?.player.parentTeamId;
+  if (teamId === homeTeam.value.id) {
+    return homeTeam.value.logo_url || '';
   }
-  if (teamId === awayTeam.value?.id) {
-    return awayTeam.value?.logo_url || '';
+  if (teamId === awayTeam.value.id) {
+    return awayTeam.value.logo_url || '';
   }
-  return tp?.team?.logo_url || tp?.team?.logo || '';
+  return '';
 }
 
 function pitcherName(entry) {
