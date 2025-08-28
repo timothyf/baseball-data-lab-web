@@ -4,8 +4,10 @@ from datetime import datetime
 import logging
 
 from django.core.cache import cache
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from ..utils import require_unified_client
 
@@ -25,17 +27,23 @@ def _get_cached_standings(client, season, league_ids="103,104"):
     return data
 
 
-@require_GET
+@extend_schema(
+    parameters=[
+        OpenApiParameter('date', OpenApiTypes.DATE, OpenApiParameter.QUERY),
+    ],
+    responses=OpenApiTypes.OBJECT,
+)
+@api_view(['GET'])
 @require_unified_client
 def schedule(request, client):
     """Return schedule data for a given date."""
     date_str = request.GET.get('date')
     if not date_str:
-        return JsonResponse({'error': 'date parameter is required'}, status=400)
+        return Response({'error': 'date parameter is required'}, status=400)
     try:
         schedule_date = datetime.strptime(date_str, '%Y-%m-%d').date()
     except ValueError:
-        return JsonResponse({'error': 'Invalid date format'}, status=400)
+        return Response({'error': 'Invalid date format'}, status=400)
     try:
         schedule_data = client.get_schedule_for_date_range(schedule_date, schedule_date)
         for day in schedule_data:
@@ -49,12 +57,13 @@ def schedule(request, client):
                             team['logo_url'] = client.get_team_spot_url(team_id, 32)
                         except Exception:  # pragma: no cover - defensive
                             team['logo_url'] = None
-        return JsonResponse(schedule_data, safe=False)
+        return Response(schedule_data)
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
@@ -66,12 +75,13 @@ def game_data(request, client, game_pk: int):
         data['gameData']['teams']['away']['logo_url'] = client.get_team_spot_url(
             data['gameData']['teams']['away']['id'], 32
         )
-        return JsonResponse(data, safe=False)
+        return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def predict_game(request, client, game_pk: int):
     """Estimate win probabilities for a single game."""
@@ -104,18 +114,19 @@ def predict_game(request, client, game_pk: int):
             home_prob = home_pct / (home_pct + away_pct)
         away_prob = 1.0 - home_prob
 
-        return JsonResponse({'home': home_prob, 'away': away_prob})
+        return Response({'home': home_prob, 'away': away_prob})
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def standings(request, client):
     """Return standings data for the current season."""
     try:
         season = datetime.now().year
         data = _get_cached_standings(client, season, "103,104")
-        return JsonResponse(data, safe=False)
+        return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)

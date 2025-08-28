@@ -4,21 +4,29 @@ from datetime import datetime
 import logging
 import re
 
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.http import require_GET
+from django.http import HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 from ..models import TeamIdInfo, Venue
 from ..utils import require_unified_client
+from ..serializers import TeamSearchResultSerializer, TeamInfoSerializer
 
 logger = logging.getLogger(__name__)
 
 
-@require_GET
+@extend_schema(
+    parameters=[OpenApiParameter('q', OpenApiTypes.STR, OpenApiParameter.QUERY)],
+    responses=TeamSearchResultSerializer(many=True),
+)
+@api_view(['GET'])
 def team_search(request):
     """Search for teams by name."""
     query = request.GET.get('q', '').strip()
     if not query:
-        return JsonResponse([], safe=False)
+        return Response([])
 
     rows = (
         TeamIdInfo.objects
@@ -39,10 +47,11 @@ def team_search(request):
                 'mlbam_team_id': mlbam_team_id,
             }
         )
-    return JsonResponse(results, safe=False)
+    return Response(results)
 
 
-@require_GET
+@extend_schema(responses=TeamInfoSerializer)
+@api_view(['GET'])
 def team_info(request, mlbam_team_id: int):
     """Return basic team information."""
     fields = ['id', 'full_name', 'mlbam_team_id', 'location_name', 'abbrev']
@@ -83,10 +92,11 @@ def team_info(request, mlbam_team_id: int):
     else:
         row['venue_id'] = None
 
-    return JsonResponse(row)
+    return Response(row)
 
 
-@require_GET
+@extend_schema(responses={(200, 'text/plain'): OpenApiTypes.STR})
+@api_view(['GET'])
 @require_unified_client
 def team_logo(request, client, mlbam_team_id: int):
     """Return a team's logo image."""
@@ -97,16 +107,20 @@ def team_logo(request, client, mlbam_team_id: int):
         logo_url = client.get_team_logo_url(int(mlbam_team_id))
         return HttpResponse(logo_url, content_type='text/plain')
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(
+    parameters=[OpenApiParameter('season', OpenApiTypes.INT, OpenApiParameter.QUERY)],
+    responses=OpenApiTypes.OBJECT,
+)
+@api_view(['GET'])
 @require_unified_client
 def team_record(request, client, mlbam_team_id: int):
     """Return a team's record for a given season."""
 
     if mlbam_team_id is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
+        return Response({'error': 'Team not found'}, status=404)
 
     season_str = request.GET.get('season')
     if season_str is None:
@@ -115,16 +129,17 @@ def team_record(request, client, mlbam_team_id: int):
     try:
         season = int(season_str)
     except ValueError:
-        return JsonResponse({'error': 'Invalid season'}, status=400)
+        return Response({'error': 'Invalid season'}, status=400)
 
     try:
         record = client.get_team_record_for_season(season, int(mlbam_team_id))
-        return JsonResponse(record, safe=False)
+        return Response(record)
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def team_recent_schedule(request, client, mlbam_team_id: int):
     """Return the previous and next five games for a team."""
@@ -132,16 +147,17 @@ def team_recent_schedule(request, client, mlbam_team_id: int):
     try:
         logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
         schedule = client.get_recent_schedule_for_team(int(mlbam_team_id))
-        return JsonResponse(schedule, safe=False)
+        return Response(schedule)
     except ValueError as ve:
         logger.error("ValueError in team_recent_schedule: %s", ve)
-        return JsonResponse({'error': str(ve)}, status=400)
+        return Response({'error': str(ve)}, status=400)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_recent_schedule: %s", exc)
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def team_roster(request, client, mlbam_team_id: int):
     """Return the current roster for a team."""
@@ -150,13 +166,14 @@ def team_roster(request, client, mlbam_team_id: int):
 
     try:
         roster = client.fetch_active_roster(int(mlbam_team_id), year=season)
-        return JsonResponse(roster, safe=False)
+        return Response(roster)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_roster: %s", exc)
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def team_leaders(request, client, mlbam_team_id: int):
     """Return basic batting and pitching leaders for a team."""
@@ -168,7 +185,7 @@ def team_leaders(request, client, mlbam_team_id: int):
         .first()
     )
     if team_row is None:
-        return JsonResponse({'error': 'Team not found'}, status=404)
+        return Response({'error': 'Team not found'}, status=404)
 
     abbrev = team_row.get('abbrev')
     season = datetime.now().year
@@ -178,7 +195,7 @@ def team_leaders(request, client, mlbam_team_id: int):
         pit_df = client.fetch_pitching_leaderboards(season)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Error fetching leaderboards: %s", exc)
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
     def _clean_name(name):
         if not isinstance(name, str):
@@ -244,4 +261,4 @@ def team_leaders(request, client, mlbam_team_id: int):
                 'value': row.get('SV'),
             }
     logger.info("Team leaders for mlbam_team_id=%s: %s", mlbam_team_id, leaders)
-    return JsonResponse(leaders)
+    return Response(leaders)

@@ -4,21 +4,34 @@ from datetime import datetime
 import logging
 import re
 
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.http import require_GET
+from django.http import HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 
 from ..models import PlayerIdInfo
 from ..utils import require_unified_client
+from ..serializers import (
+    PlayerSearchQuerySerializer,
+    PlayerSearchResultSerializer,
+    PlayerInfoSerializer,
+    LeagueLeadersSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
 
-@require_GET
+@extend_schema(
+    parameters=[PlayerSearchQuerySerializer],
+    responses=PlayerSearchResultSerializer(many=True),
+)
+@api_view(['GET'])
 def player_search(request):
     """Search for players by name."""
     query = request.GET.get('q', '').strip()
     if not query:
-        return JsonResponse([], safe=False)
+        return Response([])
 
     rows = (
         PlayerIdInfo.objects
@@ -41,10 +54,11 @@ def player_search(request):
                 "key_mlbam": key_mlbam,
             }
         )
-    return JsonResponse(results, safe=False)
+    return Response(results)
 
 
-@require_GET
+@extend_schema(responses={(200, 'image/png'): OpenApiTypes.BINARY})
+@api_view(['GET'])
 @require_unified_client
 def player_headshot(request, client, player_id: int):
     """Return a player's headshot image."""
@@ -71,10 +85,11 @@ def player_headshot(request, client, player_id: int):
         image_bytes = client.fetch_player_headshot(int(key_mlbam))
         return HttpResponse(image_bytes, content_type='image/png')
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=PlayerInfoSerializer)
+@api_view(['GET'])
 @require_unified_client
 def player_info(request, client, player_id: int):
     """Return basic information about a player."""
@@ -125,12 +140,13 @@ def player_info(request, client, player_id: int):
             "bat_side": bat.get("description"),
             "throw_side": throw.get("description"),
         }
-        return JsonResponse(data)
+        return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
 @require_unified_client
 def player_stats(request, client, player_id: int):
     """Return career statistics for a player."""
@@ -155,7 +171,7 @@ def player_stats(request, client, player_id: int):
 
     try:
         data = client.fetch_player_stats_career(int(key_mlbam))
-        return JsonResponse(data)
+        return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
             "Error fetching career stats for player_id=%s, key_mlbam=%s: %s",
@@ -163,10 +179,11 @@ def player_stats(request, client, player_id: int):
             key_mlbam,
             exc,
         )
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
 
-@require_GET
+@extend_schema(responses=LeagueLeadersSerializer)
+@api_view(['GET'])
 @require_unified_client
 def league_leaders(request, client):
     """Return league-wide batting and pitching leaders."""
@@ -178,7 +195,7 @@ def league_leaders(request, client):
         pit_df = client.fetch_pitching_leaderboards(season)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Error fetching leaderboards: %s", exc)
-        return JsonResponse({'error': str(exc)}, status=500)
+        return Response({'error': str(exc)}, status=500)
 
     def _clean_name(name):
         if not isinstance(name, str):
@@ -242,4 +259,4 @@ def league_leaders(request, client):
                 )
             leaders['pitching'][stat] = stat_leaders
 
-    return JsonResponse(leaders)
+    return Response(leaders)
