@@ -25,6 +25,8 @@ from .teams import (
     team_leaders,
 )
 
+from ..utils import require_unified_client
+
 try:
     from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
     _bdl_error = None
@@ -107,11 +109,9 @@ def news(request):
 
 
 @require_GET
-def unified_client_methods(request):
+@require_unified_client
+def unified_client_methods(request, client):
     """Return a list of ``UnifiedDataClient`` methods and required params."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-    client = UnifiedDataClient()
     methods = []
     for name in dir(client):
         if name.startswith('_'):
@@ -137,11 +137,9 @@ def unified_client_methods(request):
 
 
 @require_GET
-def unified_client_call(request, method_name: str):
+@require_unified_client
+def unified_client_call(request, client, method_name: str):
     """Invoke a ``UnifiedDataClient`` method with query parameters."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
-    client = UnifiedDataClient()
     if not hasattr(client, method_name):
         return JsonResponse({'error': 'method not found'}, status=404)
     method = getattr(client, method_name)

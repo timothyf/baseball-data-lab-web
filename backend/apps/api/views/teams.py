@@ -8,13 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_GET
 
 from ..models import TeamIdInfo, Venue
-
-try:
-    from baseball_data_lab.apis.unified_data_client import UnifiedDataClient
-    _bdl_error = None
-except Exception as exc:  # pragma: no cover - handles missing dependency
-    UnifiedDataClient = None
-    _bdl_error = str(exc)
+from ..utils import require_unified_client
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +58,10 @@ def team_info(request, mlbam_team_id: int):
         row['mlbam_team_id'] = str(mlbam_team_id_value)
 
     venue_id = None
-    if UnifiedDataClient is not None:
+    from . import UnifiedDataClient as _UnifiedDataClient
+    if _UnifiedDataClient is not None:
         try:
-            client = UnifiedDataClient()
+            client = _UnifiedDataClient()
             team_data = client.fetch_team(int(mlbam_team_id_value))
             venue = team_data.get('venue') or {}
             venue_id = venue.get('id')
@@ -92,15 +87,13 @@ def team_info(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_logo(request, mlbam_team_id: int):
+@require_unified_client
+def team_logo(request, client, mlbam_team_id: int):
     """Return a team's logo image."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     mlbam_team_id = str(mlbam_team_id)
 
     try:
-        client = UnifiedDataClient()
         logo_url = client.get_team_logo_url(int(mlbam_team_id))
         return HttpResponse(logo_url, content_type='text/plain')
     except Exception as exc:  # pragma: no cover - defensive
@@ -108,10 +101,9 @@ def team_logo(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_record(request, mlbam_team_id: int):
+@require_unified_client
+def team_record(request, client, mlbam_team_id: int):
     """Return a team's record for a given season."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     if mlbam_team_id is None:
         return JsonResponse({'error': 'Team not found'}, status=404)
@@ -126,7 +118,6 @@ def team_record(request, mlbam_team_id: int):
         return JsonResponse({'error': 'Invalid season'}, status=400)
 
     try:
-        client = UnifiedDataClient()
         record = client.get_team_record_for_season(season, int(mlbam_team_id))
         return JsonResponse(record, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
@@ -134,13 +125,11 @@ def team_record(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_recent_schedule(request, mlbam_team_id: int):
+@require_unified_client
+def team_recent_schedule(request, client, mlbam_team_id: int):
     """Return the previous and next five games for a team."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     try:
-        client = UnifiedDataClient()
         logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
         schedule = client.get_recent_schedule_for_team(int(mlbam_team_id))
         return JsonResponse(schedule, safe=False)
@@ -153,15 +142,13 @@ def team_recent_schedule(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_roster(request, mlbam_team_id: int):
+@require_unified_client
+def team_roster(request, client, mlbam_team_id: int):
     """Return the current roster for a team."""
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     season = datetime.now().year
 
     try:
-        client = UnifiedDataClient()
         roster = client.fetch_active_roster(int(mlbam_team_id), year=season)
         return JsonResponse(roster, safe=False)
     except Exception as exc:  # pragma: no cover - defensive
@@ -170,11 +157,10 @@ def team_roster(request, mlbam_team_id: int):
 
 
 @require_GET
-def team_leaders(request, mlbam_team_id: int):
+@require_unified_client
+def team_leaders(request, client, mlbam_team_id: int):
     """Return basic batting and pitching leaders for a team."""
     logger.info("Fetching team leaders for mlbam_team_id=%s", mlbam_team_id)
-    if UnifiedDataClient is None:
-        return JsonResponse({'error': 'baseball-data-lab library is not installed'}, status=500)
 
     team_row = (
         TeamIdInfo.objects.filter(mlbam_team_id=mlbam_team_id)
@@ -188,7 +174,6 @@ def team_leaders(request, mlbam_team_id: int):
     season = datetime.now().year
     logger.info("Using team abbrev=%s for mlbam_team_id=%s", abbrev, mlbam_team_id)
     try:
-        client = UnifiedDataClient()
         bat_df = client.fetch_batting_leaderboards(season)
         pit_df = client.fetch_pitching_leaderboards(season)
     except Exception as exc:  # pragma: no cover - defensive
