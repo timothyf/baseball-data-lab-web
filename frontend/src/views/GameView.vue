@@ -45,20 +45,37 @@
           <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
-      <div v-if="topPerformers.length" class="top-performers card">
-        <h3>Top Performers</h3>
-        <ul>
-          <li v-for="tp in topPerformers" :key="tp.player?.person?.id">
-            <img
-              v-if="teamLogo(tp)"
-              :src="teamLogo(tp)"
-              alt="Team Logo"
-              class="team-logo"
-            />
-            <span class="player-name">{{ performerName(tp) }}</span>
-            <span class="player-summary">{{ performerSummary(tp) }}</span>
-          </li>
-        </ul>
+      <div v-if="topPerformers.length || hardestHits.length" class="top-stats">
+        <div v-if="topPerformers.length" class="top-performers card">
+          <h3>Top Performers</h3>
+          <ul>
+            <li v-for="tp in topPerformers" :key="tp.player?.person?.id">
+              <img
+                v-if="teamLogo(tp)"
+                :src="teamLogo(tp)"
+                alt="Team Logo"
+                class="team-logo"
+              />
+              <span class="player-name">{{ performerName(tp) }}</span>
+              <span class="player-summary">{{ performerSummary(tp) }}</span>
+            </li>
+          </ul>
+        </div>
+        <div v-if="hardestHits.length" class="hardest-hits card">
+          <h3>Hardest Hits</h3>
+          <ul>
+            <li v-for="hh in hardestHits" :key="hh.batterName + hh.launchSpeed">
+              <img
+                v-if="hh.teamLogo"
+                :src="hh.teamLogo"
+                alt="Team Logo"
+                class="team-logo"
+              />
+              <span class="player-name">{{ hh.batterName }}</span>
+              <span class="player-summary">{{ hh.launchSpeed.toFixed(1) }} mph</span>
+            </li>
+          </ul>
+        </div>
       </div>
         <div v-if="boxscore" class="boxscore">
           <div v-for="side in ['away', 'home']" :key="side" class="team-boxscore card">
@@ -183,6 +200,27 @@ const boxscore = computed(() => game.value?.boxscore ?? game.value?.liveData?.bo
 const boxscoreTeams = computed(() => boxscore.value?.teams ?? {});
 
 const topPerformers = computed(() => game.value?.liveData.boxscore.topPerformers ?? []);
+
+const hardestHits = computed(() => {
+  const plays = game.value?.liveData?.plays?.allPlays ?? [];
+  const hits = [];
+  for (const play of plays) {
+    const batterName = play.matchup?.batter?.fullName || '';
+    const team = play.about?.isTopInning ? awayTeam.value : homeTeam.value;
+    for (const ev of play.playEvents ?? []) {
+      const velo = ev.hitData?.launchSpeed;
+      if (velo) {
+        hits.push({
+          batterName,
+          launchSpeed: Number(velo),
+          teamLogo: team?.logo_url || ''
+        });
+      }
+    }
+  }
+  hits.sort((a, b) => b.launchSpeed - a.launchSpeed);
+  return hits.slice(0, 3);
+});
 
 function performerName(tp) {
   const person = tp?.player?.person || {};
@@ -437,6 +475,13 @@ function playerSeasonStat(side, id, statType, field) {
   font-weight: bold;
 }
 
+.top-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
 .top-performers ul {
   list-style: none;
   margin: 0;
@@ -455,6 +500,29 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 .top-performers .team-logo {
+  width: 20px;
+  height: 20px;
+  margin: 0 0.25rem 0 0;
+}
+
+.hardest-hits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hardest-hits li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.hardest-hits .player-name {
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+
+.hardest-hits .team-logo {
   width: 20px;
   height: 20px;
   margin: 0 0.25rem 0 0;
