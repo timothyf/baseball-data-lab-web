@@ -29,10 +29,10 @@
     </div>
     <div class="game-time">
       <RouterLink
-        v-if="game.status?.detailedState === 'Final'"
+        v-if="game.status?.detailedState === 'Final' || game.status?.abstractGameState === 'Live'"
         :to="{ name: 'Game', params: { game_pk: game.gamePk } }"
       >
-        Final
+        {{ gameTime(game) }}
       </RouterLink>
       <span v-else>{{ gameTime(game) }}</span>
     </div>
