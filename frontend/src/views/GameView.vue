@@ -163,6 +163,7 @@
                   <th>ER</th>
                   <th>BB</th>
                   <th>K</th>
+                  <th>PC</th>
                   <th>ERA</th>
                 </tr>
               </thead>
@@ -175,6 +176,7 @@
                   <td>{{ playerStat(side, id, 'pitching', 'earnedRuns') }}</td>
                   <td>{{ playerStat(side, id, 'pitching', 'baseOnBalls') }}</td>
                   <td>{{ playerStat(side, id, 'pitching', 'strikeOuts') }}</td>
+                  <td>{{ playerStat(side, id, 'pitching', 'numberOfPitches') }}</td>
                   <td>{{ playerSeasonStat(side, id, 'pitching', 'era') }}</td>
                 </tr>
               </tbody>
