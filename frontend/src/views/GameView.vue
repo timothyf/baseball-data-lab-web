@@ -45,7 +45,10 @@
           <p><span class="title">Game Time:</span> {{ gameDuration }}</p>
         </div>
       </div>
-      <div v-if="topPerformers.length || hardestHits.length" class="top-stats">
+      <div
+        v-if="topPerformers.length || hardestHits.length || longestHits.length"
+        class="top-stats"
+      >
         <div v-if="topPerformers.length" class="top-performers card">
           <h3>Top Performers</h3>
           <ul>
@@ -73,6 +76,21 @@
               />
               <span class="player-name">{{ hh.batterName }}</span>
               <span class="player-summary">{{ hh.launchSpeed.toFixed(1) }} mph</span>
+            </li>
+          </ul>
+        </div>
+        <div v-if="longestHits.length" class="longest-hits card">
+          <h3>Longest Hits</h3>
+          <ul>
+            <li v-for="lh in longestHits" :key="lh.batterName + lh.distance">
+              <img
+                v-if="lh.teamLogo"
+                :src="lh.teamLogo"
+                alt="Team Logo"
+                class="team-logo"
+              />
+              <span class="player-name">{{ lh.batterName }}</span>
+              <span class="player-summary">{{ lh.distance.toFixed(0) }} ft</span>
             </li>
           </ul>
         </div>
@@ -219,6 +237,27 @@ const hardestHits = computed(() => {
     }
   }
   hits.sort((a, b) => b.launchSpeed - a.launchSpeed);
+  return hits.slice(0, 3);
+});
+
+const longestHits = computed(() => {
+  const plays = game.value?.liveData?.plays?.allPlays ?? [];
+  const hits = [];
+  for (const play of plays) {
+    const batterName = play.matchup?.batter?.fullName || '';
+    const team = play.about?.isTopInning ? awayTeam.value : homeTeam.value;
+    for (const ev of play.playEvents ?? []) {
+      const dist = ev.hitData?.totalDistance;
+      if (dist) {
+        hits.push({
+          batterName,
+          distance: Number(dist),
+          teamLogo: team?.logo_url || ''
+        });
+      }
+    }
+  }
+  hits.sort((a, b) => b.distance - a.distance);
   return hits.slice(0, 3);
 });
 
@@ -523,6 +562,29 @@ function playerSeasonStat(side, id, statType, field) {
 }
 
 .hardest-hits .team-logo {
+  width: 20px;
+  height: 20px;
+  margin: 0 0.25rem 0 0;
+}
+
+.longest-hits ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.longest-hits li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.longest-hits .player-name {
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+
+.longest-hits .team-logo {
   width: 20px;
   height: 20px;
   margin: 0 0.25rem 0 0;
