@@ -6,6 +6,7 @@
       <RouterLink to="/standings">Standings</RouterLink>
       <RouterLink to="/teams">Teams</RouterLink>
       <RouterLink to="/players">Players</RouterLink>
+      <RouterLink to="/leaders">Leaders</RouterLink>
       <RouterLink to="/developer" class="developer-link">Developer</RouterLink>
     </nav>
     <router-view />
