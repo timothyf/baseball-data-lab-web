@@ -168,6 +168,11 @@ def unified_client_call(request, client, method_name: str):
         return Response({'error': str(exc)}, status=500)
     if isinstance(result, (dict, list)):
         return Response(result)
+    if hasattr(result, 'to_dict'):
+        try:
+            return Response(result.to_dict(orient='records'))
+        except Exception:  # pragma: no cover - defensive
+            pass
     if isinstance(result, bytes):
         return HttpResponse(result, content_type='application/octet-stream')
     if isinstance(result, str):
