@@ -18,6 +18,7 @@
                   <th>W</th>
                   <th>L</th>
                   <th>PCT</th>
+                  <th>GB</th>
                 </tr>
               </thead>
               <tbody>
@@ -27,6 +28,7 @@
                   <td>{{ record.wins }}</td>
                   <td>{{ record.losses }}</td>
                   <td>{{ record.winningPercentage }}</td>
+                  <td>{{ record.divisionGamesBack }}</td>
                 </tr>
               </tbody>
             </table>

@@ -69,15 +69,12 @@ def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
     try:
         data = client.get_game_live_feed(game_pk)
-        teams = data.get('teams', {})
-        for side in ('home', 'away'):
-            team_info = teams.get(side, {}).get('team') or {}
-            team_id = team_info.get('id') or data.get(f'{side}_team_data', {}).get('id')
-            if team_id and team_info is not None:
-                try:
-                    team_info['logo_url'] = client.get_team_spot_url(int(team_id), 32)
-                except Exception:  # pragma: no cover - defensive
-                    team_info['logo_url'] = None
+        data['gameData']['teams']['home']['logo_url'] = client.get_team_spot_url(
+            data['gameData']['teams']['home']['id'], 32
+        )
+        data['gameData']['teams']['away']['logo_url'] = client.get_team_spot_url(
+            data['gameData']['teams']['away']['id'], 32
+        )
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
