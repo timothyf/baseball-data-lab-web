@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from .models import PlayerIdInfo, TeamIdInfo, Venue
 
-
 @admin.register(PlayerIdInfo)
 class PlayerIdInfoAdmin(admin.ModelAdmin):
     """Admin configuration for PlayerIdInfo."""

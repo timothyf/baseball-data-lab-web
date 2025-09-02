@@ -12,6 +12,7 @@ requests
 seaborn
 psycopg2-binary
 djangorestframework
+python-dotenv
 
 
 
