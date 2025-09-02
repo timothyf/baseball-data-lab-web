@@ -105,8 +105,11 @@ const stats = ref(null);
 const teamAbbrevs = ref({});
 
 onMounted(async () => {
-  stats.value = await fetchPlayerStats(id);
-  await fetchTeamAbbrevs(stats.value?.stats);
+  const data = await fetchPlayerStats(id);
+  const batting = data?.batting?.stats ?? [];
+  const pitching = data?.pitching?.stats ?? [];
+  stats.value = { stats: [...batting, ...pitching] };
+  await fetchTeamAbbrevs(stats.value.stats);
 });
 
 

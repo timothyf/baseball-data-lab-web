@@ -91,7 +91,7 @@ const { id } = defineProps({
   id: String
 });
 
-const headshotSrc = computed(() => `/api/player/${id}/headshot/`);
+const headshotSrc = computed(() => `/api/players/${id}/headshot/`);
 const mlbPlayerUrl = computed(() => `https://www.mlb.com/player/${id}`);
 const name = ref('');
 const teamName = ref('');
