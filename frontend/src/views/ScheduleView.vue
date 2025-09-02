@@ -17,18 +17,37 @@
         />
       </div>
     </div>
+    <Dialog
+      v-model:visible="loading"
+      modal
+      :closable="false"
+      :draggable="false"
+      :dismissableMask="false"
+      :closeOnEscape="false"
+      showHeader="false"
+      class="loading-dialog"
+    >
+      <div class="loading-content">
+        <ProgressSpinner />
+        <p>Loading data...</p>
+      </div>
+    </Dialog>
   </section>
 </template>
 
 <script setup>
 import { defineAsyncComponent } from 'vue';
 import { useSchedule } from '../composables/useSchedule';
+import Dialog from 'primevue/dialog';
+import 'primevue/dialog/style';
+import ProgressSpinner from 'primevue/progressspinner';
+import 'primevue/progressspinner/style';
 
 const GameRow = defineAsyncComponent(() =>
   import('../components/GameRow.vue')
 );
 
-const { schedule, games, headerDate, prevDay, nextDay } = useSchedule();
+const { schedule, games, headerDate, prevDay, nextDay, loading } = useSchedule();
 </script>
 
 <style scoped>
@@ -85,6 +104,14 @@ const { schedule, games, headerDate, prevDay, nextDay } = useSchedule();
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
 }
 </style>
 
