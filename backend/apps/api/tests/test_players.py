@@ -105,7 +105,7 @@ class PlayerStatsApiTests(TestCase):
         self.assertEqual(data['batting']['stats'], ['bat'])
         self.assertEqual(data['pitching']['stats'], ['pitch'])
         mock_client.fetch_player_stats_career.assert_has_calls([
-            call(123, group='batting'),
+            call(123, group='hitting'),
             call(123, group='pitching'),
         ])
 
