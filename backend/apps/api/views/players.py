@@ -182,6 +182,65 @@ def player_stats(request, client, player_id: int):
         return Response({'error': str(exc)}, status=500)
 
 
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
+@require_unified_client
+def player_splits(request, client, player_id: int):
+    """Return batting and pitching splits for a player."""
+
+    season_param = request.GET.get('season')
+    try:
+        season = int(season_param) if season_param else datetime.now().year
+    except (TypeError, ValueError):
+        season = datetime.now().year
+
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    def _df_to_records(df):
+        try:
+            return (
+                df.reset_index()
+                .rename(columns={"Split": "split"})
+                .drop(columns=["Row"], errors="ignore")
+                .to_dict(orient="records")
+            )
+        except Exception:  # pragma: no cover - defensive
+            return []
+
+    try:
+        bat_df = client.fetch_batting_splits(int(key_mlbam), season)
+        pit_df = client.fetch_pitching_splits(int(key_mlbam), season)
+        data = {
+            "batting": _df_to_records(bat_df),
+            "pitching": _df_to_records(pit_df),
+        }
+        return Response(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Error fetching splits for player_id=%s, key_mlbam=%s: %s",
+            player_id,
+            key_mlbam,
+            exc,
+        )
+        return Response({'error': str(exc)}, status=500)
+
+
 @extend_schema(responses=LeagueLeadersSerializer)
 @api_view(['GET'])
 @require_unified_client

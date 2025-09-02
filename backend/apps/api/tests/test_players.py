@@ -110,6 +110,38 @@ class PlayerStatsApiTests(TestCase):
         ])
 
 
+class PlayerSplitsApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_splits_endpoint(self, mock_client_cls):
+        import pandas as pd
+
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_batting_splits.return_value = pd.DataFrame({
+            'Split': ['h', 'a'],
+            'hits': [10, 20],
+        }).set_index('Split')
+        mock_client.fetch_pitching_splits.return_value = pd.DataFrame({
+            'Split': ['vl', 'vr'],
+            'avg': [.200, .300],
+        }).set_index('Split')
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get('/api/players/1/splits/')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data['batting']), 2)
+        self.assertEqual(data['batting'][0]['split'], 'h')
+        self.assertEqual(len(data['pitching']), 2)
+        self.assertEqual(data['pitching'][1]['split'], 'vr')
+
+
 class PlayerSearchApiTests(TestCase):
     def setUp(self):
         for i in range(11):
