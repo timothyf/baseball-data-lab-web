@@ -206,20 +206,37 @@
           </TabPanel>
         </TabView>
       </div>
-      <div v-else>
-        <p>Standings data is loading.</p>
-      </div>
     </div>
+    <Dialog
+      v-model:visible="loading"
+      modal
+      :closable="false"
+      :draggable="false"
+      :dismissableMask="false"
+      :closeOnEscape="false"
+      showHeader="false"
+      class="loading-dialog"
+    >
+      <div class="loading-content">
+        <ProgressSpinner />
+        <p>Loading data...</p>
+      </div>
+    </Dialog>
   </section>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useStandingsStore } from '../store/standings';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import Dialog from 'primevue/dialog';
+import 'primevue/dialog/style';
+import ProgressSpinner from 'primevue/progressspinner';
+import 'primevue/progressspinner/style';
 
 const standingsStore = useStandingsStore();
+const loading = ref(true);
 
 // Cache standings by season to avoid refetching on remount
 const standingsCache = new Map();
@@ -238,12 +255,17 @@ function groupByLeague(records) {
 }
 
 async function fetchStandings(season) {
-  const resp = await fetch('/api/standings/');
-  const data = await resp.json();
-  const records = data.records || data;
-  standingsStore.standings = records;
-  standingsStore.standingsByLeague = groupByLeague(records);
-  standingsCache.set(season, records);
+  loading.value = true;
+  try {
+    const resp = await fetch('/api/standings/');
+    const data = await resp.json();
+    const records = data.records || data;
+    standingsStore.standings = records;
+    standingsStore.standingsByLeague = groupByLeague(records);
+    standingsCache.set(season, records);
+  } finally {
+    loading.value = false;
+  }
 }
 
 function getDivisionName(divisionId) {
@@ -303,6 +325,7 @@ onMounted(() => {
       const cached = standingsCache.get(season);
       standingsStore.standings = cached;
       standingsStore.standingsByLeague = groupByLeague(cached);
+      loading.value = false;
     } else {
       fetchStandings(season);
     }
@@ -311,6 +334,7 @@ onMounted(() => {
     if (!standingsCache.has(season)) {
       standingsCache.set(season, standingsStore.standings);
     }
+    loading.value = false;
   }
 });
 </script>
@@ -392,6 +416,14 @@ onMounted(() => {
 
 :deep(.standings-table .p-datatable-tbody > tr > td a) {
   font-weight: bold;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 </style>
