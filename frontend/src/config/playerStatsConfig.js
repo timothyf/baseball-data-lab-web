@@ -15,6 +15,28 @@ export const advancedPitchingFields = ['team','qualityStarts','gamesFinished', '
   'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
   'pitchesPerInning','pitchesPerPlateAppearance'];
 
+export const battingSplitTypes = ['h', 'a', 'vl', 'vr','d','n','preas','posas','val','vnl','r0','r123','ron','ac','bc'];
+
+export const pitchingSplitTypes = ['h', 'a', 'vl', 'vr', 'd', 'n', 'preas', 'posas','val','vnl','r0','r123','ron','ac','bc'];
+
+export const splitTypeLabels = {
+  h: 'Home',
+  a: 'Away',
+  vl: 'vs. L',
+  vr: 'vs. R',
+  d: 'Day',
+  n: 'Night',
+  preas: 'Pre AS',
+  posas: 'Post AS',
+  val: 'vs. AL',
+  vnl: 'vs. NL',
+  r0: 'Bases Empty',
+  r123: 'Bases Loaded',
+  ron: 'Runners on Base',
+  ac: 'Ahead in Count',
+  bc: 'Behind in Count'
+};
+
 export const fieldLabels = {
   atBats: 'AB',
   hits: 'H',

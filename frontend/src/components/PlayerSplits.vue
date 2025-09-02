@@ -6,13 +6,15 @@
         <thead>
           <tr>
             <th>Split</th>
-            <th v-for="field in battingFields" :key="'bat-'+field">{{ fieldLabels[field] ?? field }}</th>
+            <th v-for="field in standardHittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in batting" :key="row.split">
-            <td>{{ row.split }}</td>
-            <td v-for="field in battingFields" :key="field">{{ row[field] ?? '-' }}</td>
+          <tr v-for="split in battingSplitTypes" :key="split">
+            <td>{{ splitTypeLabels[split] }}</td>
+            <td v-for="field in standardHittingFields" :key="field">
+              {{ battingRowsBySplit[split]?.stat?.[field] ?? '-' }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -23,13 +25,15 @@
         <thead>
           <tr>
             <th>Split</th>
-            <th v-for="field in pitchingFields" :key="'pit-'+field">{{ fieldLabels[field] ?? field }}</th>
+            <th v-for="field in standardPitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in pitching" :key="row.split">
-            <td>{{ row.split }}</td>
-            <td v-for="field in pitchingFields" :key="field">{{ row[field] ?? '-' }}</td>
+          <tr v-for="split in pitchingSplitTypes" :key="split">
+            <td>{{ splitTypeLabels[split] }}</td>
+            <td v-for="field in standardPitchingFields" :key="field">
+              {{ pitchingRowsBySplit[split]?.stat?.[field] ?? '-' }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -40,21 +44,47 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { fetchPlayerSplits } from '../services/api.js';
-import { fieldLabels } from '../config/playerStatsConfig.js';
+import {
+  standardHittingFields,
+  advancedHittingFields,
+  standardPitchingFields,
+  advancedPitchingFields,
+  fieldLabels,
+  splitTypeLabels,
+  battingSplitTypes,
+  pitchingSplitTypes
+} from '../config/playerStatsConfig.js';
 
 const { id } = defineProps({ id: String });
 
 const data = ref(null);
 
 onMounted(async () => {
+  console.log('Fetching player splits for ID:', id);
   data.value = await fetchPlayerSplits(id);
+  console.log('Fetched player splits:', data.value);
 });
-
 const batting = computed(() => data.value?.batting || []);
 const pitching = computed(() => data.value?.pitching || []);
 
-const battingFields = ['gamesPlayed', 'atBats', 'hits', 'doubles', 'triples', 'homeRuns', 'rbi', 'avg', 'obp', 'slg', 'ops'];
-const pitchingFields = ['gamesPlayed', 'gamesPitched', 'inningsPitched', 'strikeOuts', 'baseOnBalls', 'hits', 'homeRuns', 'avg', 'obp', 'slg', 'ops', 'whip'];
+const battingRowsBySplit = computed(() => {
+  const map = {};
+  batting.value.forEach(r => {
+    const code = r.split?.code;
+    if (code) map[code] = r;
+  });
+  return map;
+});
+
+const pitchingRowsBySplit = computed(() => {
+  const map = {};
+  pitching.value.forEach(r => {
+    const code = r.split?.code;
+    if (code) map[code] = r;
+  });
+  return map;
+});
+
 </script>
 
 <style scoped>

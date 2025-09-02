@@ -1,11 +1,14 @@
 const cache = new Map();
 
 async function apiFetch(url, { cacheKey, useCache = true, asText = false } = {}) {
+  console.log('Fetching URL:', url);
   if (useCache && cacheKey && cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
   try {
+    console.log('Making network request to:', url);
     const res = await fetch(url);
+    console.log('Fetched URL:', url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = asText ? await res.text() : await res.json();
     if (useCache && cacheKey) {

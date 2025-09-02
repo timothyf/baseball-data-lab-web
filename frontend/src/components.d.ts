@@ -14,6 +14,7 @@ declare module 'vue' {
     HelloComponent: typeof import('./components/HelloComponent.vue')['default']
     JsonViewer: typeof import('./components/JsonViewer.vue')['default']
     PlayerQuickList: typeof import('./components/PlayerQuickList.vue')['default']
+    PlayerSplits: typeof import('./components/PlayerSplits.vue')['default']
     PlayerStats: typeof import('./components/PlayerStats.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
