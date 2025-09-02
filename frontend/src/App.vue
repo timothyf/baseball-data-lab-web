@@ -1,23 +1,16 @@
 <template>
-  <div>
-    <nav class="top-nav">
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/schedule">Schedule</RouterLink>
-      <RouterLink to="/standings">Standings</RouterLink>
-      <RouterLink to="/teams">Teams</RouterLink>
-      <RouterLink to="/players">Players</RouterLink>
-      <RouterLink to="/leaders">Leaders</RouterLink>
-      <RouterLink to="/developer" class="developer-link">Developer</RouterLink>
-    </nav>
+  <BaseLayout>
     <router-view />
-  </div>
+  </BaseLayout>
 </template>
 
 <script>
+import BaseLayout from './layouts/BaseLayout.vue';
 
 export default {
   name: 'App',
   components: {
+    BaseLayout
   }
 };
 </script>
