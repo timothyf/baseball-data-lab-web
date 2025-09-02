@@ -52,3 +52,10 @@ a:hover {
 .search-page .search-container .p-inputtext {
   width: 100%;
 }
+
+.page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
