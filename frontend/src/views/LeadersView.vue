@@ -17,6 +17,8 @@
             <Column field="playerFullName" header="Player"></Column>
             <Column field="teamAbbrev" header="Team"></Column>
             <Column field="avg" header="AVG" sortable></Column>
+            <Column field="doubles" header="2B" sortable></Column>
+            <Column field="triples" header="3B" sortable></Column>
             <Column field="homeRuns" header="HR" sortable></Column>
             <Column field="rbi" header="RBI" sortable></Column>
             <Column field="ops" header="OPS" sortable></Column>
