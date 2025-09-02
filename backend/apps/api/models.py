@@ -27,6 +27,10 @@ class PlayerIdInfo(models.Model):
     class Meta:
         db_table = 'player_id_infos'
 
+    def __str__(self) -> str:  # pragma: no cover - simple convenience method
+        """Return the player's full name for admin displays."""
+        return self.name_full or ""
+
 
 class TeamIdInfo(models.Model):
     mlbam_team_id = models.IntegerField(null=True)
@@ -46,6 +50,10 @@ class TeamIdInfo(models.Model):
     class Meta:
         db_table = 'team_id_infos'
 
+    def __str__(self) -> str:  # pragma: no cover - simple convenience method
+        """Return the team's full name for admin displays."""
+        return self.full_name or ""
+
 
 class Venue(models.Model):
     mlbam_id = models.IntegerField(null=True)
@@ -56,3 +64,7 @@ class Venue(models.Model):
 
     class Meta:
         db_table = 'venues'
+
+    def __str__(self) -> str:  # pragma: no cover - simple convenience method
+        """Return the venue name for admin displays."""
+        return self.name or ""
