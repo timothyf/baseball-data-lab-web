@@ -76,6 +76,21 @@
         </TabPanel>
       </TabView>
     </div>
+    <Dialog
+      v-model:visible="loading"
+      modal
+      :closable="false"
+      :draggable="false"
+      :dismissableMask="false"
+      :closeOnEscape="false"
+      showHeader="false"
+      class="loading-dialog"
+    >
+      <div class="loading-content">
+        <ProgressSpinner />
+        <p>Loading data...</p>
+      </div>
+    </Dialog>
   </section>
 </template>
 
@@ -85,6 +100,10 @@ import PlayerStats from '../components/PlayerStats.vue';
 import PlayerSplits from '../components/PlayerSplits.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import Dialog from 'primevue/dialog';
+import 'primevue/dialog/style';
+import ProgressSpinner from 'primevue/progressspinner';
+import 'primevue/progressspinner/style';
 import teamColors from '../data/teamColors.json';
 import { fetchPlayer, fetchTeamLogo } from '../services/api.js';
 
@@ -104,6 +123,7 @@ const height = ref('');
 const weight = ref('');
 const batSide = ref('');
 const throwSide = ref('');
+const loading = ref(true);
 
 const teamColorStyle = computed(() => {
   const colors = teamColors[teamName.value] || [];
@@ -137,21 +157,25 @@ const hasBio = computed(() =>
 );
 
 onMounted(async () => {
-  const data = await fetchPlayer(id);
-  if (data) {
-    name.value = data.name || '';
-    teamName.value = data.team_name || '';
-    position.value = data.position || '';
-    birthDate.value = data.birth_date || '';
-    birthPlace.value = data.birth_place || '';
-    height.value = data.height || '';
-    weight.value = data.weight || '';
-    batSide.value = data.bat_side || '';
-    throwSide.value = data.throw_side || '';
-    if (data.team_id) {
-      const logo = await fetchTeamLogo(data.team_id);
-      teamLogoSrc.value = (logo || '').trim();
+  try {
+    const data = await fetchPlayer(id);
+    if (data) {
+      name.value = data.name || '';
+      teamName.value = data.team_name || '';
+      position.value = data.position || '';
+      birthDate.value = data.birth_date || '';
+      birthPlace.value = data.birth_place || '';
+      height.value = data.height || '';
+      weight.value = data.weight || '';
+      batSide.value = data.bat_side || '';
+      throwSide.value = data.throw_side || '';
+      if (data.team_id) {
+        const logo = await fetchTeamLogo(data.team_id);
+        teamLogoSrc.value = (logo || '').trim();
+      }
     }
+  } finally {
+    loading.value = false;
   }
 });
 </script>
@@ -265,5 +289,13 @@ onMounted(async () => {
 
 .mlbam-id a {
   color: inherit;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
 }
 </style>
