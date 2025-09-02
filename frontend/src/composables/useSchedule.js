@@ -1,4 +1,4 @@
-import { computed, onMounted, onBeforeUnmount, onScopeDispose, shallowRef, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, onScopeDispose, ref, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScheduleStore } from '../store/schedule';
 
@@ -67,6 +67,7 @@ export function useSchedule() {
   const today = new Date().toISOString().slice(0, 10);
 
   const games = shallowRef([]);
+  const loading = ref(false);
 
   watch(
     schedule,
@@ -101,24 +102,29 @@ export function useSchedule() {
     if (!cacheOnly) {
       if (controller) controller.abort();
       controller = new AbortController();
+      loading.value = true;
     }
 
-    if (!force && scheduleCache.has(dateStr)) {
-      const cached = scheduleCache.get(dateStr);
-      if (!cacheOnly) scheduleStore.setSchedule(cached);
+    try {
+      if (!force && scheduleCache.has(dateStr)) {
+        const cached = scheduleCache.get(dateStr);
+        if (!cacheOnly) scheduleStore.setSchedule(cached);
+        if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
+        return cached;
+      }
+
       if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
-      return cached;
+
+      const options = {};
+      if (!cacheOnly) options.signal = controller.signal;
+      const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
+      const data = await resp.json();
+      scheduleCache.set(dateStr, data);
+      if (!cacheOnly) scheduleStore.setSchedule(data);
+      return data;
+    } finally {
+      if (!cacheOnly) loading.value = false;
     }
-
-    if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
-
-    const options = {};
-    if (!cacheOnly) options.signal = controller.signal;
-    const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
-    const data = await resp.json();
-    scheduleCache.set(dateStr, data);
-    if (!cacheOnly) scheduleStore.setSchedule(data);
-    return data;
   }
 
   function prefetchAdjacent(dateStr) {
@@ -181,7 +187,7 @@ export function useSchedule() {
   onBeforeUnmount(clearRefreshInterval);
   onScopeDispose(clearRefreshInterval);
 
-  return { schedule, games, headerDate, prevDay, nextDay, fetchSchedule };
+  return { schedule, games, headerDate, prevDay, nextDay, loading, fetchSchedule };
 }
 
 export { formatDate };
