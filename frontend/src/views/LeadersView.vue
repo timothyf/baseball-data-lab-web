@@ -96,7 +96,7 @@
             <Column field="rank" header="#"></Column>
             <Column field="playerFullName" header="Player"></Column>
             <Column field="teamAbbrev" header="Team"></Column>
-            <Column field="fieldingPercentage" header="FPCT" sortable></Column>
+            <Column field="fielding" header="FPCT" sortable></Column>
             <Column field="assists" header="A" sortable></Column>
             <Column field="putOuts" header="PO" sortable></Column>
             <Column field="errors" header="E" sortable></Column>
