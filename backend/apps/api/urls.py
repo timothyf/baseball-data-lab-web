@@ -11,6 +11,7 @@ from .views.players import (
     player_search,
     player_info,
     player_stats,
+    player_splits,
     player_headshot,
     league_leaders,
 )
@@ -36,6 +37,7 @@ urlpatterns = [
     path('players/', player_search, name='api-player-search'),
     path('players/<int:player_id>/', player_info, name='api-player-info'),
     path('players/<int:player_id>/stats/', player_stats, name='api-player-stats'),
+    path('players/<int:player_id>/splits/', player_splits, name='api-player-splits'),
     path('player/<int:player_id>/headshot/', player_headshot, name='api-player-headshot'),
     path('teams/', team_search, name='api-team-search'),
     path('teams/<int:mlbam_team_id>/', team_info, name='api-team-info'),

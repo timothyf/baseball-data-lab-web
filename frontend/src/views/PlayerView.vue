@@ -66,7 +66,7 @@
           <PlayerStats :id="id" />
         </TabPanel>
         <TabPanel header="Splits">
-          <p>Splits coming soon.</p>
+          <PlayerSplits :id="id" />
         </TabPanel>
         <TabPanel header="Game Log">
           <p>Game Log coming soon.</p>
@@ -82,6 +82,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import PlayerStats from '../components/PlayerStats.vue';
+import PlayerSplits from '../components/PlayerSplits.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import teamColors from '../data/teamColors.json';
