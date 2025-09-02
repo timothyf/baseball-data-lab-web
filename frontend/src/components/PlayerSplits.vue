@@ -10,12 +10,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="split in battingSplitTypes" :key="split">
-            <td>{{ splitTypeLabels[split] }}</td>
-            <td v-for="field in standardHittingFields" :key="field">
-              {{ battingRowsBySplit[split]?.stat?.[field] ?? '-' }}
-            </td>
-          </tr>
+          <template v-for="(group, groupIndex) in splitTypeGroups" :key="groupIndex">
+            <tr
+              v-for="split in group"
+              :key="split"
+              :class="{ 'group-separator': groupIndex > 0 && split === group[0] }"
+            >
+              <td>{{ splitTypeLabels[split] }}</td>
+              <td v-for="field in standardHittingFields" :key="field">
+                {{ battingRowsBySplit[split]?.stat?.[field] ?? '-' }}
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -29,12 +35,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="split in pitchingSplitTypes" :key="split">
-            <td>{{ splitTypeLabels[split] }}</td>
-            <td v-for="field in standardPitchingFields" :key="field">
-              {{ pitchingRowsBySplit[split]?.stat?.[field] ?? '-' }}
-            </td>
-          </tr>
+          <template v-for="(group, groupIndex) in splitTypeGroups" :key="groupIndex">
+            <tr
+              v-for="split in group"
+              :key="split"
+              :class="{ 'group-separator': groupIndex > 0 && split === group[0] }"
+            >
+              <td>{{ splitTypeLabels[split] }}</td>
+              <td v-for="field in standardPitchingFields" :key="field">
+                {{ pitchingRowsBySplit[split]?.stat?.[field] ?? '-' }}
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -51,8 +63,7 @@ import {
   advancedPitchingFields,
   fieldLabels,
   splitTypeLabels,
-  battingSplitTypes,
-  pitchingSplitTypes
+  splitTypeGroups
 } from '../config/playerStatsConfig.js';
 
 const { id } = defineProps({ id: String });
@@ -103,5 +114,9 @@ const pitchingRowsBySplit = computed(() => {
 }
 .stats-table th {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.group-separator td {
+  border-top: 2px solid #aaa;
 }
 </style>
