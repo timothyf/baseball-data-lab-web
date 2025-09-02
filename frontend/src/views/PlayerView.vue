@@ -11,12 +11,6 @@
         <div class="player-info">
           <h1>{{ name }}</h1>
           <div v-if="teamName" class="team-info">
-            <img
-              v-if="teamLogoSrc"
-              :src="teamLogoSrc"
-              alt="Team logo"
-              class="team-logo"
-            />
             <div class="player-details">
               <span class="position">{{ position }}</span>
               <span class="team-name">{{ teamName }}</span>
@@ -105,7 +99,7 @@ import 'primevue/dialog/style';
 import ProgressSpinner from 'primevue/progressspinner';
 import 'primevue/progressspinner/style';
 import teamColors from '../data/teamColors.json';
-import { fetchPlayer, fetchTeamLogo } from '../services/api.js';
+import { fetchPlayer } from '../services/api.js';
 
 const { id } = defineProps({
   id: String
@@ -116,7 +110,6 @@ const mlbPlayerUrl = computed(() => `https://www.mlb.com/player/${id}`);
 const name = ref('');
 const teamName = ref('');
 const position = ref('');
-const teamLogoSrc = ref('');
 const birthDate = ref('');
 const birthPlace = ref('');
 const height = ref('');
@@ -169,10 +162,6 @@ onMounted(async () => {
       weight.value = data.weight || '';
       batSide.value = data.bat_side || '';
       throwSide.value = data.throw_side || '';
-      if (data.team_id) {
-        const logo = await fetchTeamLogo(data.team_id);
-        teamLogoSrc.value = (logo || '').trim();
-      }
     }
   } finally {
     loading.value = false;
