@@ -170,8 +170,9 @@ def player_stats(request, client, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        data = client.fetch_player_stats_career(int(key_mlbam))
-        return Response(data)
+        batting = client.fetch_player_stats_career(int(key_mlbam), group='batting')
+        pitching = client.fetch_player_stats_career(int(key_mlbam), group='pitching')
+        return Response({'batting': batting, 'pitching': pitching})
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
             "Error fetching career stats for player_id=%s, key_mlbam=%s: %s",
@@ -235,7 +236,7 @@ def league_leaders(request, client):
             break
 
     if 'IP' in pit.columns:
-        pit = pit[pit['IP'] > 50]
+        pit = pit[pit['IP'] >= 50]
 
     for stat in ['ERA', 'SO', 'W', 'SV', 'WHIP']:
         if stat in pit.columns and not pit.empty:
