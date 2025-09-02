@@ -170,7 +170,7 @@ def player_stats(request, client, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        batting = client.fetch_player_stats_career(int(key_mlbam), group='batting')
+        batting = client.fetch_player_stats_career(int(key_mlbam), group='hitting')
         pitching = client.fetch_player_stats_career(int(key_mlbam), group='pitching')
         return Response({'batting': batting, 'pitching': pitching})
     except Exception as exc:  # pragma: no cover - defensive
