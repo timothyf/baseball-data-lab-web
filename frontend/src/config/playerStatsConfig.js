@@ -15,9 +15,22 @@ export const advancedPitchingFields = ['team','qualityStarts','gamesFinished', '
   'wildPitches','balks','stolenBases','caughtStealing','pickoffs','strikePercentage',
   'pitchesPerInning','pitchesPerPlateAppearance'];
 
-export const battingSplitTypes = ['h', 'a', 'vl', 'vr','d','n','preas','posas','val','vnl','r0','r123','ron','ac','bc'];
+// Groups of related split codes used to display logical sections in the
+// splits tables. Adding a new group here will automatically provide visual
+// separation in the PlayerSplits component.
+export const splitTypeGroups = [
+  ['h', 'a'],          // Home/Away
+  ['vl', 'vr'],        // vs. L / vs. R
+  ['d', 'n'],          // Day/Night
+  ['preas', 'posas'],  // Pre/Post All-Star
+  ['val', 'vnl'],      // vs. AL / vs. NL
+  ['r0', 'r123', 'ron'], // Base state
+  ['ac', 'bc']         // Count leverage
+];
 
-export const pitchingSplitTypes = ['h', 'a', 'vl', 'vr', 'd', 'n', 'preas', 'posas','val','vnl','r0','r123','ron','ac','bc'];
+export const battingSplitTypes = splitTypeGroups.flat();
+
+export const pitchingSplitTypes = splitTypeGroups.flat();
 
 export const splitTypeLabels = {
   h: 'Home',
