@@ -210,7 +210,14 @@ function onFieldingSort(e) {
 }
 
 .leaders-content {
+  width: 100%;
   max-width: 1100px;
+}
+
+.batting-leaders-table,
+.pitching-leaders-table,
+.fielding-leaders-table {
+  width: 100%;
 }
 
 .leaders-lists {
