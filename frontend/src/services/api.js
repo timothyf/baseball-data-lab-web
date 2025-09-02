@@ -80,6 +80,38 @@ export const fetchBattingLeaders = (
     },
   );
 
+export const fetchPitchingLeaders = (
+  season,
+  statType,
+  sortOrder = 'asc',
+  limit = 10,
+  offset = 0,
+  opts,
+) =>
+  apiFetch(
+    `/api/unified/get_leaderboard_data/?season=${season}&group=pitching&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+    {
+      cacheKey: `pitchingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
+      ...opts,
+    },
+  );
+
+export const fetchFieldingLeaders = (
+  season,
+  statType,
+  sortOrder = 'desc',
+  limit = 10,
+  offset = 0,
+  opts,
+) =>
+  apiFetch(
+    `/api/unified/get_leaderboard_data/?season=${season}&group=fielding&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+    {
+      cacheKey: `fieldingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
+      ...opts,
+    },
+  );
+
 export default {
   fetchTeamDetails,
   fetchTeamLogo,
@@ -93,5 +125,7 @@ export default {
   fetchTeamRoster,
   fetchTeamLeaders,
   fetchBattingLeaders,
+  fetchPitchingLeaders,
+  fetchFieldingLeaders,
 };
 
