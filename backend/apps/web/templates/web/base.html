@@ -32,7 +32,28 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    
+
     {% block content %}{% endblock %}
+
+    {% if DJANGO_USE_VITE_DEV %}
+    <script>
+        (function () {
+            const protocol = window.location.protocol;
+            const host = window.location.hostname;
+            const base = `${protocol}//${host}:5173`;
+            [
+                `${base}/@vite/client`,
+                `${base}/src/main.js`,
+            ].forEach(src => {
+                const el = document.createElement('script');
+                el.type = 'module';
+                el.src = src;
+                document.head.appendChild(el);
+            });
+        })();
+    </script>
+    {% else %}
+    <script src="{% static 'frontend/main.js' %}"></script>
+    {% endif %}
 </body>
 </html>
