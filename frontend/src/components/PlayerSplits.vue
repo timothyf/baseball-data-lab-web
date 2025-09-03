@@ -116,15 +116,8 @@ onMounted(async () => {
 });
 const batting = computed(() => data.value?.batting || []);
 const pitching = computed(() => data.value?.pitching || []);
-const monthlyBatting = computed(() => {
-  const splits = data.value?.monthly?.batting || [];
-  return [...splits].sort((a, b) => (a.month ?? 0) - (b.month ?? 0));
-});
-const monthlyPitching = computed(() => {
-  const splits = data.value?.monthly?.pitching || [];
-  return [...splits].sort((a, b) => (a.month ?? 0) - (b.month ?? 0));
-});
-
+const monthlyBatting = computed(() => data.value?.monthly?.batting || []);
+const monthlyPitching = computed(() => data.value?.monthly?.pitching || []);
 
 const formatMonth = m =>
   new Date(0, (m || 1) - 1).toLocaleString('default', { month: 'long' });
