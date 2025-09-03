@@ -2,6 +2,24 @@
   <section class="leaders-view">
     <div class="leaders-content">
       <h1>League Leaders</h1>
+      <div class="leader-filters">
+        <Dropdown
+          v-model="selectedLeague"
+          :options="leagueOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Filter by league"
+          showClear
+        />
+        <Dropdown
+          v-model="selectedTeam"
+          :options="teamOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Filter by team"
+          showClear
+        />
+      </div>
       <TabView>
         <TabPanel header="Batting Leaders">
           <DataTable
@@ -86,8 +104,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import PlayerQuickList from '../components/PlayerQuickList.vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import TabView from 'primevue/tabview';
@@ -96,6 +113,9 @@ import Dialog from 'primevue/dialog';
 import 'primevue/dialog/style';
 import ProgressSpinner from 'primevue/progressspinner';
 import 'primevue/progressspinner/style';
+import Dropdown from 'primevue/dropdown';
+import 'primevue/dropdown/style';
+import teams from '../data/mlbTeams.json';
 import {
   fetchBattingLeaders,
   fetchPitchingLeaders,
@@ -103,11 +123,31 @@ import {
 } from '../services/api';
 import logger from '../utils/logger';
 
-const leaders = ref(null);
 const battingLeaders = ref([]);
 const pitchingLeaders = ref([]);
 const fieldingLeaders = ref([]);
 const loading = ref(true);
+
+const leagueOptions = [
+  { label: 'All Leagues', value: null },
+  { label: 'American League', value: 103 },
+  { label: 'National League', value: 104 },
+];
+const selectedLeague = ref(null);
+const selectedTeam = ref(null);
+
+const allTeams = [
+  ...teams.AL.map((t) => ({ label: t.name, value: t.mlbam_team_id, league: 103 })),
+  ...teams.NL.map((t) => ({ label: t.name, value: t.mlbam_team_id, league: 104 })),
+];
+
+const teamOptions = computed(() => {
+  const opts = [{ label: 'All Teams', value: null }];
+  if (!selectedLeague.value) {
+    return opts.concat(allTeams);
+  }
+  return opts.concat(allTeams.filter((t) => t.league === selectedLeague.value));
+});
 
 const battingSort = ref({ field: 'homeRuns', order: -1 });
 const pitchingSort = ref({ field: 'era', order: 1 });
@@ -135,6 +175,23 @@ onMounted(async () => {
   }
 });
 
+watch(selectedLeague, () => {
+  selectedTeam.value = null;
+});
+
+watch([selectedLeague, selectedTeam], async () => {
+  loading.value = true;
+  try {
+    await Promise.all([
+      loadBattingLeaders(),
+      loadPitchingLeaders(),
+      loadFieldingLeaders(),
+    ]);
+  } finally {
+    loading.value = false;
+  }
+});
+
 async function loadBattingLeaders() {
   const season = new Date().getFullYear();
   const order = battingSort.value.order === 1 ? 'asc' : 'desc';
@@ -144,7 +201,11 @@ async function loadBattingLeaders() {
     order,
     10,
     0,
-    { useCache: false },
+    {
+      useCache: false,
+      leagueId: selectedTeam.value ? null : selectedLeague.value,
+      teamId: selectedTeam.value,
+    },
   );
   battingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
@@ -158,7 +219,11 @@ async function loadPitchingLeaders() {
     order,
     10,
     0,
-    { useCache: false },
+    {
+      useCache: false,
+      leagueId: selectedTeam.value ? null : selectedLeague.value,
+      teamId: selectedTeam.value,
+    },
   );
   pitchingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
@@ -172,7 +237,11 @@ async function loadFieldingLeaders() {
     order,
     10,
     0,
-    { useCache: false },
+    {
+      useCache: false,
+      leagueId: selectedTeam.value ? null : selectedLeague.value,
+      teamId: selectedTeam.value,
+    },
   );
   fieldingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
@@ -203,6 +272,12 @@ function onFieldingSort(e) {
 .leaders-content {
   width: 100%;
   max-width: 1100px;
+}
+
+.leader-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .batting-leaders-table,
