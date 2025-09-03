@@ -1,5 +1,5 @@
 <template>
-  <div v-if="rows.length">
+  <div v-if="groupedRows.length">
     <table class="stats-table">
       <thead>
         <tr>
@@ -9,11 +9,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.date">
-          <td>{{ row.date }}</td>
-          <td>{{ row.opponent }}</td>
-          <td v-for="field in fields" :key="field">{{ row[field] ?? '-' }}</td>
-        </tr>
+        <template v-for="group in groupedRows" :key="group.month">
+          <tr class="month-row">
+            <td :colspan="2 + fields.length">{{ group.month }}</td>
+          </tr>
+          <tr v-for="row in group.games" :key="row.date">
+            <td>{{ row.date }}</td>
+            <td>{{ row.opponent }}</td>
+            <td v-for="field in fields" :key="field">{{ row[field] ?? '-' }}</td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -46,10 +51,20 @@ const fieldsByType = {
 
 const fields = computed(() => fieldsByType[props.statType] || []);
 
-const rows = computed(() => {
+const groupedRows = computed(() => {
   const splits = data.value?.stats?.[0]?.splits || [];
-  return splits.map(s => {
+  const groups = [];
+  let currentMonth = '';
+  let currentGroup = null;
+  splits.forEach(s => {
     const stat = s.stat || {};
+    const dateObj = new Date(s.date);
+    const month = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+    if (month !== currentMonth) {
+      currentGroup = { month, games: [] };
+      groups.push(currentGroup);
+      currentMonth = month;
+    }
     const row = {
       date: s.date,
       opponent: s.opponent?.abbreviation,
@@ -57,8 +72,9 @@ const rows = computed(() => {
     fields.value.forEach(f => {
       row[f] = stat[f];
     });
-    return row;
+    currentGroup.games.push(row);
   });
+  return groups;
 });
 </script>
 
@@ -74,5 +90,10 @@ const rows = computed(() => {
 }
 .stats-table th {
   background-color: #f5f5f5;
+}
+
+.month-row td {
+  background-color: #eaeaea;
+  font-weight: bold;
 }
 </style>
