@@ -53,6 +53,7 @@
 import SearchAutocomplete from '../components/SearchAutocomplete.vue';
 import PlayerQuickList from '../components/PlayerQuickList.vue';
 import { onMounted, ref } from 'vue';
+import logger from '../utils/logger';
 
 const leaders = ref(null);
 
@@ -61,7 +62,7 @@ onMounted(async () => {
     const res = await fetch('/api/leaders/');
     leaders.value = await res.json();
   } catch (e) {
-    console.error('Failed to fetch league leaders:', e);
+    logger.error('Failed to fetch league leaders:', e);
     leaders.value = null;
   }
 });

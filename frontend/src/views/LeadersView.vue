@@ -101,6 +101,7 @@ import {
   fetchPitchingLeaders,
   fetchFieldingLeaders,
 } from '../services/api';
+import logger from '../utils/logger';
 
 const leaders = ref(null);
 const battingLeaders = ref([]);
@@ -119,7 +120,7 @@ onMounted(async () => {
     //   const res = await fetch('/api/leaders/');
     //   leaders.value = await res.json();
     // } catch (e) {
-    //   console.error('Failed to fetch league leaders:', e);
+    //   logger.error('Failed to fetch league leaders:', e);
     //   leaders.value = null;
     // }
     await Promise.all([
@@ -128,7 +129,7 @@ onMounted(async () => {
       loadFieldingLeaders(),
     ]);
   } catch (e) {
-    console.error('Failed to load leaders data:', e);
+    logger.error('Failed to load leaders data:', e);
   } finally {
     loading.value = false;
   }
