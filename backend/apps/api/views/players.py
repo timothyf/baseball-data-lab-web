@@ -139,6 +139,16 @@ def player_info(request, client, player_id: int):
         pos = info.get("primaryPosition", {}) or {}
         bat = info.get("batSide", {}) or {}
         throw = info.get("pitchHand", {}) or {}
+        draft = info.get("draft", {}) or {}
+        draft_team = draft.get("team", {}) or {}
+        draft_data = {
+            "year": draft.get("year"),
+            "round": draft.get("round"),
+            "pick": draft.get("pick"),
+            "overall": draft.get("overall"),
+            "team_id": draft_team.get("id"),
+            "team_name": draft_team.get("name"),
+        } if draft else None
         birth_city = info.get("birthCity")
         birth_state = info.get("birthStateProvince")
         birth_country = info.get("birthCountry")
@@ -160,6 +170,7 @@ def player_info(request, client, player_id: int):
             "weight": info.get("weight"),
             "bat_side": bat.get("description"),
             "throw_side": throw.get("description"),
+            "draft": draft_data,
         }
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive

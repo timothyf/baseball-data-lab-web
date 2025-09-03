@@ -11,6 +11,15 @@ class PlayerSearchResultSerializer(serializers.Serializer):
     key_mlbam = serializers.CharField(allow_null=True)
 
 
+class DraftInfoSerializer(serializers.Serializer):
+    year = serializers.IntegerField(allow_null=True)
+    round = serializers.CharField(allow_null=True)
+    pick = serializers.IntegerField(allow_null=True)
+    overall = serializers.IntegerField(allow_null=True)
+    team_id = serializers.IntegerField(allow_null=True)
+    team_name = serializers.CharField(allow_null=True)
+
+
 class PlayerInfoSerializer(serializers.Serializer):
     team_id = serializers.IntegerField(allow_null=True)
     team_name = serializers.CharField(allow_null=True)
@@ -22,6 +31,7 @@ class PlayerInfoSerializer(serializers.Serializer):
     weight = serializers.CharField(allow_null=True)
     bat_side = serializers.CharField(allow_null=True)
     throw_side = serializers.CharField(allow_null=True)
+    draft = DraftInfoSerializer(allow_null=True, required=False)
 
 
 class LeagueLeaderEntrySerializer(serializers.Serializer):

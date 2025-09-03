@@ -55,6 +55,13 @@ class PlayerInfoApiTests(TestCase):
             'weight': 200,
             'batSide': {'description': 'Right'},
             'pitchHand': {'description': 'Left'},
+            'draft': {
+                'year': 2010,
+                'round': '1',
+                'pick': 5,
+                'overall': 5,
+                'team': {'id': 222, 'name': 'Draft Team'},
+            },
         }
 
         PlayerIdInfo.objects.create(
@@ -78,6 +85,17 @@ class PlayerInfoApiTests(TestCase):
         self.assertEqual(data['weight'], 200)
         self.assertEqual(data['bat_side'], 'Right')
         self.assertEqual(data['throw_side'], 'Left')
+        self.assertEqual(
+            data['draft'],
+            {
+                'year': 2010,
+                'round': '1',
+                'pick': 5,
+                'overall': 5,
+                'team_id': 222,
+                'team_name': 'Draft Team',
+            },
+        )
         mock_client.fetch_player_info.assert_called_once_with(123)
 
 
