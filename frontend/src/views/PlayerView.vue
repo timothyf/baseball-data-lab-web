@@ -63,7 +63,7 @@
           <PlayerSplits :id="id" />
         </TabPanel>
         <TabPanel header="Game Log">
-          <PlayerGameLog :id="id" :stat-type="statType" v-if="statType"/>
+          <PlayerGameLog :id="id" :stat-type="statType" />
         </TabPanel>
         <TabPanel header="Charts & Trends">
           <p>Charts & Trends coming soon.</p>
