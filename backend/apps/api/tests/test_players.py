@@ -130,11 +130,17 @@ class PlayerSplitsApiTests(TestCase):
                 'stats': [
                     {
                         'group': {'displayName': 'hitting'},
-                        'splits': [{'month': 3, 'stat': {'hits': 1}}],
+                        'splits': [
+                            {'month': 6, 'stat': {'hits': 6}},
+                            {'month': 4, 'stat': {'hits': 4}},
+                        ],
                     },
                     {
                         'group': {'displayName': 'pitching'},
-                        'splits': [{'month': 3, 'stat': {'era': '1.00'}}],
+                        'splits': [
+                            {'month': 6, 'stat': {'era': '6.00'}},
+                            {'month': 4, 'stat': {'era': '4.00'}},
+                        ],
                     },
                 ]
             }]
@@ -156,8 +162,12 @@ class PlayerSplitsApiTests(TestCase):
         self.assertEqual(len(data['pitching']), 2)
         self.assertEqual(data['pitching'][1]['split']['code'], 'vr')
         self.assertIn('monthly', data)
-        self.assertEqual(data['monthly']['batting'][0]['month'], 3)
-        self.assertEqual(data['monthly']['pitching'][0]['month'], 3)
+        self.assertEqual(
+            [m['month'] for m in data['monthly']['batting']], [4, 6]
+        )
+        self.assertEqual(
+            [m['month'] for m in data['monthly']['pitching']], [4, 6]
+        )
 
 
 class PlayerGameLogApiTests(TestCase):

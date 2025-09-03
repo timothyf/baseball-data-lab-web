@@ -257,6 +257,9 @@ def player_splits(request, client, player_id: int):
                 "Error fetching monthly splits for player_id=%s: %s", player_id, exc
             )
 
+        monthly_bat.sort(key=lambda s: int(s.get("month", 0)))
+        monthly_pit.sort(key=lambda s: int(s.get("month", 0)))
+
         data = {
             "batting": bat_json,
             "pitching": pit_json,
