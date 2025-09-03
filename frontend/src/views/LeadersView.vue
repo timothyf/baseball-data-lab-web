@@ -197,14 +197,14 @@ async function loadBattingLeaders() {
   const order = battingSort.value.order === 1 ? 'asc' : 'desc';
   const data = await fetchBattingLeaders(
     season,
+    selectedLeague.value,
+    selectedTeam.value,
     battingSort.value.field,
     order,
     10,
     0,
     {
-      useCache: false,
-      leagueId: selectedTeam.value ? null : selectedLeague.value,
-      teamId: selectedTeam.value,
+      useCache: false,     
     },
   );
   battingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
@@ -215,14 +215,14 @@ async function loadPitchingLeaders() {
   const order = pitchingSort.value.order === 1 ? 'asc' : 'desc';
   const data = await fetchPitchingLeaders(
     season,
+    selectedLeague.value,
+    selectedTeam.value,
     pitchingSort.value.field,
     order,
     10,
     0,
     {
       useCache: false,
-      leagueId: selectedTeam.value ? null : selectedLeague.value,
-      teamId: selectedTeam.value,
     },
   );
   pitchingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
@@ -233,14 +233,14 @@ async function loadFieldingLeaders() {
   const order = fieldingSort.value.order === 1 ? 'asc' : 'desc';
   const data = await fetchFieldingLeaders(
     season,
+    selectedLeague.value,
+    selectedTeam.value,
     fieldingSort.value.field,
     order,
     10,
     0,
     {
       useCache: false,
-      leagueId: selectedTeam.value ? null : selectedLeague.value,
-      teamId: selectedTeam.value,
     },
   );
   fieldingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
