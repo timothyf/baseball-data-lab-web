@@ -2,18 +2,60 @@ import httpClient from './httpClient';
 
 const cache = new Map();
 
-async function apiFetch(url, { cacheKey, useCache = true, asText = false } = {}) {
+// Schedule specific cache with revalidation support
+const scheduleCache = new Map();
+export const DEFAULT_SCHEDULE_TTL = 60_000;
+let scheduleTTL = DEFAULT_SCHEDULE_TTL;
+
+export function setScheduleCacheOptions({ ttl } = {}) {
+  if (typeof ttl === 'number') {
+    scheduleTTL = ttl;
+  }
+}
+
+export function invalidateScheduleCache(date) {
+  if (date) {
+    scheduleCache.delete(date);
+  } else {
+    scheduleCache.clear();
+  }
+}
+
+async function apiFetch(
+  url,
+  { cacheKey, useCache = true, asText = false, signal } = {},
+) {
   if (useCache && cacheKey && cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
   try {
     const response = await httpClient.get(url, {
       responseType: asText ? 'text' : 'json',
+      signal,
     });
     const data = response.data;
     if (useCache && cacheKey) {
       cache.set(cacheKey, data);
     }
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function fetchSchedule(
+  date,
+  { force = false, ttl = scheduleTTL, signal } = {},
+) {
+  const cached = scheduleCache.get(date);
+  const now = Date.now();
+  if (!force && cached && now - cached.timestamp < ttl) {
+    return cached.data;
+  }
+  try {
+    const response = await httpClient.get(`/schedule/?date=${date}`, { signal });
+    const data = response.data;
+    scheduleCache.set(date, { data, timestamp: now });
     return data;
   } catch (e) {
     return null;
@@ -35,9 +77,6 @@ export const fetchTeamRecord = (id, opts) =>
 
 export const fetchStandings = (opts) =>
   apiFetch('/standings/', { cacheKey: 'standings', ...opts });
-
-export const fetchSchedule = (date, opts) =>
-  apiFetch(`/schedule/?date=${date}`, { cacheKey: `schedule:${date}`, ...opts });
 
 export const fetchTopStat = (opts) =>
   apiFetch('/top-stat', { cacheKey: 'topStat', ...opts });
