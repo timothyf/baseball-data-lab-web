@@ -37,6 +37,9 @@
           >
             <h2>Biography</h2>
             <ul class="bio-list">
+              <li v-if="fullName">
+                <strong>{{ fullName }}</strong>
+              </li>
               <li v-if="birthDate">
                 <strong>Birth Date:</strong> {{ formattedBirthDate }}
               </li>
@@ -55,6 +58,12 @@
               </li>
               <li v-if="formattedDraft">
                 <strong>Draft:</strong> {{ formattedDraft }}
+              </li>
+              <li v-if="schoolInfo">
+                <strong>School:</strong> {{ schoolInfo }}
+              </li>
+              <li v-if="mlbDebutDate">
+                <strong>MLB Debut:</strong> {{ mlbDebutDate }}
               </li>
             </ul>
           </section>
@@ -115,11 +124,13 @@ const teamName = ref('');
 const position = ref('');
 const birthDate = ref('');
 const birthPlace = ref('');
+const fullName = ref('');
 const height = ref('');
 const weight = ref('');
 const batSide = ref('');
 const throwSide = ref('');
 const draft = ref(null);
+const mlbDebutDate = ref('');
 const loading = ref(true);
 
 const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
@@ -151,17 +162,28 @@ const formattedDraft = computed(() => {
   if (!d) return '';
   const parts = [];
   if (d.year) parts.push(d.year);
-  const roundPick = [];
-  if (d.round) roundPick.push(`Rd ${d.round}`);
-  if (d.pick) roundPick.push(`Pk ${d.pick}`);
-  if (roundPick.length) parts.push(roundPick.join(', '));
   if (d.team_name) parts.push(d.team_name);
+  const roundPick = [];
+  if (d.round) roundPick.push(`Round ${d.round}`);
+  if (d.pick) roundPick.push(`Pick ${d.pick}`);
+  if (roundPick.length) parts.push(roundPick.join(', '));
+  if (d.overall) parts.push(`Overall Pick ${d.overall}`);
+  return parts.join(' - ');
+});
+
+const schoolInfo = computed(() => {
+  const d = draft.value;
+  if (!d) return '';
+  const parts = [];
+  if (d.school) parts.push(`${d.school.name}, ${d.school.state}, ${d.school.country}`);
   return parts.join(' - ');
 });
 
 const hasBio = computed(() =>
   birthDate.value ||
   birthPlace.value ||
+  fullName.value ||
+  mlbDebutDate.value ||
   height.value ||
   weight.value ||
   batSide.value ||
@@ -178,6 +200,8 @@ onMounted(async () => {
       position.value = data.position || '';
       birthDate.value = data.birth_date || '';
       birthPlace.value = data.birth_place || '';
+      fullName.value = data.full_name || '';
+      mlbDebutDate.value = data.mlb_debut_date || '';
       height.value = data.height || '';
       weight.value = data.weight || '';
       batSide.value = data.bat_side || '';
