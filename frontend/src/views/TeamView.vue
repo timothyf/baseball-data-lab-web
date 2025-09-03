@@ -66,6 +66,7 @@ import TeamSchedule from '../components/team/TeamSchedule.vue';
 import teamColors from '../data/teamColors.json';
 import { useTeamsStore } from '../store/teams';
 import { useCachedFetch } from '../composables/useCachedFetch';
+import deepEqual from '../utils/deepEqual.js';
 import {
   fetchTeamLogo,
   fetchTeamRecord,
@@ -147,7 +148,9 @@ onMounted(() => {
 
 watch(
   () => mlbam_team_id,
-  (newId) => {
+  (newId, oldId) => {
+    if (deepEqual(newId, oldId)) return;
+
     teamLogoSrc.value = "";
     teamRecord.value = null;
     recentSchedule.value = null;
