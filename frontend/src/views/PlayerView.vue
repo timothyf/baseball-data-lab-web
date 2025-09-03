@@ -53,6 +53,9 @@
                 <strong>B/T:</strong>
                 {{ batSide || '?' }} / {{ throwSide || '?' }}
               </li>
+              <li v-if="formattedDraft">
+                <strong>Draft:</strong> {{ formattedDraft }}
+              </li>
             </ul>
           </section>
         </TabPanel>
@@ -116,6 +119,7 @@ const height = ref('');
 const weight = ref('');
 const batSide = ref('');
 const throwSide = ref('');
+const draft = ref(null);
 const loading = ref(true);
 
 const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
@@ -142,13 +146,27 @@ const formattedBirthDate = computed(() => {
   }
 });
 
+const formattedDraft = computed(() => {
+  const d = draft.value;
+  if (!d) return '';
+  const parts = [];
+  if (d.year) parts.push(d.year);
+  const roundPick = [];
+  if (d.round) roundPick.push(`Rd ${d.round}`);
+  if (d.pick) roundPick.push(`Pk ${d.pick}`);
+  if (roundPick.length) parts.push(roundPick.join(', '));
+  if (d.team_name) parts.push(d.team_name);
+  return parts.join(' - ');
+});
+
 const hasBio = computed(() =>
   birthDate.value ||
   birthPlace.value ||
   height.value ||
   weight.value ||
   batSide.value ||
-  throwSide.value
+  throwSide.value ||
+  formattedDraft.value
 );
 
 onMounted(async () => {
@@ -164,6 +182,7 @@ onMounted(async () => {
       weight.value = data.weight || '';
       batSide.value = data.bat_side || '';
       throwSide.value = data.throw_side || '';
+      draft.value = data.draft || null;
     }
   } finally {
     loading.value = false;
