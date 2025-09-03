@@ -56,6 +56,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { fetchPlayerSplits } from '../services/api.js';
+import logger from '../utils/logger';
 import {
   standardHittingFields,
   advancedHittingFields,
@@ -71,9 +72,9 @@ const { id } = defineProps({ id: String });
 const data = ref(null);
 
 onMounted(async () => {
-  console.log('Fetching player splits for ID:', id);
+  logger.info('Fetching player splits for ID:', id);
   data.value = await fetchPlayerSplits(id);
-  console.log('Fetched player splits:', data.value);
+  logger.info('Fetched player splits:', data.value);
 });
 const batting = computed(() => data.value?.batting || []);
 const pitching = computed(() => data.value?.pitching || []);

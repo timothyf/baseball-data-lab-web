@@ -13,6 +13,7 @@ import {
   fetchSchedule as apiFetchSchedule,
   DEFAULT_SCHEDULE_TTL,
 } from '../services/api';
+import logger from '../utils/logger';
 
 const REVALIDATE_INTERVAL = DEFAULT_SCHEDULE_TTL;
 
@@ -150,7 +151,9 @@ export function useSchedule() {
     const iso = date.toISOString().split('T')[0];
     try {
       await fetchSchedule(iso, { force: iso === today });
-    } catch {}
+    } catch (e) {
+      logger.error(e);
+    }
   }
 
   async function nextDay() {
@@ -159,7 +162,9 @@ export function useSchedule() {
     const iso = date.toISOString().split('T')[0];
     try {
       await fetchSchedule(iso, { force: iso === today });
-    } catch {}
+    } catch (e) {
+      logger.error(e);
+    }
   }
 
   watch(

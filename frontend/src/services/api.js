@@ -1,4 +1,5 @@
 import httpClient from './httpClient';
+import logger from '../utils/logger';
 
 const cache = new Map();
 
@@ -39,6 +40,7 @@ async function apiFetch(
     }
     return data;
   } catch (e) {
+    logger.error(e);
     return null;
   }
 }
@@ -58,6 +60,7 @@ export async function fetchSchedule(
     scheduleCache.set(date, { data, timestamp: now });
     return data;
   } catch (e) {
+    logger.error(e);
     return null;
   }
 }

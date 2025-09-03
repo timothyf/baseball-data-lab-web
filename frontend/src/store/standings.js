@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { fetchStandings as apiFetchStandings } from '../services/api.js';
+import logger from '../utils/logger';
 
 const recordCache = new Map();
 let standingsPromise;
@@ -39,7 +40,7 @@ export const useStandingsStore = defineStore('standings', {
             this.standingsByLeague = grouped;
           })
           .catch((e) => {
-            console.error(e);
+            logger.error(e);
             standingsPromise = null;
           });
       }
