@@ -142,6 +142,26 @@ class PlayerSplitsApiTests(TestCase):
         self.assertEqual(data['pitching'][1]['split'], 'vr')
 
 
+class PlayerGameLogApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_gamelog_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.get_player_gamelog.return_value = {'stats': []}
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get('/api/players/1/gamelog/?stat_type=hitting&season=2025')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'stats': []})
+        mock_client.get_player_gamelog.assert_called_once_with(123, 'hitting', 2025)
+
+
 class PlayerSearchApiTests(TestCase):
     def setUp(self):
         for i in range(11):

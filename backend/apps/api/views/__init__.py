@@ -17,6 +17,7 @@ from .players import (
     player_info,
     player_stats,
     league_leaders,
+    player_gamelog,
 )
 from .teams import (
     team_search,
@@ -49,6 +50,7 @@ __all__ = [
     'player_headshot',
     'player_info',
     'player_stats',
+    'player_gamelog',
     'league_leaders',
     'team_search',
     'team_info',

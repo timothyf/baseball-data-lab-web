@@ -63,7 +63,7 @@
           <PlayerSplits :id="id" />
         </TabPanel>
         <TabPanel header="Game Log">
-          <p>Game Log coming soon.</p>
+          <PlayerGameLog :id="id" :stat-type="statType" />
         </TabPanel>
         <TabPanel header="Charts & Trends">
           <p>Charts & Trends coming soon.</p>
@@ -91,6 +91,7 @@
 import { ref, computed, onMounted } from 'vue';
 import PlayerStats from '../components/PlayerStats.vue';
 import PlayerSplits from '../components/PlayerSplits.vue';
+import PlayerGameLog from '../components/PlayerGameLog.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Dialog from 'primevue/dialog';
@@ -116,6 +117,8 @@ const weight = ref('');
 const batSide = ref('');
 const throwSide = ref('');
 const loading = ref(true);
+
+const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
 
 const teamColorStyle = computed(() => {
   const colors = teamColors[teamName.value] || [];

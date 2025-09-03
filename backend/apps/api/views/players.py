@@ -244,6 +244,54 @@ def player_splits(request, client, player_id: int):
         return Response({'error': str(exc)}, status=500)
 
 
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
+@require_unified_client
+def player_gamelog(request, client, player_id: int):
+    """Return game log data for a player."""
+    logger.info("Fetching game log for player_id=%s", player_id)
+
+    stat_type = request.GET.get('stat_type', 'hitting')
+    season_param = request.GET.get('season')
+    try:
+        season = int(season_param) if season_param else datetime.now().year
+    except (TypeError, ValueError):
+        season = datetime.now().year
+
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    try:
+        data = client.get_player_gamelog(int(key_mlbam), stat_type, season)
+        logger.info(
+            "Fetched game log for player_id=%s, key_mlbam=%s", player_id, key_mlbam
+        )
+        return Response(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Error fetching game log for player_id=%s, key_mlbam=%s: %s",
+            player_id,
+            key_mlbam,
+            exc,
+        )
+        return Response({'error': str(exc)}, status=500)
+
+
 @extend_schema(responses=LeagueLeadersSerializer)
 @api_view(['GET'])
 @require_unified_client

@@ -16,6 +16,7 @@ declare module 'vue' {
     PlayerQuickList: typeof import('./components/PlayerQuickList.vue')['default']
     PlayerSplits: typeof import('./components/PlayerSplits.vue')['default']
     PlayerStats: typeof import('./components/PlayerStats.vue')['default']
+    PlayerGameLog: typeof import('./components/PlayerGameLog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchAutocomplete: typeof import('./components/SearchAutocomplete.vue')['default']
