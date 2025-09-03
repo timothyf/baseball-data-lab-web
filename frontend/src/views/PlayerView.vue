@@ -77,7 +77,6 @@
       :draggable="false"
       :dismissableMask="false"
       :closeOnEscape="false"
-      showHeader="false"
       class="loading-dialog"
     >
       <div class="loading-content">

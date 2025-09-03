@@ -26,23 +26,6 @@
             <Column field="baseOnBalls" header="BB" sortable></Column>
             <Column field="strikeOuts" header="SO" sortable></Column>
           </DataTable>
-          <div class="leaders-lists">
-            <PlayerQuickList
-              v-if="leaders?.batting?.HR"
-              title="HR Leaders"
-              :players="leaders.batting.HR"
-            />
-            <PlayerQuickList
-              v-if="leaders?.batting?.AVG"
-              title="AVG Leaders"
-              :players="leaders.batting.AVG"
-            />
-            <PlayerQuickList
-              v-if="leaders?.batting?.OPS"
-              title="OPS Leaders"
-              :players="leaders.batting.OPS"
-            />
-          </div>
         </TabPanel>
         <TabPanel header="Pitching Leaders">
           <DataTable
@@ -63,25 +46,6 @@
             <Column field="whip" header="WHIP" sortable></Column>
             <Column field="saves" header="SV" sortable></Column>
           </DataTable>
-          <div class="leaders-lists">
-            <PlayerQuickList
-              v-if="leaders?.pitching?.ERA"
-              title="ERA Leaders"
-              :players="leaders.pitching.ERA"
-              :decimal-places="2"
-            />
-            <PlayerQuickList
-              v-if="leaders?.pitching?.SO"
-              title="SO Leaders"
-              :players="leaders.pitching.SO"
-            />
-            <PlayerQuickList
-              v-if="leaders?.pitching?.WHIP"
-              title="WHIP Leaders"
-              :players="leaders.pitching.WHIP"
-              :decimal-places="2"
-            />
-          </div>
         </TabPanel>
         <TabPanel header="Fielding Leaders">
           <DataTable
@@ -111,7 +75,6 @@
       :draggable="false"
       :dismissableMask="false"
       :closeOnEscape="false"
-      showHeader="false"
       class="loading-dialog"
     >
       <div class="loading-content">
@@ -152,13 +115,13 @@ const fieldingSort = ref({ field: 'fieldingPercentage', order: -1 });
 onMounted(async () => {
   loading.value = true;
   try {
-    try {
-      const res = await fetch('/api/leaders/');
-      leaders.value = await res.json();
-    } catch (e) {
-      console.error('Failed to fetch league leaders:', e);
-      leaders.value = null;
-    }
+    // try {
+    //   const res = await fetch('/api/leaders/');
+    //   leaders.value = await res.json();
+    // } catch (e) {
+    //   console.error('Failed to fetch league leaders:', e);
+    //   leaders.value = null;
+    // }
     await Promise.all([
       loadBattingLeaders(),
       loadPitchingLeaders(),
