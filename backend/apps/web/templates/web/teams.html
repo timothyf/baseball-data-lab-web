@@ -3,10 +3,4 @@
 {% block title %}Teams - Baseball Data Lab Web{% endblock %}
 {% block content %}
 <div id="vue-app"></div>
-{% if DJANGO_USE_VITE_DEV %}
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <script type="module" src="http://localhost:5173/src/main.js"></script>
-{% else %}
-    <script src="{% static 'frontend/main.js' %}"></script>
-{% endif %}
 {% endblock %}
