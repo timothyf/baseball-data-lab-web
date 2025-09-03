@@ -162,6 +162,54 @@ class PlayerGameLogApiTests(TestCase):
         mock_client.get_player_gamelog.assert_called_once_with(123, 'hitting', 2025)
 
 
+class PlayerStatcastBatterApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_statcast_batter_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_statcast_batter_data.return_value = {'results': []}
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get(
+            '/api/players/1/statcast/batter/?start_date=2024-03-01&end_date=2024-04-01'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'results': []})
+        mock_client.fetch_statcast_batter_data.assert_called_once_with(
+            123, '2024-03-01', '2024-04-01'
+        )
+
+
+class PlayerStatcastPitcherApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_statcast_pitcher_endpoint(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_statcast_pitcher_data.return_value = {'results': []}
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get(
+            '/api/players/1/statcast/pitcher/?start_date=2024-03-01&end_date=2024-04-01'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'results': []})
+        mock_client.fetch_statcast_pitcher_data.assert_called_once_with(
+            123, '2024-03-01', '2024-04-01'
+        )
+
+
 class PlayerSearchApiTests(TestCase):
     def setUp(self):
         for i in range(11):
