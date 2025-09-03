@@ -4,6 +4,7 @@
 from datetime import datetime
 import logging
 import re
+import requests
 
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
@@ -225,15 +226,45 @@ def player_splits(request, client, player_id: int):
     #         return []
 
     try:
-        logger.info("Fetching batting splits for player_id=%s, key_mlbam=%s", player_id, key_mlbam)
+        logger.info(
+            "Fetching batting splits for player_id=%s, key_mlbam=%s", player_id, key_mlbam
+        )
         bat_json = client.fetch_batting_splits(int(key_mlbam), season)
         logger.info("Fetching pitching splits for player_id=%s", player_id)
         pit_json = client.fetch_pitching_splits(int(key_mlbam), season)
+
+        monthly_bat = []
+        monthly_pit = []
+        try:
+            monthly_url = (
+                f"https://statsapi.mlb.com/api/v1/people/{key_mlbam}"
+                f"?hydrate=stats(group=[hitting,pitching],type=byMonth,season={season})"
+            )
+            logger.info(
+                "Fetching monthly splits for player_id=%s, url=%s", player_id, monthly_url
+            )
+            resp = requests.get(monthly_url, timeout=10)
+            stats = resp.json().get("people", [{}])[0].get("stats", [])
+            for group in stats:
+                display = group.get("group", {}).get("displayName")
+                splits = group.get("splits", [])
+                if display == "hitting":
+                    monthly_bat = splits
+                elif display == "pitching":
+                    monthly_pit = splits
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.error(
+                "Error fetching monthly splits for player_id=%s: %s", player_id, exc
+            )
+
         data = {
-            "batting": bat_json, #df_to_records(bat_df),
-            "pitching": pit_json #_df_to_records(pit_df),
+            "batting": bat_json,
+            "pitching": pit_json,
+            "monthly": {"batting": monthly_bat, "pitching": monthly_pit},
         }
-        logger.info("Fetched splits for player_id=%s, key_mlbam=%s", player_id, key_mlbam)
+        logger.info(
+            "Fetched splits for player_id=%s, key_mlbam=%s", player_id, key_mlbam
+        )
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
@@ -242,7 +273,7 @@ def player_splits(request, client, player_id: int):
             key_mlbam,
             exc,
         )
-        return Response({'error': str(exc)}, status=500)
+        return Response({"error": str(exc)}, status=500)
 
 
 @extend_schema(responses=OpenApiTypes.OBJECT)

@@ -50,6 +50,44 @@
         </tbody>
       </table>
     </div>
+    <div v-if="monthlyBatting.length">
+      <h2>Batting Splits by Month</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th v-for="field in standardHittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in monthlyBatting" :key="row.month">
+            <td>{{ formatMonth(row.month) }}</td>
+            <td v-for="field in standardHittingFields" :key="field">
+              {{ field === 'team' ? row.team?.name ?? '-' : row.stat?.[field] ?? '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="monthlyPitching.length">
+      <h2>Pitching Splits by Month</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th v-for="field in standardPitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in monthlyPitching" :key="row.month">
+            <td>{{ formatMonth(row.month) }}</td>
+            <td v-for="field in standardPitchingFields" :key="field">
+              {{ field === 'team' ? row.team?.name ?? '-' : row.stat?.[field] ?? '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -78,6 +116,11 @@ onMounted(async () => {
 });
 const batting = computed(() => data.value?.batting || []);
 const pitching = computed(() => data.value?.pitching || []);
+const monthlyBatting = computed(() => data.value?.monthly?.batting || []);
+const monthlyPitching = computed(() => data.value?.monthly?.pitching || []);
+
+const formatMonth = m =>
+  new Date(0, (m || 1) - 1).toLocaleString('default', { month: 'long' });
 
 const battingRowsBySplit = computed(() => {
   const map = {};

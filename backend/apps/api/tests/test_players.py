@@ -111,19 +111,34 @@ class PlayerStatsApiTests(TestCase):
 
 
 class PlayerSplitsApiTests(TestCase):
+    @patch('apps.api.views.requests.get')
     @patch('apps.api.views.UnifiedDataClient')
-    def test_player_splits_endpoint(self, mock_client_cls):
-        import pandas as pd
-
+    def test_player_splits_endpoint(self, mock_client_cls, mock_get):
         mock_client = mock_client_cls.return_value
-        mock_client.fetch_batting_splits.return_value = pd.DataFrame({
-            'Split': ['h', 'a'],
-            'hits': [10, 20],
-        }).set_index('Split')
-        mock_client.fetch_pitching_splits.return_value = pd.DataFrame({
-            'Split': ['vl', 'vr'],
-            'avg': [.200, .300],
-        }).set_index('Split')
+        mock_client.fetch_batting_splits.return_value = [
+            {'split': {'code': 'h'}, 'stat': {'hits': 10}},
+            {'split': {'code': 'a'}, 'stat': {'hits': 20}},
+        ]
+        mock_client.fetch_pitching_splits.return_value = [
+            {'split': {'code': 'vl'}, 'stat': {'avg': .200}},
+            {'split': {'code': 'vr'}, 'stat': {'avg': .300}},
+        ]
+
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            'people': [{
+                'stats': [
+                    {
+                        'group': {'displayName': 'hitting'},
+                        'splits': [{'month': 3, 'stat': {'hits': 1}}],
+                    },
+                    {
+                        'group': {'displayName': 'pitching'},
+                        'splits': [{'month': 3, 'stat': {'era': '1.00'}}],
+                    },
+                ]
+            }]
+        }
 
         PlayerIdInfo.objects.create(
             id=1,
@@ -137,9 +152,12 @@ class PlayerSplitsApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['batting']), 2)
-        self.assertEqual(data['batting'][0]['split'], 'h')
+        self.assertEqual(data['batting'][0]['split']['code'], 'h')
         self.assertEqual(len(data['pitching']), 2)
-        self.assertEqual(data['pitching'][1]['split'], 'vr')
+        self.assertEqual(data['pitching'][1]['split']['code'], 'vr')
+        self.assertIn('monthly', data)
+        self.assertEqual(data['monthly']['batting'][0]['month'], 3)
+        self.assertEqual(data['monthly']['pitching'][0]['month'], 3)
 
 
 class PlayerGameLogApiTests(TestCase):
