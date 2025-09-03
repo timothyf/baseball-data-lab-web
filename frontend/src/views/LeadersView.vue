@@ -104,6 +104,21 @@
         </TabPanel>
       </TabView>
     </div>
+    <Dialog
+      v-model:visible="loading"
+      modal
+      :closable="false"
+      :draggable="false"
+      :dismissableMask="false"
+      :closeOnEscape="false"
+      showHeader="false"
+      class="loading-dialog"
+    >
+      <div class="loading-content">
+        <ProgressSpinner />
+        <p>Loading data...</p>
+      </div>
+    </Dialog>
   </section>
 </template>
 
@@ -114,6 +129,10 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import Dialog from 'primevue/dialog';
+import 'primevue/dialog/style';
+import ProgressSpinner from 'primevue/progressspinner';
+import 'primevue/progressspinner/style';
 import {
   fetchBattingLeaders,
   fetchPitchingLeaders,
@@ -124,24 +143,32 @@ const leaders = ref(null);
 const battingLeaders = ref([]);
 const pitchingLeaders = ref([]);
 const fieldingLeaders = ref([]);
+const loading = ref(true);
 
 const battingSort = ref({ field: 'homeRuns', order: -1 });
 const pitchingSort = ref({ field: 'era', order: 1 });
 const fieldingSort = ref({ field: 'fieldingPercentage', order: -1 });
 
 onMounted(async () => {
+  loading.value = true;
   try {
-    const res = await fetch('/api/leaders/');
-    leaders.value = await res.json();
+    try {
+      const res = await fetch('/api/leaders/');
+      leaders.value = await res.json();
+    } catch (e) {
+      console.error('Failed to fetch league leaders:', e);
+      leaders.value = null;
+    }
+    await Promise.all([
+      loadBattingLeaders(),
+      loadPitchingLeaders(),
+      loadFieldingLeaders(),
+    ]);
   } catch (e) {
-    console.error('Failed to fetch league leaders:', e);
-    leaders.value = null;
+    console.error('Failed to load leaders data:', e);
+  } finally {
+    loading.value = false;
   }
-  await Promise.all([
-    loadBattingLeaders(),
-    loadPitchingLeaders(),
-    loadFieldingLeaders(),
-  ]);
 });
 
 async function loadBattingLeaders() {
@@ -224,5 +251,13 @@ function onFieldingSort(e) {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
 }
 </style>
