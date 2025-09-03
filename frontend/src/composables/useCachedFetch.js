@@ -1,4 +1,5 @@
 import { isRef } from 'vue';
+import deepEqual from '../utils/deepEqual.js';
 
 /**
  * Generic helper to fetch and cache data via a Pinia store.
@@ -18,7 +19,6 @@ export async function useCachedFetch({
   assign,
   force = false,
 }) {
-  const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
   const cached = getter();
   if (cached && !force) {
