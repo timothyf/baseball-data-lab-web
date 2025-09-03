@@ -1,71 +1,70 @@
+import httpClient from './httpClient';
+
 const cache = new Map();
 
 async function apiFetch(url, { cacheKey, useCache = true, asText = false } = {}) {
-  console.log('Fetching URL:', url);
   if (useCache && cacheKey && cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
   try {
-    console.log('Making network request to:', url);
-    const res = await fetch(url);
-    console.log('Fetched URL:', url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = asText ? await res.text() : await res.json();
+    const response = await httpClient.get(url, {
+      responseType: asText ? 'text' : 'json',
+    });
+    const data = response.data;
     if (useCache && cacheKey) {
       cache.set(cacheKey, data);
     }
     return data;
   } catch (e) {
-    console.error('API fetch failed for', url, e);
     return null;
   }
 }
 
 export const fetchTeamDetails = (id, opts) =>
-  apiFetch(`/api/teams/${id}/`, { cacheKey: `team:${id}`, ...opts });
+  apiFetch(`/teams/${id}/`, { cacheKey: `team:${id}`, ...opts });
 
 export const fetchTeamLogo = (id, opts) =>
-  apiFetch(`/api/teams/${id}/logo/`, {
+  apiFetch(`/teams/${id}/logo/`, {
     cacheKey: `teamLogo:${id}`,
     asText: true,
     ...opts,
   });
 
 export const fetchTeamRecord = (id, opts) =>
-  apiFetch(`/api/teams/${id}/record/`, { cacheKey: `teamRecord:${id}`, ...opts });
+  apiFetch(`/teams/${id}/record/`, { cacheKey: `teamRecord:${id}`, ...opts });
 
 export const fetchStandings = (opts) =>
-  apiFetch('/api/standings/', { cacheKey: 'standings', ...opts });
+  apiFetch('/standings/', { cacheKey: 'standings', ...opts });
 
 export const fetchSchedule = (date, opts) =>
-  apiFetch(`/api/schedule/?date=${date}`, { cacheKey: `schedule:${date}`, ...opts });
+  apiFetch(`/schedule/?date=${date}`, { cacheKey: `schedule:${date}`, ...opts });
 
 export const fetchTopStat = (opts) =>
-  apiFetch('/api/top-stat', { cacheKey: 'topStat', ...opts });
+  apiFetch('/top-stat', { cacheKey: 'topStat', ...opts });
 
 export const fetchPlayer = (id, opts) =>
-  apiFetch(`/api/players/${id}/`, { cacheKey: `player:${id}`, ...opts });
+  apiFetch(`/players/${id}/`, { cacheKey: `player:${id}`, ...opts });
 
 export const fetchPlayerStats = (id, opts) =>
-  apiFetch(`/api/players/${id}/stats/`, { cacheKey: `playerStats:${id}`, ...opts });
+  apiFetch(`/players/${id}/stats/`, { cacheKey: `playerStats:${id}`, ...opts });
 
 export const fetchPlayerSplits = (id, opts) =>
-  apiFetch(`/api/players/${id}/splits/`, { cacheKey: `playerSplits:${id}`, ...opts });
+  apiFetch(`/players/${id}/splits/`, { cacheKey: `playerSplits:${id}`, ...opts });
 
 export const fetchTeamRecentSchedule = (id, opts) =>
-  apiFetch(`/api/teams/${id}/recent_schedule/`, {
+  apiFetch(`/teams/${id}/recent_schedule/`, {
     cacheKey: `teamRecentSchedule:${id}`,
     ...opts,
   });
 
 export const fetchTeamRoster = (id, opts) =>
-  apiFetch(`/api/teams/${id}/roster/`, {
+  apiFetch(`/teams/${id}/roster/`, {
     cacheKey: `teamRoster:${id}`,
     ...opts,
   });
 
 export const fetchTeamLeaders = (id, opts) =>
-  apiFetch(`/api/teams/${id}/leaders/`, {
+  apiFetch(`/teams/${id}/leaders/`, {
     cacheKey: `teamLeaders:${id}`,
     ...opts,
   });
@@ -79,7 +78,7 @@ export const fetchBattingLeaders = (
   opts,
 ) =>
   apiFetch(
-    `/api/unified/get_leaderboard_data/?season=${season}&group=hitting&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+    `/unified/get_leaderboard_data/?season=${season}&group=hitting&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
     {
       cacheKey: `battingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
       ...opts,
@@ -95,7 +94,7 @@ export const fetchPitchingLeaders = (
   opts,
 ) =>
   apiFetch(
-    `/api/unified/get_leaderboard_data/?season=${season}&group=pitching&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+    `/unified/get_leaderboard_data/?season=${season}&group=pitching&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
     {
       cacheKey: `pitchingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
       ...opts,
@@ -111,7 +110,7 @@ export const fetchFieldingLeaders = (
   opts,
 ) =>
   apiFetch(
-    `/api/unified/get_leaderboard_data/?season=${season}&group=fielding&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+    `/unified/get_leaderboard_data/?season=${season}&group=fielding&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
     {
       cacheKey: `fieldingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
       ...opts,
@@ -135,4 +134,3 @@ export default {
   fetchFieldingLeaders,
   fetchPlayerSplits,
 };
-
