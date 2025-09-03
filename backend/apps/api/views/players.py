@@ -1,3 +1,4 @@
+
 """Player-related API views."""
 
 from datetime import datetime
@@ -285,6 +286,92 @@ def player_gamelog(request, client, player_id: int):
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
             "Error fetching game log for player_id=%s, key_mlbam=%s: %s",
+            player_id,
+            key_mlbam,
+            exc,
+        )
+        return Response({'error': str(exc)}, status=500)
+
+
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
+@require_unified_client
+def player_statcast_batter_data(request, client, player_id: int):
+    """Return Statcast data for a batter over a date range."""
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        return Response({'error': 'start_date and end_date are required'}, status=400)
+
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    try:
+        data = client.fetch_statcast_batter_data(
+            int(key_mlbam), start_date, end_date
+        )
+        return Response(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Error fetching Statcast batter data for player_id=%s, key_mlbam=%s: %s",
+            player_id,
+            key_mlbam,
+            exc,
+        )
+        return Response({'error': str(exc)}, status=500)
+
+
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
+@require_unified_client
+def player_statcast_pitcher_data(request, client, player_id: int):
+    """Return Statcast data for a pitcher over a date range."""
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        return Response({'error': 'start_date and end_date are required'}, status=400)
+
+    key_mlbam = (
+        PlayerIdInfo.objects.filter(id=player_id)
+        .values_list("key_mlbam", flat=True)
+        .first()
+    )
+    if key_mlbam is None:
+        key_mlbam = (
+            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+            .values_list("key_mlbam", flat=True)
+            .first()
+        )
+        if key_mlbam is None:
+            key_mlbam = str(player_id)
+
+    key_mlbam = str(key_mlbam)
+    if key_mlbam.endswith('.0'):
+        key_mlbam = key_mlbam[:-2]
+
+    try:
+        data = client.fetch_statcast_pitcher_data(
+            int(key_mlbam), start_date, end_date
+        )
+        return Response(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Error fetching Statcast pitcher data for player_id=%s, key_mlbam=%s: %s",
             player_id,
             key_mlbam,
             exc,

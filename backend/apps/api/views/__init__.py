@@ -18,6 +18,8 @@ from .players import (
     player_stats,
     league_leaders,
     player_gamelog,
+    player_statcast_batter_data,
+    player_statcast_pitcher_data,
 )
 from .teams import (
     team_search,
@@ -51,6 +53,8 @@ __all__ = [
     'player_info',
     'player_stats',
     'player_gamelog',
+    'player_statcast_batter_data',
+    'player_statcast_pitcher_data',
     'league_leaders',
     'team_search',
     'team_info',
@@ -76,6 +80,8 @@ def list_api_endpoints(request):
         'api-player-search': ['q'],
         'api-team-search': ['q'],
         'api-team-record': ['season'],
+        'api-player-statcast-batter': ['start_date', 'end_date'],
+        'api-player-statcast-pitcher': ['start_date', 'end_date'],
     }
 
     for pattern in api_urls.urlpatterns:
