@@ -1,9 +1,20 @@
-import { computed, onMounted, onBeforeUnmount, onScopeDispose, ref, shallowRef, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  onScopeDispose,
+  ref,
+  shallowRef,
+  watch,
+} from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScheduleStore } from '../store/schedule';
+import {
+  fetchSchedule as apiFetchSchedule,
+  DEFAULT_SCHEDULE_TTL,
+} from '../services/api';
 
-// Cache for fetched schedules keyed by ISO date string
-const scheduleCache = new Map();
+const REVALIDATE_INTERVAL = DEFAULT_SCHEDULE_TTL;
 
 // Cache of Intl.DateTimeFormat instances by locale
 const formatterCache = new Map();
@@ -106,21 +117,15 @@ export function useSchedule() {
     }
 
     try {
-      if (!force && scheduleCache.has(dateStr)) {
-        const cached = scheduleCache.get(dateStr);
-        if (!cacheOnly) scheduleStore.setSchedule(cached);
-        if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
-        return cached;
+      const data = await apiFetchSchedule(dateStr, {
+        force,
+        ttl: REVALIDATE_INTERVAL,
+        signal: cacheOnly ? undefined : controller.signal,
+      });
+      if (!cacheOnly && data) {
+        scheduleStore.setSchedule(data);
+        if (prefetch) prefetchAdjacent(dateStr);
       }
-
-      if (prefetch && !cacheOnly) prefetchAdjacent(dateStr);
-
-      const options = {};
-      if (!cacheOnly) options.signal = controller.signal;
-      const resp = await fetch(`/api/schedule/?date=${dateStr}`, options);
-      const data = await resp.json();
-      scheduleCache.set(dateStr, data);
-      if (!cacheOnly) scheduleStore.setSchedule(data);
       return data;
     } finally {
       if (!cacheOnly) loading.value = false;
@@ -167,7 +172,7 @@ export function useSchedule() {
       if (newDate === today) {
         refreshInterval = setInterval(() => {
           fetchSchedule(today, { force: true });
-        }, 60000);
+        }, REVALIDATE_INTERVAL);
       }
     },
     { immediate: true }
