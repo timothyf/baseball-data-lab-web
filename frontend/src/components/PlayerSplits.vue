@@ -125,6 +125,7 @@ const monthlyPitching = computed(() => {
   return [...splits].sort((a, b) => (a.month ?? 0) - (b.month ?? 0));
 });
 
+
 const formatMonth = m =>
   new Date(0, (m || 1) - 1).toLocaleString('default', { month: 'long' });
 
