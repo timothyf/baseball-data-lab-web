@@ -123,15 +123,31 @@ export const fetchBattingLeaders = (
   sortOrder = 'desc',
   limit = 10,
   offset = 0,
-  opts,
-) =>
-  apiFetch(
-    `/unified/get_leaderboard_data/?season=${season}&group=hitting&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+  {
+    leagueId,
+    teamId,
+    ...opts
+  } = {},
+) => {
+  const params = new URLSearchParams({
+    season,
+    group: 'hitting',
+    stat_type: statType,
+    limit,
+    offset,
+    sort_order: sortOrder,
+  });
+  if (leagueId) params.append('leagueId', leagueId);
+  if (teamId) params.append('teamId', teamId);
+
+  return apiFetch(
+    `/unified/get_leaderboard_data/?${params.toString()}`,
     {
-      cacheKey: `battingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
+      cacheKey: `battingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}:${leagueId || ''}:${teamId || ''}`,
       ...opts,
     },
   );
+};
 
 export const fetchPitchingLeaders = (
   season,
@@ -139,15 +155,31 @@ export const fetchPitchingLeaders = (
   sortOrder = 'asc',
   limit = 10,
   offset = 0,
-  opts,
-) =>
-  apiFetch(
-    `/unified/get_leaderboard_data/?season=${season}&group=pitching&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
+  {
+    leagueId,
+    teamId,
+    ...opts
+  } = {},
+) => {
+  const params = new URLSearchParams({
+    season,
+    group: 'pitching',
+    stat_type: statType,
+    limit,
+    offset,
+    sort_order: sortOrder,
+  });
+  if (leagueId) params.append('leagueId', leagueId);
+  if (teamId) params.append('teamId', teamId);
+
+  return apiFetch(
+    `/unified/get_leaderboard_data/?${params.toString()}`,
     {
-      cacheKey: `pitchingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
+      cacheKey: `pitchingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}:${leagueId || ''}:${teamId || ''}`,
       ...opts,
     },
   );
+};
 
 export const fetchFieldingLeaders = (
   season,
@@ -155,15 +187,31 @@ export const fetchFieldingLeaders = (
   sortOrder = 'desc',
   limit = 10,
   offset = 0,
-  opts,
-) =>
-  apiFetch(
-    `/unified/get_leaderboard_data/?season=${season}&group=fielding&stat_type=${statType}&limit=${limit}&offset=${offset}&sort_order=${sortOrder}`,
-    {
-      cacheKey: `fieldingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}`,
-      ...opts,
-    },
-  );
+  {
+    leagueId,
+    teamId,
+    ...opts
+  } = {},
+) => {
+  const params = new URLSearchParams({
+    season,
+    group: 'fielding',
+    stat_type: statType,
+    limit,
+    offset,
+    sort_order: sortOrder,
+  });
+  if (leagueId) params.append('leagueId', leagueId);
+  if (teamId) params.append('teamId', teamId);
+
+    return apiFetch(
+      `/unified/get_leaderboard_data/?${params.toString()}`,
+      {
+        cacheKey: `fieldingLeaders:${season}:${statType}:${sortOrder}:${limit}:${offset}:${leagueId || ''}:${teamId || ''}`,
+        ...opts,
+      },
+    );
+  };
 
 export default {
   fetchTeamDetails,
