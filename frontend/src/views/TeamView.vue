@@ -51,6 +51,20 @@
         </TabPanel>
       </TabView>
     </div>
+    <Dialog
+      v-model:visible="loading"
+      modal
+      :closable="false"
+      :draggable="false"
+      :dismissableMask="false"
+      :closeOnEscape="false"
+      class="loading-dialog"
+    >
+      <div class="loading-content">
+        <ProgressSpinner />
+        <p>Loading data...</p>
+      </div>
+    </Dialog>
   </section>
 </template>
 
@@ -59,6 +73,10 @@ import { ref, watch, onMounted, computed } from 'vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Skeleton from 'primevue/skeleton';
+import Dialog from 'primevue/dialog';
+import 'primevue/dialog/style';
+import ProgressSpinner from 'primevue/progressspinner';
+import 'primevue/progressspinner/style';
 import TeamHeader from '../components/team/TeamHeader.vue';
 import TeamLeaders from '../components/team/TeamLeaders.vue';
 import TeamRoster from '../components/team/TeamRoster.vue';
@@ -89,6 +107,7 @@ const roster = ref([]);
 const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
+const loading = ref(true);
 const teamsStore = useTeamsStore();
 
 const teamColorStyle = computed(() => {
@@ -134,12 +153,16 @@ async function loadStandings(mlbam_team_id) {
 }
 
 async function resolveTeamId(mlbam_team_id) {
-  loadLogo(mlbam_team_id).catch(() => {});
-  loadRecord(mlbam_team_id).catch(() => {});
-  loadTeamDetails(mlbam_team_id).catch(() => {});
-  loadRecentSchedule(mlbam_team_id).catch(() => {});
-  loadRoster(mlbam_team_id).catch(() => {});
-  loadLeaders(mlbam_team_id).catch(() => {});
+  loading.value = true;
+  await Promise.all([
+    loadLogo(mlbam_team_id).catch(() => {}),
+    loadRecord(mlbam_team_id).catch(() => {}),
+    loadTeamDetails(mlbam_team_id).catch(() => {}),
+    loadRecentSchedule(mlbam_team_id).catch(() => {}),
+    loadRoster(mlbam_team_id).catch(() => {}),
+    loadLeaders(mlbam_team_id).catch(() => {}),
+  ]);
+  loading.value = false;
 }
 
 onMounted(() => {
@@ -258,5 +281,13 @@ async function loadTeamDetails(mlbam_team_id, force = false) {
   background-color: hsl(210, 100%, 80%);
   color: white;
   font-weight: 600;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
 }
 </style>
