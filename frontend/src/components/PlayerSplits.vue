@@ -17,9 +17,13 @@
               :class="{ 'group-separator': groupIndex > 0 && split === group[0] }"
             >
               <td>{{ splitTypeLabels[split] }}</td>
-              <td v-for="field in standardHittingFields" :key="field">
-                {{ battingRowsBySplit[split]?.stat?.[field] ?? '-' }}
-              </td>
+            <td v-for="field in standardHittingFields" :key="field">
+              {{
+                field === 'team'
+                  ? teamLabel(battingRowsBySplit[split]?.team)
+                  : battingRowsBySplit[split]?.stat?.[field] ?? '-'
+              }}
+            </td>
             </tr>
           </template>
         </tbody>
@@ -63,7 +67,7 @@
           <tr v-for="row in monthlyBatting" :key="row.month">
             <td>{{ formatMonth(row.month) }}</td>
             <td v-for="field in standardHittingFields" :key="field">
-              {{ field === 'team' ? row.team?.name ?? '-' : row.stat?.[field] ?? '-' }}
+              {{ field === 'team' ? teamLabel(row.team) : row.stat?.[field] ?? '-' }}
             </td>
           </tr>
         </tbody>
@@ -93,8 +97,9 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { fetchPlayerSplits } from '../services/api.js';
+import { fetchPlayerSplits, fetchTeamDetails } from '../services/api.js';
 import logger from '../utils/logger';
+import { teamAbbrev } from '../composables/gameHelpers.js';
 import {
   standardHittingFields,
   advancedHittingFields,
@@ -108,11 +113,13 @@ import {
 const { id } = defineProps({ id: String });
 
 const data = ref(null);
+const teamAbbrevs = ref({});
 
 onMounted(async () => {
   logger.info('Fetching player splits for ID:', id);
   data.value = await fetchPlayerSplits(id);
   logger.info('Fetched player splits:', data.value);
+  await fetchTeamAbbrevs();
 });
 const batting = computed(() => data.value?.batting || []);
 const pitching = computed(() => data.value?.pitching || []);
@@ -124,6 +131,30 @@ const monthlyPitching = computed(() => {
   const splits = data.value?.monthly?.pitching || [];
   return [...splits].sort((a, b) => (a.month ?? 0) - (b.month ?? 0));
 });
+
+async function fetchTeamAbbrevs() {
+  const ids = new Set();
+  batting.value.forEach(r => {
+    const tid = r.team?.id;
+    if (tid) ids.add(tid);
+  });
+  monthlyBatting.value.forEach(r => {
+    const tid = r.team?.id;
+    if (tid) ids.add(tid);
+  });
+  await Promise.all(
+    Array.from(ids).map(async tid => {
+      if (teamAbbrevs.value[tid]) return;
+      const tdata = await fetchTeamDetails(tid);
+      if (tdata) teamAbbrevs.value[tid] = tdata.abbrev || tid;
+    })
+  );
+}
+
+const teamLabel = team => {
+  const tid = team?.id;
+  return teamAbbrevs.value[tid] || teamAbbrev(team) || '-';
+};
 
 
 const formatMonth = m =>
