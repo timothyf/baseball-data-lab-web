@@ -13,8 +13,22 @@
           <tr class="month-row">
             <td :colspan="2 + fields.length">{{ group.month }}</td>
           </tr>
-          <tr v-for="row in group.games" :key="row.date">
-            <td>{{ row.date }}</td>
+          <tr
+            v-for="row in group.games"
+            :key="row.date"
+            @click="row.gamePk && navigateToGame(row.gamePk)"
+            class="log-row"
+          >
+            <td>
+              <RouterLink
+                v-if="row.gamePk"
+                :to="{ name: 'Game', params: { game_pk: row.gamePk } }"
+                @click.stop
+              >
+                {{ row.date }}
+              </RouterLink>
+              <span v-else>{{ row.date }}</span>
+            </td>
             <td>{{ row.opponent }}</td>
             <td v-for="field in fields" :key="field">{{ row[field] ?? '-' }}</td>
           </tr>
@@ -29,6 +43,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { fetchPlayerGameLog } from '../services/api.js';
 import { fieldLabels } from '../config/playerStatsConfig.js';
 
@@ -39,6 +54,7 @@ const props = defineProps({
 });
 
 const data = ref(null);
+const router = useRouter();
 
 onMounted(async () => {
   data.value = await fetchPlayerGameLog(props.id, props.statType, props.season);
@@ -68,6 +84,7 @@ const groupedRows = computed(() => {
     const row = {
       date: s.date,
       opponent: s.opponent?.abbreviation,
+      gamePk: s.game?.gamePk,
     };
     fields.value.forEach(f => {
       row[f] = stat[f];
@@ -76,6 +93,10 @@ const groupedRows = computed(() => {
   });
   return groups;
 });
+
+const navigateToGame = (pk) => {
+  router.push({ name: 'Game', params: { game_pk: pk } });
+};
 </script>
 
 <style scoped>
@@ -95,5 +116,9 @@ const groupedRows = computed(() => {
 .month-row td {
   background-color: #eaeaea;
   font-weight: bold;
+}
+
+.log-row {
+  cursor: pointer;
 }
 </style>
