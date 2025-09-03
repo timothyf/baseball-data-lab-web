@@ -93,6 +93,12 @@ export const fetchPlayerStats = (id, opts) =>
 export const fetchPlayerSplits = (id, opts) =>
   apiFetch(`/players/${id}/splits/`, { cacheKey: `playerSplits:${id}`, ...opts });
 
+export const fetchPlayerGameLog = (id, statType, season, opts) =>
+  apiFetch(
+    `/players/${id}/gamelog/?stat_type=${statType}&season=${season}`,
+    { cacheKey: `playerGameLog:${id}:${statType}:${season}`, ...opts },
+  );
+
 export const fetchTeamRecentSchedule = (id, opts) =>
   apiFetch(`/teams/${id}/recent_schedule/`, {
     cacheKey: `teamRecentSchedule:${id}`,
@@ -175,4 +181,5 @@ export default {
   fetchPitchingLeaders,
   fetchFieldingLeaders,
   fetchPlayerSplits,
+  fetchPlayerGameLog,
 };
