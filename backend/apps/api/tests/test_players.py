@@ -111,7 +111,7 @@ class PlayerStatsApiTests(TestCase):
 
 
 class PlayerSplitsApiTests(TestCase):
-    @patch('apps.api.views.requests.get')
+    @patch('apps.api.views.players.requests.get')
     @patch('apps.api.views.UnifiedDataClient')
     def test_player_splits_endpoint(self, mock_client_cls, mock_get):
         mock_client = mock_client_cls.return_value
@@ -168,6 +168,33 @@ class PlayerSplitsApiTests(TestCase):
         self.assertEqual(
             [m['month'] for m in data['monthly']['pitching']], [4, 6]
         )
+
+    @patch('apps.api.views.players.requests.get')
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_player_splits_nan_values(self, mock_client_cls, mock_get):
+        """Splits endpoint should replace non-finite numbers with null."""
+
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_batting_splits.return_value = [
+            {'split': {'code': 'h'}, 'stat': {'avg': float('nan')}}
+        ]
+        mock_client.fetch_pitching_splits.return_value = []
+
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {'people': [{'stats': []}]}
+
+        PlayerIdInfo.objects.create(
+            id=1,
+            key_mlbam='123',
+            name_first='Test',
+            name_last='Player',
+        )
+
+        client = Client()
+        response = client.get('/api/players/1/splits/')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsNone(data['batting'][0]['stat']['avg'])
 
 
 class PlayerGameLogApiTests(TestCase):

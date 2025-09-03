@@ -3,6 +3,7 @@
 
 from datetime import datetime
 import logging
+import math
 import re
 import requests
 
@@ -22,6 +23,24 @@ from ..serializers import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _replace_non_finite(obj):
+    """Recursively replace NaN and infinite floats with ``None``.
+
+    ``json.dumps`` with ``allow_nan=False`` (the default used by DRF) will raise
+    ``ValueError`` if the data structure contains ``float('nan')`` or infinite
+    values.  MLB's APIs occasionally return such values, so we sanitize the
+    response before returning it to the client.
+    """
+
+    if isinstance(obj, float):
+        return None if not math.isfinite(obj) else obj
+    if isinstance(obj, dict):
+        return {k: _replace_non_finite(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_replace_non_finite(v) for v in obj]
+    return obj
 
 
 @extend_schema(
@@ -265,6 +284,7 @@ def player_splits(request, client, player_id: int):
             "pitching": pit_json,
             "monthly": {"batting": monthly_bat, "pitching": monthly_pit},
         }
+        data = _replace_non_finite(data)
         logger.info(
             "Fetched splits for player_id=%s, key_mlbam=%s", player_id, key_mlbam
         )
