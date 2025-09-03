@@ -238,36 +238,6 @@ import 'primevue/progressspinner/style';
 const standingsStore = useStandingsStore();
 const loading = ref(true);
 
-// Cache standings by season to avoid refetching on remount
-const standingsCache = new Map();
-
-function groupByLeague(records) {
-  const grouped = { al: [], nl: [] };
-  records.forEach((record) => {
-    const id = String(record.division?.id);
-    if (['200', '201', '202'].includes(id)) {
-      grouped.al.push(record);
-    } else if (['203', '204', '205'].includes(id)) {
-      grouped.nl.push(record);
-    }
-  });
-  return grouped;
-}
-
-async function fetchStandings(season) {
-  loading.value = true;
-  try {
-    const resp = await fetch('/api/standings/');
-    const data = await resp.json();
-    const records = data.records || data;
-    standingsStore.standings = records;
-    standingsStore.standingsByLeague = groupByLeague(records);
-    standingsCache.set(season, records);
-  } finally {
-    loading.value = false;
-  }
-}
-
 function getDivisionName(divisionId) {
   const divisionNames = {
     '200': 'American League West',
@@ -318,22 +288,10 @@ function formatRunDifferential(diff) {
   return diff > 0 ? `+${diff}` : diff;
 }
 
-onMounted(() => {
-  const season = new Date().getFullYear();
-  if (!standingsStore.standings.length) {
-    if (standingsCache.has(season)) {
-      const cached = standingsCache.get(season);
-      standingsStore.standings = cached;
-      standingsStore.standingsByLeague = groupByLeague(cached);
-      loading.value = false;
-    } else {
-      fetchStandings(season);
-    }
-  } else {
-    standingsStore.standingsByLeague = groupByLeague(standingsStore.standings);
-    if (!standingsCache.has(season)) {
-      standingsCache.set(season, standingsStore.standings);
-    }
+onMounted(async () => {
+  try {
+    await standingsStore.ensureStandings();
+  } finally {
     loading.value = false;
   }
 });
