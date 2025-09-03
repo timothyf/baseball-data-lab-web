@@ -65,6 +65,7 @@ import TeamRoster from '../components/team/TeamRoster.vue';
 import TeamSchedule from '../components/team/TeamSchedule.vue';
 import teamColors from '../data/teamColors.json';
 import { useTeamsStore } from '../store/teams';
+import { useCachedFetch } from '../composables/useCachedFetch';
 import {
   fetchTeamLogo,
   fetchTeamRecord,
@@ -88,7 +89,6 @@ const teamDetails = ref(null);
 const divisionStandings = ref([]);
 const leaders = ref(null);
 const teamsStore = useTeamsStore();
-const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 const teamColorStyle = computed(() => {
   const colors = teamColors[name] || [];
@@ -104,34 +104,23 @@ async function loadLogo(mlbam_team_id) {
   teamLogoSrc.value = (url || "").trim();
 }
 
-async function loadRecord(mlbam_team_id) {
-  const cached = teamsStore.getStandings(mlbam_team_id);
-  if (cached) {
-    teamRecord.value = cached.record;
-    divisionStandings.value = cached.standings;
-  }
-
-  const fetchAndUpdate = async () => {
-    const [record, standings] = await Promise.all([
-      fetchTeamRecord(mlbam_team_id),
-      loadStandings(mlbam_team_id),
-    ]);
-
-    const newData = { record, standings };
-    const oldData = teamsStore.getStandings(mlbam_team_id);
-    if (!deepEqual(newData, oldData)) {
-      teamsStore.setStandings(mlbam_team_id, newData);
-    }
-
-    teamRecord.value = record;
-    divisionStandings.value = standings;
-  };
-
-  if (cached) {
-    fetchAndUpdate();
-    return;
-  }
-  await fetchAndUpdate();
+async function loadRecord(mlbam_team_id, force = false) {
+  await useCachedFetch({
+    getter: () => teamsStore.getStandings(mlbam_team_id),
+    setter: (data) => teamsStore.setStandings(mlbam_team_id, data),
+    fetcher: async () => {
+      const [record, standings] = await Promise.all([
+        fetchTeamRecord(mlbam_team_id),
+        loadStandings(mlbam_team_id),
+      ]);
+      return { record, standings };
+    },
+    assign: ({ record, standings }) => {
+      teamRecord.value = record;
+      divisionStandings.value = standings;
+    },
+    force,
+  });
 }
 
 async function loadStandings(mlbam_team_id) {
@@ -175,80 +164,37 @@ async function loadRecentSchedule(mlbam_team_id) {
   recentSchedule.value = await fetchTeamRecentSchedule(mlbam_team_id);
 }
 
-async function loadRoster(mlbam_team_id) {
-  const cached = teamsStore.getRoster(mlbam_team_id);
-  if (cached) {
-    roster.value = cached;
-  }
-
-  const fetchAndUpdate = async () => {
-    const data = await fetchTeamRoster(mlbam_team_id);
-    const parsed = data?.roster ?? data ?? [];
-    const oldData = teamsStore.getRoster(mlbam_team_id);
-    if (!deepEqual(parsed, oldData)) {
-      teamsStore.setRoster(mlbam_team_id, parsed);
-      roster.value = parsed;
-    }
-    if (!data && !cached) {
-      roster.value = [];
-    }
-  };
-
-  if (cached) {
-    fetchAndUpdate();
-    return;
-  }
-  await fetchAndUpdate();
+async function loadRoster(mlbam_team_id, force = false) {
+  await useCachedFetch({
+    getter: () => teamsStore.getRoster(mlbam_team_id),
+    setter: (data) => teamsStore.setRoster(mlbam_team_id, data),
+    fetcher: async () => {
+      const data = await fetchTeamRoster(mlbam_team_id);
+      return data?.roster ?? data ?? [];
+    },
+    assign: roster,
+    force,
+  });
 }
 
-async function loadLeaders(mlbam_team_id) {
-  const cached = teamsStore.getLeaders(mlbam_team_id);
-  if (cached) {
-    leaders.value = cached;
-  }
-
-  const fetchAndUpdate = async () => {
-    const data = await fetchTeamLeaders(mlbam_team_id);
-    const oldData = teamsStore.getLeaders(mlbam_team_id);
-    if (!deepEqual(data, oldData)) {
-      teamsStore.setLeaders(mlbam_team_id, data);
-      leaders.value = data;
-    }
-    if (!data && !cached) {
-      leaders.value = null;
-    }
-  };
-
-  if (cached) {
-    fetchAndUpdate();
-    return;
-  }
-  await fetchAndUpdate();
+async function loadLeaders(mlbam_team_id, force = false) {
+  await useCachedFetch({
+    getter: () => teamsStore.getLeaders(mlbam_team_id),
+    setter: (data) => teamsStore.setLeaders(mlbam_team_id, data),
+    fetcher: async () => await fetchTeamLeaders(mlbam_team_id) || null,
+    assign: leaders,
+    force,
+  });
 }
 
-async function loadTeamDetails(mlbam_team_id) {
-  const cached = teamsStore.getDetails(mlbam_team_id);
-  if (cached) {
-    teamDetails.value = cached;
-  }
-
-  const fetchAndUpdate = async () => {
-    const data = await fetchTeamDetails(mlbam_team_id);
-    const oldData = teamsStore.getDetails(mlbam_team_id);
-    if (!deepEqual(data, oldData)) {
-      teamsStore.setDetails(mlbam_team_id, data);
-      teamDetails.value = data;
-    }
-    if (!data && !cached) {
-      teamDetails.value = null;
-    }
-  };
-
-  if (cached) {
-    fetchAndUpdate();
-    return;
-  }
-  await fetchAndUpdate();
+async function loadTeamDetails(mlbam_team_id, force = false) {
+  await useCachedFetch({
+    getter: () => teamsStore.getDetails(mlbam_team_id),
+    setter: (data) => teamsStore.setDetails(mlbam_team_id, data),
+    fetcher: async () => await fetchTeamDetails(mlbam_team_id) || null,
+    assign: teamDetails,
+    force,
+  });
 }
 </script>
 
