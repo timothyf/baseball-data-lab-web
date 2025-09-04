@@ -51,19 +51,4 @@ const { leaders } = defineProps({
   flex-wrap: wrap;
   margin-top: 1rem;
 }
-
-.stats-container {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 0 auto 2rem;
-  max-width: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.stats-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
 </style>
