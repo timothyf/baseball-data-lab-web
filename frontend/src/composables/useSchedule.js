@@ -76,7 +76,9 @@ export function useSchedule() {
   const scheduleStore = useScheduleStore();
   const { schedule } = storeToRefs(scheduleStore);
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIME_ZONE,
+  }).format(new Date());
 
   const games = shallowRef([]);
   const loading = ref(false);
