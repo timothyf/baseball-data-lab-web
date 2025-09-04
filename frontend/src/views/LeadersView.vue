@@ -241,17 +241,20 @@ async function loadFieldingLeaders() {
 }
 
 function onBattingSort(e) {
-  battingSort.value = { field: e.sortField, order: e.sortOrder };
+  const order = e.sortField === battingSort.value.field ? e.sortOrder : -1;
+  battingSort.value = { field: e.sortField, order };
   loadBattingLeaders();
 }
 
 function onPitchingSort(e) {
-  pitchingSort.value = { field: e.sortField, order: e.sortOrder };
+  const order = e.sortField === pitchingSort.value.field ? e.sortOrder : -1;
+  pitchingSort.value = { field: e.sortField, order };
   loadPitchingLeaders();
 }
 
 function onFieldingSort(e) {
-  fieldingSort.value = { field: e.sortField, order: e.sortOrder };
+  const order = e.sortField === fieldingSort.value.field ? e.sortOrder : -1;
+  fieldingSort.value = { field: e.sortField, order };
   loadFieldingLeaders();
 }
 </script>
