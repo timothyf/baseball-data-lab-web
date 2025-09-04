@@ -81,13 +81,17 @@ const features = [
 const schedulePreview = ref([]);
 const standingsPreview = ref([]);
 
+const TIME_ZONE = 'America/New_York';
+
 function formatTime(dateStr) {
   const d = new Date(dateStr);
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 onMounted(async () => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(
+    new Date(),
+  );
   const [schedData, standingsData] = await Promise.all([
     fetchSchedule(today),
     fetchStandings(),
