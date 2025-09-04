@@ -13,6 +13,7 @@ declare module 'vue' {
     GameRow: typeof import('./components/GameRow.vue')['default']
     HelloComponent: typeof import('./components/HelloComponent.vue')['default']
     JsonViewer: typeof import('./components/JsonViewer.vue')['default']
+    LoadingDialog: typeof import('./components/LoadingDialog.vue')['default']
     PlayerGameLog: typeof import('./components/PlayerGameLog.vue')['default']
     PlayerQuickList: typeof import('./components/PlayerQuickList.vue')['default']
     PlayerSplits: typeof import('./components/PlayerSplits.vue')['default']
