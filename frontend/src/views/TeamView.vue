@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Skeleton from 'primevue/skeleton';
@@ -65,7 +65,7 @@ import TeamHeader from '../components/team/TeamHeader.vue';
 import TeamLeaders from '../components/team/TeamLeaders.vue';
 import TeamRoster from '../components/team/TeamRoster.vue';
 import TeamSchedule from '../components/team/TeamSchedule.vue';
-import teamColors from '../data/teamColors.json';
+import { useTeamColors } from '../composables/useTeamColors.js';
 import { useTeamsStore } from '../store/teams';
 import { useCachedFetch } from '../composables/useCachedFetch';
 import deepEqual from '../utils/deepEqual.js';
@@ -94,14 +94,7 @@ const leaders = ref(null);
 const loading = ref(true);
 const teamsStore = useTeamsStore();
 
-const teamColorStyle = computed(() => {
-  const colors = teamColors[name] || [];
-  return {
-    '--color-primary': colors[0]?.hex || '#1e3a8a',
-    '--color-secondary': colors[1]?.hex || '#1e40af',
-    '--color-accent': colors[2]?.hex || '#1e3a8a'
-  };
-});
+const teamColorStyle = useTeamColors(name);
 
 async function loadLogo(mlbam_team_id) {
   const url = await fetchTeamLogo(mlbam_team_id);
