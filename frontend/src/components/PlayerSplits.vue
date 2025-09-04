@@ -185,19 +185,7 @@ const pitchingRowsBySplit = computed(() => {
   margin-top: 2rem;
 }
 .stats-table {
-  width: 100%;
-  border-collapse: collapse;
   margin-bottom: 2rem;
-}
-.stats-table th,
-.stats-table td {
-  padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-.stats-table th {
-  background: var(--color-primary);
-  color: #fff;
 }
 
 .group-separator td {

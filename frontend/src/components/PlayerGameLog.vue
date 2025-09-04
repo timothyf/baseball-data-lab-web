@@ -102,15 +102,6 @@ const navigateToGame = (pk) => {
 <style scoped>
 .stats-table {
   margin-top: 1rem;
-  border-collapse: collapse;
-}
-.stats-table th,
-.stats-table td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-}
-.stats-table th {
-  background-color: #f5f5f5;
 }
 
 .month-row td {
