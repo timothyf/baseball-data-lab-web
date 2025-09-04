@@ -47,7 +47,7 @@ function makeData(label) {
 
 describe('LeadersView filtering', () => {
   beforeEach(() => {
-    fetchBattingLeaders.mockImplementation((season, field, order, limit, offset, { leagueId, teamId } = {}) => {
+    fetchBattingLeaders.mockImplementation(({ league_ids: leagueId, team_id: teamId } = {}) => {
       if (teamId) return makeData(`Team ${teamId} Player`);
       if (leagueId) return makeData(`League ${leagueId} Player`);
       return makeData('All Player');
@@ -68,16 +68,16 @@ describe('LeadersView filtering', () => {
     await flushPromises();
 
     expect(fetchBattingLeaders).toHaveBeenCalledTimes(2);
-    const leagueOpts = fetchBattingLeaders.mock.calls[1][5];
-    expect(leagueOpts).toMatchObject({ leagueId: 103, teamId: null });
+    const leagueOpts = fetchBattingLeaders.mock.calls[1][0];
+    expect(leagueOpts).toMatchObject({ league_ids: 103, team_id: null });
     expect(wrapper.html()).toContain('League 103 Player');
 
     dropdowns[1].vm.$emit('update:modelValue', 133);
     await flushPromises();
 
     expect(fetchBattingLeaders).toHaveBeenCalledTimes(3);
-    const teamOpts = fetchBattingLeaders.mock.calls[2][5];
-    expect(teamOpts).toMatchObject({ leagueId: null, teamId: 133 });
+    const teamOpts = fetchBattingLeaders.mock.calls[2][0];
+    expect(teamOpts).toMatchObject({ league_ids: 103, team_id: 133 });
     expect(wrapper.html()).toContain('Team 133 Player');
   });
 });
