@@ -108,5 +108,24 @@ describe('LeadersView sorting', () => {
     const opts = fetchBattingLeaders.mock.calls[0][0];
     expect(opts).toMatchObject({ statType: 'avg', sortOrder: 'desc' });
   });
+
+  it('toggles sort order when clicking the same column again', async () => {
+    const { default: LeadersView } = await import('./LeadersView.vue');
+    const wrapper = mount(LeadersView);
+
+    await flushPromises();
+
+    fetchBattingLeaders.mockClear();
+
+    const dt = wrapper.findAllComponents(DataTableStub)[0];
+    dt.vm.$emit('sort', { sortField: 'avg', sortOrder: 1 });
+    await flushPromises();
+    dt.vm.$emit('sort', { sortField: 'avg', sortOrder: 1 });
+    await flushPromises();
+
+    expect(fetchBattingLeaders).toHaveBeenCalledTimes(2);
+    const opts = fetchBattingLeaders.mock.calls[1][0];
+    expect(opts).toMatchObject({ statType: 'avg', sortOrder: 'asc' });
+  });
 });
 
