@@ -82,3 +82,31 @@ describe('LeadersView filtering', () => {
   });
 });
 
+describe('LeadersView sorting', () => {
+  beforeEach(() => {
+    fetchBattingLeaders.mockReset();
+    fetchPitchingLeaders.mockResolvedValue([]);
+    fetchFieldingLeaders.mockResolvedValue([]);
+    fetchBattingLeaders.mockResolvedValue([
+      { rank: 1, playerFullName: 'A', teamAbbrev: 'T' },
+    ]);
+  });
+
+  it('sorts new columns in descending order first', async () => {
+    const { default: LeadersView } = await import('./LeadersView.vue');
+    const wrapper = mount(LeadersView);
+
+    await flushPromises();
+
+    fetchBattingLeaders.mockClear();
+
+    const dt = wrapper.findAllComponents(DataTableStub)[0];
+    dt.vm.$emit('sort', { sortField: 'avg', sortOrder: 1 });
+    await flushPromises();
+
+    expect(fetchBattingLeaders).toHaveBeenCalledTimes(1);
+    const opts = fetchBattingLeaders.mock.calls[0][0];
+    expect(opts).toMatchObject({ statType: 'avg', sortOrder: 'desc' });
+  });
+});
+
