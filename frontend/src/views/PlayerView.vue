@@ -94,7 +94,7 @@ import PlayerGameLog from '../components/PlayerGameLog.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import LoadingDialog from '../components/LoadingDialog.vue';
-import teamColors from '../data/teamColors.json';
+import { useTeamColors } from '../composables/useTeamColors.js';
 import { fetchPlayer } from '../services/api.js';
 
 const { id } = defineProps({
@@ -119,14 +119,7 @@ const loading = ref(true);
 
 const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
 
-const teamColorStyle = computed(() => {
-  const colors = teamColors[teamName.value] || [];
-  return {
-    '--color-primary': colors[0]?.hex || '#1e3a8a',
-    '--color-secondary': colors[1]?.hex || '#1e40af',
-    '--color-accent': colors[2]?.hex || '#fbbf24'
-  };
-});
+const teamColorStyle = useTeamColors(teamName);
 
 const formattedBirthDate = computed(() => {
   if (!birthDate.value) return '';
