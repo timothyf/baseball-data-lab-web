@@ -195,54 +195,48 @@ watch([selectedLeague, selectedTeam], async () => {
 async function loadBattingLeaders() {
   const season = new Date().getFullYear();
   const order = battingSort.value.order === 1 ? 'asc' : 'desc';
-  const data = await fetchBattingLeaders(
+  const data = await fetchBattingLeaders({
     season,
-    selectedLeague.value,
-    selectedTeam.value,
-    battingSort.value.field,
-    order,
-    10,
-    0,
-    {
-      useCache: false,     
-    },
-  );
+    league_ids: selectedLeague.value,
+    team_id: selectedTeam.value,
+    statType: battingSort.value.field,
+    sortOrder: order,
+    limit: 10,
+    offset: 0,
+    useCache: false,
+  });
   battingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
 
 async function loadPitchingLeaders() {
   const season = new Date().getFullYear();
   const order = pitchingSort.value.order === 1 ? 'asc' : 'desc';
-  const data = await fetchPitchingLeaders(
+  const data = await fetchPitchingLeaders({
     season,
-    selectedLeague.value,
-    selectedTeam.value,
-    pitchingSort.value.field,
-    order,
-    10,
-    0,
-    {
-      useCache: false,
-    },
-  );
+    league_ids: selectedLeague.value,
+    team_id: selectedTeam.value,
+    statType: pitchingSort.value.field,
+    sortOrder: order,
+    limit: 10,
+    offset: 0,
+    useCache: false,
+  });
   pitchingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
 
 async function loadFieldingLeaders() {
   const season = new Date().getFullYear();
   const order = fieldingSort.value.order === 1 ? 'asc' : 'desc';
-  const data = await fetchFieldingLeaders(
+  const data = await fetchFieldingLeaders({
     season,
-    selectedLeague.value,
-    selectedTeam.value,
-    fieldingSort.value.field,
-    order,
-    10,
-    0,
-    {
-      useCache: false,
-    },
-  );
+    league_ids: selectedLeague.value,
+    team_id: selectedTeam.value,
+    statType: fieldingSort.value.field,
+    sortOrder: order,
+    limit: 10,
+    offset: 0,
+    useCache: false,
+  });
   fieldingLeaders.value = Array.isArray(data) ? data : data?.stats || [];
 }
 
