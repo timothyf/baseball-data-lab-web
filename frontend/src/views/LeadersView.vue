@@ -241,19 +241,28 @@ async function loadFieldingLeaders() {
 }
 
 function onBattingSort(e) {
-  const order = e.sortField === battingSort.value.field ? e.sortOrder : -1;
+  const order =
+    e.sortField === battingSort.value.field
+      ? battingSort.value.order * -1
+      : -1;
   battingSort.value = { field: e.sortField, order };
   loadBattingLeaders();
 }
 
 function onPitchingSort(e) {
-  const order = e.sortField === pitchingSort.value.field ? e.sortOrder : -1;
+  const order =
+    e.sortField === pitchingSort.value.field
+      ? pitchingSort.value.order * -1
+      : -1;
   pitchingSort.value = { field: e.sortField, order };
   loadPitchingLeaders();
 }
 
 function onFieldingSort(e) {
-  const order = e.sortField === fieldingSort.value.field ? e.sortOrder : -1;
+  const order =
+    e.sortField === fieldingSort.value.field
+      ? fieldingSort.value.order * -1
+      : -1;
   fieldingSort.value = { field: e.sortField, order };
   loadFieldingLeaders();
 }
