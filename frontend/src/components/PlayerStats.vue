@@ -96,39 +96,25 @@ import {
   advancedPitchingFields,
   fieldLabels
 } from '../config/playerStatsConfig.js';
-import { fetchPlayerStats, fetchTeamDetails } from '../services/api.js';
+import { fetchPlayerStats } from '../services/api.js';
+import { teamAbbrevs, fetchTeamAbbrevs } from '../utils/teamAbbrevs.js';
 
 
 const { id } = defineProps({ id: String });
 
 const stats = ref(null);
-const teamAbbrevs = ref({});
 
 onMounted(async () => {
   stats.value = await fetchPlayerStats(id);
-  await fetchTeamAbbrevs(stats.value?.stats);
-});
-
-
-
-async function fetchTeamAbbrevs(statGroups) {
   const ids = new Set();
-  statGroups?.forEach(group => {
+  stats.value?.stats?.forEach(group => {
     group?.splits?.forEach(split => {
       const tid = split.team?.id;
       if (tid) ids.add(tid);
     });
   });
-  await Promise.all(
-    Array.from(ids).map(async tid => {
-      if (teamAbbrevs.value[tid]) return;
-      const data = await fetchTeamDetails(tid);
-      if (data) {
-        teamAbbrevs.value[tid] = data.abbrev || tid;
-      }
-    })
-  );
-}
+  await fetchTeamAbbrevs(ids);
+});
 
 function buildRows(statData, fields, defaultLabel) {
   const splits = statData?.splits || [];
