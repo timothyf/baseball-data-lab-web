@@ -82,20 +82,7 @@
         </TabPanel>
       </TabView>
     </div>
-    <Dialog
-      v-model:visible="loading"
-      modal
-      :closable="false"
-      :draggable="false"
-      :dismissableMask="false"
-      :closeOnEscape="false"
-      class="loading-dialog"
-    >
-      <div class="loading-content">
-        <ProgressSpinner />
-        <p>Loading data...</p>
-      </div>
-    </Dialog>
+    <LoadingDialog :visible="loading" />
   </section>
 </template>
 
@@ -106,10 +93,7 @@ import PlayerSplits from '../components/PlayerSplits.vue';
 import PlayerGameLog from '../components/PlayerGameLog.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
-import Dialog from 'primevue/dialog';
-import 'primevue/dialog/style';
-import ProgressSpinner from 'primevue/progressspinner';
-import 'primevue/progressspinner/style';
+import LoadingDialog from '../components/LoadingDialog.vue';
 import teamColors from '../data/teamColors.json';
 import { fetchPlayer } from '../services/api.js';
 
@@ -325,11 +309,4 @@ onMounted(async () => {
   color: inherit;
 }
 
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-}
 </style>
