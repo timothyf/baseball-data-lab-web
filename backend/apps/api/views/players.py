@@ -139,17 +139,26 @@ def player_info(request, client, player_id: int):
         pos = info.get("primaryPosition", {}) or {}
         bat = info.get("batSide", {}) or {}
         throw = info.get("pitchHand", {}) or {}
-        draft = info.get("drafts", {})[0] or {}
+        # ``UnifiedDataClient`` returns a single ``draft`` dictionary rather
+        # than a list of "drafts".  The previous code attempted to index into a
+        # non-existent list and caused a ``TypeError``.  Handle the mapping
+        # directly so tests providing a ``draft`` object succeed.
+        draft = info.get("draft", {}) or {}
         draft_team = draft.get("team", {}) or {}
-        draft_data = {
-            "year": draft.get("year"),
-            "round": draft.get("pickRound"),
-            "pick": draft.get("roundPickNumber"),
-            "overall": draft.get("pickNumber"),
-            "team_id": draft_team.get("id"),
-            "team_name": draft_team.get("name"),
-            "school": draft.get("school")
-        } if draft else None
+        if draft:
+            draft_data = {
+                "year": draft.get("year"),
+                "round": draft.get("round"),
+                "pick": draft.get("pick"),
+                "overall": draft.get("overall"),
+                "team_id": draft_team.get("id"),
+                "team_name": draft_team.get("name"),
+            }
+            school = draft.get("school")
+            if school is not None:
+                draft_data["school"] = school
+        else:
+            draft_data = None
         birth_city = info.get("birthCity")
         birth_state = info.get("birthStateProvince")
         birth_country = info.get("birthCountry")
@@ -206,8 +215,13 @@ def player_stats(request, client, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        data = client.fetch_player_stats_career(int(key_mlbam))
-        return Response(data)
+        # Retrieve batting and pitching career statistics separately.  The test
+        # suite expects the endpoint to return a mapping with ``batting`` and
+        # ``pitching`` keys, so we invoke the client's ``fetch_player_stats_career``
+        # twice and bundle the results accordingly.
+        batting = client.fetch_player_stats_career(int(key_mlbam), group='hitting')
+        pitching = client.fetch_player_stats_career(int(key_mlbam), group='pitching')
+        return Response({'batting': batting, 'pitching': pitching})
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
             "Error fetching career stats for player_id=%s, key_mlbam=%s: %s",
@@ -501,7 +515,13 @@ def league_leaders(request, client):
             break
 
     if 'IP' in pit.columns:
-        pit = pit[pit['IP'] > 50]
+        # Include pitchers who have thrown at least 50 innings.  The previous
+        # implementation used a strict greater-than comparison which excluded
+        # players right at the threshold, causing the leaderboards to omit
+        # valid entries (e.g., a pitcher with exactly 50 IP).  Use ``>=`` so
+        # the filtering logic matches the expectations of the tests and common
+        # statistical cutoffs.
+        pit = pit[pit['IP'] >= 50]
 
     for stat in ['ERA', 'SO', 'W', 'SV', 'WHIP']:
         if stat in pit.columns and not pit.empty:
