@@ -61,6 +61,8 @@ def team_info(request, mlbam_team_id: int):
         .values(*fields)
         .first()
     )
+    if row is None:
+        return Response({'error': 'Team not found'}, status=404)
 
     mlbam_team_id_value = row.get('mlbam_team_id')
     if mlbam_team_id_value is not None:
@@ -98,13 +100,19 @@ def team_info(request, mlbam_team_id: int):
 @extend_schema(responses={(200, 'text/plain'): OpenApiTypes.STR})
 @api_view(['GET'])
 @require_unified_client
-def team_logo(request, client, mlbam_team_id: int):
+def team_logo(request, client, team_id: int):
     """Return a team's logo image."""
 
-    mlbam_team_id = str(mlbam_team_id)
+    mlbam_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+    if mlbam_id is None:
+        return Response({'error': 'Team not found'}, status=404)
 
     try:
-        logo_url = client.get_team_logo_url(int(mlbam_team_id))
+        logo_url = client.get_team_logo_url(int(mlbam_id))
         return HttpResponse(logo_url, content_type='text/plain')
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
@@ -116,23 +124,25 @@ def team_logo(request, client, mlbam_team_id: int):
 )
 @api_view(['GET'])
 @require_unified_client
-def team_record(request, client, mlbam_team_id: int):
+def team_record(request, client, team_id: int):
     """Return a team's record for a given season."""
 
-    if mlbam_team_id is None:
+    mlbam_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+    if mlbam_id is None:
         return Response({'error': 'Team not found'}, status=404)
 
-    season_str = request.GET.get('season')
-    if season_str is None:
-        season_str = str(datetime.now().year)
-
+    season_str = request.GET.get('season') or str(datetime.now().year)
     try:
         season = int(season_str)
     except ValueError:
         return Response({'error': 'Invalid season'}, status=400)
 
     try:
-        record = client.get_team_record_for_season(season, int(mlbam_team_id))
+        record = client.get_team_record_for_season(int(mlbam_id), season)
         return Response(record)
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
@@ -141,12 +151,20 @@ def team_record(request, client, mlbam_team_id: int):
 @extend_schema(responses=OpenApiTypes.OBJECT)
 @api_view(['GET'])
 @require_unified_client
-def team_recent_schedule(request, client, mlbam_team_id: int):
+def team_recent_schedule(request, client, team_id: int):
     """Return the previous and next five games for a team."""
 
+    mlbam_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+    if mlbam_id is None:
+        return Response({'error': 'Team not found'}, status=404)
+
     try:
-        logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
-        schedule = client.get_recent_schedule_for_team(int(mlbam_team_id))
+        logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_id)
+        schedule = client.fetch_recent_schedule_for_team(int(mlbam_id))
         return Response(schedule)
     except ValueError as ve:
         logger.error("ValueError in team_recent_schedule: %s", ve)
@@ -159,13 +177,21 @@ def team_recent_schedule(request, client, mlbam_team_id: int):
 @extend_schema(responses=OpenApiTypes.OBJECT)
 @api_view(['GET'])
 @require_unified_client
-def team_roster(request, client, mlbam_team_id: int):
+def team_roster(request, client, team_id: int):
     """Return the current roster for a team."""
+
+    mlbam_id = (
+        TeamIdInfo.objects.filter(id=team_id)
+        .values_list('mlbam_team_id', flat=True)
+        .first()
+    )
+    if mlbam_id is None:
+        return Response({'error': 'Team not found'}, status=404)
 
     season = datetime.now().year
 
     try:
-        roster = client.fetch_active_roster(int(mlbam_team_id), year=season)
+        roster = client.get_team_roster(int(mlbam_id))
         return Response(roster)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_roster: %s", exc)

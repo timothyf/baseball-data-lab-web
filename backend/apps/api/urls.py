@@ -44,13 +44,16 @@ urlpatterns = [
     path('players/<int:player_id>/gamelog/', player_gamelog, name='api-player-gamelog'),
     path('players/<int:player_id>/statcast/batter/', player_statcast_batter_data, name='api-player-statcast-batter'),
     path('players/<int:player_id>/statcast/pitcher/', player_statcast_pitcher_data, name='api-player-statcast-pitcher'),
-    path('player/<int:player_id>/headshot/', player_headshot, name='api-player-headshot'),
+    # Headshot endpoint should live under the same ``players`` namespace as the
+    # other player-related endpoints.  The previous singular ``player`` prefix
+    # resulted in 404 responses when tests requested ``/api/players/<id>/headshot/``.
+    path('players/<int:player_id>/headshot/', player_headshot, name='api-player-headshot'),
     path('teams/', team_search, name='api-team-search'),
     path('teams/<int:mlbam_team_id>/', team_info, name='api-team-info'),
-    path('teams/<int:mlbam_team_id>/logo/', team_logo, name='api-team-logo'),
-    path('teams/<int:mlbam_team_id>/record/', team_record, name='api-team-record'),
-    path('teams/<int:mlbam_team_id>/recent_schedule/', team_recent_schedule, name='api-team-recent-schedule'),
-    path('teams/<int:mlbam_team_id>/roster/', team_roster, name='api-team-roster'),
+    path('teams/<int:team_id>/logo/', team_logo, name='api-team-logo'),
+    path('teams/<int:team_id>/record/', team_record, name='api-team-record'),
+    path('teams/<int:team_id>/recent_schedule/', team_recent_schedule, name='api-team-recent-schedule'),
+    path('teams/<int:team_id>/roster/', team_roster, name='api-team-roster'),
     path('leaders/', league_leaders, name='api-league-leaders'),
     path('teams/<int:mlbam_team_id>/leaders/', team_leaders, name='api-team-leaders'),
 ]

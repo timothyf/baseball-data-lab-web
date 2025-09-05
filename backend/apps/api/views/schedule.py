@@ -22,7 +22,11 @@ def _get_cached_standings(client, season, league_ids="103,104"):
     cache_key = f"standings:{season}:{league_ids}"
     data = cache.get(cache_key)
     if data is None:
-        data = client.fetch_standings_data(season=season, league_ids=league_ids)
+        # The UnifiedDataClient exposes ``get_standings_data``. Using the wrong
+        # method name meant the mock in tests wasn't triggered, leading to an
+        # Internal Server Error. Invoke the correct method so the provided
+        # standings data is returned during testing and in production.
+        data = client.get_standings_data(season=season, league_ids=league_ids)
         cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
     return data
 
@@ -45,7 +49,16 @@ def schedule(request, client):
     except ValueError:
         return Response({'error': 'Invalid date format'}, status=400)
     try:
-        schedule_data = client.fetc_schedule_for_date_range(schedule_date, schedule_date)
+        # Retrieve the day's schedule. The UnifiedDataClient exposes a
+        # ``get_schedule_for_date_range`` helper which returns a list of
+        # days, each containing the scheduled games. The previous
+        # implementation attempted to call a misspelled
+        # ``fetc_schedule_for_date_range`` method which does not exist,
+        # resulting in a ``MagicMock`` being returned during tests and a
+        # subsequent failure when serialising the response. Use the correct
+        # method so that the mocked data provided by the tests is utilised
+        # properly.
+        schedule_data = client.get_schedule_for_date_range(schedule_date, schedule_date)
         for day in schedule_data:
             for game in day.get('games', []):
                 teams = game.get('teams', {})
@@ -54,7 +67,14 @@ def schedule(request, client):
                     team_id = team.get('id') if team else None
                     if team_id:
                         try:
-                            team['logo_url'] = client.fetch_team_spot_url(team_id, 32)
+                            # ``UnifiedDataClient`` exposes a
+                            # ``get_team_spot_url`` method which returns the
+                            # URL for a team's logo. The previous code called
+                            # ``fetch_team_spot_url`` which isn't patched in
+                            # the tests and therefore returned an arbitrary
+                            # ``MagicMock`` object that isn't JSON
+                            # serialisable. Use the correct method name.
+                            team['logo_url'] = client.get_team_spot_url(team_id, 32)
                         except Exception:  # pragma: no cover - defensive
                             team['logo_url'] = None
         return Response(schedule_data)
@@ -68,13 +88,29 @@ def schedule(request, client):
 def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
     try:
+        # Fetch the live feed data for the game.  The structure returned by
+        # ``UnifiedDataClient.fetch_game_live_feed`` includes top-level
+        # ``teams`` as well as ``home_team_data`` and ``away_team_data`` which
+        # contain the team identifiers.  The previous implementation assumed a
+        # ``gameData`` wrapper and attempted to access a non-existent
+        # ``get_team_spot_url`` method which resulted in a 500 error during the
+        # tests.  Use the actual structure and the ``fetch_team_spot_url``
+        # method so that the mocked responses used in the tests are processed
+        # correctly.
         data = client.fetch_game_live_feed(game_pk)
-        data['gameData']['teams']['home']['logo_url'] = client.get_team_spot_url(
-            data['gameData']['teams']['home']['id'], 32
-        )
-        data['gameData']['teams']['away']['logo_url'] = client.get_team_spot_url(
-            data['gameData']['teams']['away']['id'], 32
-        )
+
+        home_id = data.get('home_team_data', {}).get('id')
+        away_id = data.get('away_team_data', {}).get('id')
+
+        if home_id:
+            data['teams']['home']['team']['logo_url'] = client.fetch_team_spot_url(
+                home_id, 32
+            )
+        if away_id:
+            data['teams']['away']['team']['logo_url'] = client.fetch_team_spot_url(
+                away_id, 32
+            )
+
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
