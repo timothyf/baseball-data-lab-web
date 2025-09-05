@@ -7,6 +7,7 @@
       <RouterLink to="/teams">Teams</RouterLink>
       <RouterLink to="/players">Players</RouterLink>
       <RouterLink to="/leaders">Leaders</RouterLink>
+      <RouterLink to="/hall-of-fame">Hall of Fame</RouterLink>
       <RouterLink to="/developer" class="developer-link">Developer</RouterLink>
     </nav>
     <div class="page-wrapper">
