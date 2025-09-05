@@ -6,7 +6,7 @@ class HomeViewTests(TestCase):
     @patch('apps.web.views.UnifiedDataClient')
     def test_home_view(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_schedule_for_date_range.return_value = [
+        mock_client.fetch_schedule_for_date_range.return_value = [
             {
                 'games': [
                     {
@@ -19,7 +19,7 @@ class HomeViewTests(TestCase):
                 ]
             }
         ]
-        mock_client.get_team_spot_url.return_value = 'logo-url'
+        mock_client.fetch_team_spot_url.return_value = 'logo-url'
         client = Client()
         response = client.get('/')
         self.assertEqual(response.status_code, 200)

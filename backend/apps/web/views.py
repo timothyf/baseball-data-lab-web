@@ -27,7 +27,7 @@ def schedule(request):
                 today = datetime.now(ZoneInfo("America/New_York")).date()
             except Exception:  # Fallback if zoneinfo unavailable
                 today = date.today()
-            schedule = client.get_schedule_for_date_range(today, today)
+            schedule = client.fetch_schedule_for_date_range(today, today)
 
             # Attach team logo URLs for home and away teams
             try:
@@ -39,7 +39,7 @@ def schedule(request):
                             team_id = team.get("id") if team else None
                             if team_id:
                                 try:
-                                    team["logo_url"] = client.get_team_spot_url(
+                                    team["logo_url"] = client.fetch_team_spot_url(
                                         team_id, 32
                                     )
                                 except Exception:  # pragma: no cover - defensive

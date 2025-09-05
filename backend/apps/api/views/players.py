@@ -347,7 +347,7 @@ def player_gamelog(request, client, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        data = client.get_player_gamelog(int(key_mlbam), stat_type, season)
+        data = client.fetch_player_gamelog(int(key_mlbam), stat_type, season)
         logger.info(
             "Fetched game log for player_id=%s, key_mlbam=%s", player_id, key_mlbam
         )

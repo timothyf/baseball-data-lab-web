@@ -6,7 +6,7 @@ class GameDataApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_game_data_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_game_live_feed.return_value = {
+        mock_client.fetch_game_live_feed.return_value = {
             'teams': {
                 'home': {'team': {'name': 'Home'}, 'score': 5},
                 'away': {'team': {'name': 'Away'}, 'score': 3},
@@ -17,7 +17,7 @@ class GameDataApiTests(TestCase):
                 'boxscore': {'info': [{'label': 'Att', 'value': '10,000'}]}
             },
         }
-        mock_client.get_team_spot_url.return_value = 'logo-url'
+        mock_client.fetch_team_spot_url.return_value = 'logo-url'
         client = Client()
         response = client.get('/api/games/123/')
         self.assertEqual(response.status_code, 200)

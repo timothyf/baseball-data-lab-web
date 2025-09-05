@@ -99,7 +99,7 @@ class TeamRecentScheduleApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_recent_schedule_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_recent_schedule_for_team.return_value = {
+        mock_client.fetch_recent_schedule_for_team.return_value = {
             'id': 555,
             'previousGameSchedule': {'dates': []},
             'nextGameSchedule': {'dates': []}
@@ -113,7 +113,7 @@ class TeamRecentScheduleApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data['id'], 555)
-        mock_client.get_recent_schedule_for_team.assert_called_once_with(555)
+        mock_client.fetch_recent_schedule_for_team.assert_called_once_with(555)
 
     def test_team_recent_schedule_team_not_found(self):
         client = Client()

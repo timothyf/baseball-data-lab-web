@@ -22,7 +22,7 @@ def _get_cached_standings(client, season, league_ids="103,104"):
     cache_key = f"standings:{season}:{league_ids}"
     data = cache.get(cache_key)
     if data is None:
-        data = client.get_standings_data(season=season, league_ids=league_ids)
+        data = client.fetch_standings_data(season=season, league_ids=league_ids)
         cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
     return data
 
@@ -45,7 +45,7 @@ def schedule(request, client):
     except ValueError:
         return Response({'error': 'Invalid date format'}, status=400)
     try:
-        schedule_data = client.get_schedule_for_date_range(schedule_date, schedule_date)
+        schedule_data = client.fetc_schedule_for_date_range(schedule_date, schedule_date)
         for day in schedule_data:
             for game in day.get('games', []):
                 teams = game.get('teams', {})
@@ -54,7 +54,7 @@ def schedule(request, client):
                     team_id = team.get('id') if team else None
                     if team_id:
                         try:
-                            team['logo_url'] = client.get_team_spot_url(team_id, 32)
+                            team['logo_url'] = client.fetch_team_spot_url(team_id, 32)
                         except Exception:  # pragma: no cover - defensive
                             team['logo_url'] = None
         return Response(schedule_data)
@@ -68,7 +68,7 @@ def schedule(request, client):
 def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
     try:
-        data = client.get_game_live_feed(game_pk)
+        data = client.fetch_game_live_feed(game_pk)
         data['gameData']['teams']['home']['logo_url'] = client.get_team_spot_url(
             data['gameData']['teams']['home']['id'], 32
         )
