@@ -13,7 +13,6 @@
           <tr>
             <th>Streak</th>
             <th>Last 10</th>
-            <th>Last 30</th>
             <th>RS</th>
             <th>RA</th>
             <th>rDiff</th>
@@ -23,7 +22,6 @@
           <tr>
             <td>{{ streakCode }}</td>
             <td>{{ lastTen }}</td>
-            <td>{{ lastThirty }}</td>
             <td>{{ runsScored }}</td>
             <td>{{ runsAllowed }}</td>
             <td>{{ runDifferential }}</td>

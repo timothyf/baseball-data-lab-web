@@ -21,8 +21,8 @@ class ScheduleApiTests(TestCase):
             }
         ]
         mock_client.fetch_team_spot_url.return_value = 'logo-url'
-        client = Client()
-        response = client.get('/api/schedule/', {'date': '2025-08-18'})
+
+        response = self.client.get('/api/schedule/', {'date': '2025-08-18'})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data), 1)

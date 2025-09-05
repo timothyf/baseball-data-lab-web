@@ -6,7 +6,7 @@
         <TabPanel header="Summary">
           <div class="summary-content">
             <p class="venue-name" v-if="teamDetails">
-              {{ teamDetails.venue?.name }} • {{ teamDetails.location_name }}
+              Home Stadium: {{ teamDetails.venue?.name }}, {{ teamDetails.location_name }}
             </p>
             <Skeleton v-else width="300px" height="1.5rem" />
           </div>
@@ -222,6 +222,11 @@ async function loadTeamDetails(mlbam_team_id, force = false) {
   background-color: hsl(210, 100%, 80%);
   color: white;
   font-weight: 600;
+}
+
+.venue-name {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 </style>
