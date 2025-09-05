@@ -22,11 +22,11 @@ def _get_cached_standings(client, season, league_ids="103,104"):
     cache_key = f"standings:{season}:{league_ids}"
     data = cache.get(cache_key)
     if data is None:
-        # The UnifiedDataClient exposes ``get_standings_data``. Using the wrong
+        # The UnifiedDataClient exposes ``fetch_standings_data``. Using the wrong
         # method name meant the mock in tests wasn't triggered, leading to an
         # Internal Server Error. Invoke the correct method so the provided
         # standings data is returned during testing and in production.
-        data = client.get_standings_data(season=season, league_ids=league_ids)
+        data = client.fetch_standings_data(season=season, league_ids=league_ids)
         cache.set(cache_key, data, STANDINGS_CACHE_TIMEOUT)
     return data
 
@@ -50,7 +50,7 @@ def schedule(request, client):
         return Response({'error': 'Invalid date format'}, status=400)
     try:
         # Retrieve the day's schedule. The UnifiedDataClient exposes a
-        # ``get_schedule_for_date_range`` helper which returns a list of
+        # ``fetch_schedule_for_date_range`` helper which returns a list of
         # days, each containing the scheduled games. The previous
         # implementation attempted to call a misspelled
         # ``fetc_schedule_for_date_range`` method which does not exist,
@@ -58,7 +58,7 @@ def schedule(request, client):
         # subsequent failure when serialising the response. Use the correct
         # method so that the mocked data provided by the tests is utilised
         # properly.
-        schedule_data = client.get_schedule_for_date_range(schedule_date, schedule_date)
+        schedule_data = client.fetch_schedule_for_date_range(schedule_date, schedule_date)
         for day in schedule_data:
             for game in day.get('games', []):
                 teams = game.get('teams', {})

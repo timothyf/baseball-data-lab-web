@@ -6,7 +6,7 @@ class StandingsApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_standings_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_standings_data.return_value = {
+        mock_client.fetch_standings_data.return_value = {
             'records': [
                 {
                     'league': {'name': 'American League'},

@@ -106,6 +106,7 @@ def player_headshot(request, client, player_id: int):
         image_bytes = client.fetch_player_headshot(int(key_mlbam))
         return HttpResponse(image_bytes, content_type='image/png')
     except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error fetching player headshot: %s", exc)
         return Response({'error': str(exc)}, status=500)
 
 
@@ -139,26 +140,19 @@ def player_info(request, client, player_id: int):
         pos = info.get("primaryPosition", {}) or {}
         bat = info.get("batSide", {}) or {}
         throw = info.get("pitchHand", {}) or {}
-        # ``UnifiedDataClient`` returns a single ``draft`` dictionary rather
-        # than a list of "drafts".  The previous code attempted to index into a
-        # non-existent list and caused a ``TypeError``.  Handle the mapping
-        # directly so tests providing a ``draft`` object succeed.
-        draft = info.get("draft", {}) or {}
+
+        draft = info.get("drafts", {})[0] or {}
         draft_team = draft.get("team", {}) or {}
-        if draft:
-            draft_data = {
-                "year": draft.get("year"),
-                "round": draft.get("round"),
-                "pick": draft.get("pick"),
-                "overall": draft.get("overall"),
-                "team_id": draft_team.get("id"),
-                "team_name": draft_team.get("name"),
-            }
-            school = draft.get("school")
-            if school is not None:
-                draft_data["school"] = school
-        else:
-            draft_data = None
+        draft_data = {
+            "year": draft.get("year"),
+            "round": draft.get("pickRound"),
+            "pick": draft.get("roundPickNumber"),
+            "overall": draft.get("pickNumber"),
+            "team_id": draft_team.get("id"),
+            "team_name": draft_team.get("name"),
+            "school": draft.get("school")
+        } if draft else None
+
         birth_city = info.get("birthCity")
         birth_state = info.get("birthStateProvince")
         birth_country = info.get("birthCountry")
@@ -215,13 +209,8 @@ def player_stats(request, client, player_id: int):
         key_mlbam = key_mlbam[:-2]
 
     try:
-        # Retrieve batting and pitching career statistics separately.  The test
-        # suite expects the endpoint to return a mapping with ``batting`` and
-        # ``pitching`` keys, so we invoke the client's ``fetch_player_stats_career``
-        # twice and bundle the results accordingly.
-        batting = client.fetch_player_stats_career(int(key_mlbam), group='hitting')
-        pitching = client.fetch_player_stats_career(int(key_mlbam), group='pitching')
-        return Response({'batting': batting, 'pitching': pitching})
+        data = client.fetch_player_stats_career(int(key_mlbam))
+        return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
             "Error fetching career stats for player_id=%s, key_mlbam=%s: %s",

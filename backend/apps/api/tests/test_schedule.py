@@ -6,7 +6,7 @@ class ScheduleApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_schedule_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_schedule_for_date_range.return_value = [
+        mock_client.fetch_schedule_for_date_range.return_value = [
             {
                 'date': '2025-08-18',
                 'games': [
@@ -20,7 +20,7 @@ class ScheduleApiTests(TestCase):
                 ]
             }
         ]
-        mock_client.get_team_spot_url.return_value = 'logo-url'
+        mock_client.fetch_team_spot_url.return_value = 'logo-url'
         client = Client()
         response = client.get('/api/schedule/', {'date': '2025-08-18'})
         self.assertEqual(response.status_code, 200)

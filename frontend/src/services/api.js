@@ -144,7 +144,7 @@ export const fetchLeaders = ({
   });
 
   return apiFetch(
-    `/unified/get_leaderboard_data/?${params.toString()}`,
+    `/unified/fetch_leaderboard_data/?${params.toString()}`,
     {
       cacheKey: `leaders:${group}:${season}:${leagueIdsValue}:${team_id}:${statType}:${sortOrder}:${limit}:${offset}`,
       ...opts,
