@@ -20,13 +20,7 @@ class ScheduleApiTests(TestCase):
                 ]
             }
         ]
-        # The production code calls ``get_team_spot_url`` to obtain a team's
-        # logo.  The previous version of this test patched the non-existent
-        # ``fetch_team_spot_url`` method which left a ``MagicMock`` object in
-        # the response and caused the test client to hang during JSON
-        # serialisation.  Patch the correct method so a simple string is
-        # injected into the response data.
-        mock_client.get_team_spot_url.return_value = 'logo-url'
+        mock_client.fetch_team_spot_url.return_value = 'logo-url'
 
         response = self.client.get('/api/schedule/', {'date': '2025-08-18'})
         self.assertEqual(response.status_code, 200)

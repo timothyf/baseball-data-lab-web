@@ -74,7 +74,7 @@ def schedule(request, client):
                             # the tests and therefore returned an arbitrary
                             # ``MagicMock`` object that isn't JSON
                             # serialisable. Use the correct method name.
-                            team['logo_url'] = client.get_team_spot_url(team_id, 32)
+                            team['logo_url'] = client.fetch_team_spot_url(team_id, 32)
                         except Exception:  # pragma: no cover - defensive
                             team['logo_url'] = None
         return Response(schedule_data)
@@ -88,15 +88,6 @@ def schedule(request, client):
 def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
     try:
-        # Fetch the live feed data for the game.  The structure returned by
-        # ``UnifiedDataClient.fetch_game_live_feed`` includes top-level
-        # ``teams`` as well as ``home_team_data`` and ``away_team_data`` which
-        # contain the team identifiers.  The previous implementation assumed a
-        # ``gameData`` wrapper and attempted to access a non-existent
-        # ``get_team_spot_url`` method which resulted in a 500 error during the
-        # tests.  Use the actual structure and the ``fetch_team_spot_url``
-        # method so that the mocked responses used in the tests are processed
-        # correctly.
         data = client.fetch_game_live_feed(game_pk)
 
         home_id = data.get('home_team_data', {}).get('id')
