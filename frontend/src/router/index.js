@@ -44,6 +44,11 @@ const routes = [
     component: () => import('../views/LeadersView.vue')
   },
   {
+    path: '/hall-of-fame',
+    name: 'HallOfFame',
+    component: () => import('../views/HallOfFameView.vue')
+  },
+  {
     path: '/player/:id',
     name: 'Player',
     component: () => import('../views/PlayerView.vue'),
