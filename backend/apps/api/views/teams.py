@@ -104,7 +104,7 @@ def team_logo(request, client, mlbam_team_id: int):
     mlbam_team_id = str(mlbam_team_id)
 
     try:
-        logo_url = client.get_team_logo_url(int(mlbam_team_id))
+        logo_url = client.fetch_team_logo_url(int(mlbam_team_id))
         return HttpResponse(logo_url, content_type='text/plain')
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
@@ -132,7 +132,7 @@ def team_record(request, client, mlbam_team_id: int):
         return Response({'error': 'Invalid season'}, status=400)
 
     try:
-        record = client.get_team_record_for_season(season, int(mlbam_team_id))
+        record = client.fetch_team_record_for_season(season, int(mlbam_team_id))
         return Response(record)
     except Exception as exc:  # pragma: no cover - defensive
         return Response({'error': str(exc)}, status=500)
@@ -146,7 +146,7 @@ def team_recent_schedule(request, client, mlbam_team_id: int):
 
     try:
         logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
-        schedule = client.get_recent_schedule_for_team(int(mlbam_team_id))
+        schedule = client.fetch_recent_schedule_for_team(int(mlbam_team_id))
         return Response(schedule)
     except ValueError as ve:
         logger.error("ValueError in team_recent_schedule: %s", ve)

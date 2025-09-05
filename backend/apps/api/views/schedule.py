@@ -69,14 +69,15 @@ def game_data(request, client, game_pk: int):
     """Return detailed data for a single game."""
     try:
         data = client.fetch_game_live_feed(game_pk)
-        data['gameData']['teams']['home']['logo_url'] = client.get_team_spot_url(
+        data['gameData']['teams']['home']['logo_url'] = client.fetch_team_spot_url(
             data['gameData']['teams']['home']['id'], 32
         )
-        data['gameData']['teams']['away']['logo_url'] = client.get_team_spot_url(
+        data['gameData']['teams']['away']['logo_url'] = client.fetch_team_spot_url(
             data['gameData']['teams']['away']['id'], 32
         )
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error fetching game data for game_pk=%s: %s", game_pk, exc)
         return Response({'error': str(exc)}, status=500)
 
 
@@ -87,7 +88,7 @@ def predict_game(request, client, game_pk: int):
     """Estimate win probabilities for a single game."""
 
     try:
-        game_data = client.get_game_live_feed(game_pk)
+        game_data = client.fetch_game_live_feed(game_pk)
 
         home_id = game_data.get('home_team_data', {}).get('id')
         away_id = game_data.get('away_team_data', {}).get('id')
@@ -116,6 +117,7 @@ def predict_game(request, client, game_pk: int):
 
         return Response({'home': home_prob, 'away': away_prob})
     except Exception as exc:  # pragma: no cover - defensive
+        logger.error("Error predicting game outcome for game_pk=%s: %s", game_pk, exc)
         return Response({'error': str(exc)}, status=500)
 
 
