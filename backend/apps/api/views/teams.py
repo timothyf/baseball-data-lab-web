@@ -155,17 +155,17 @@ def team_record(request, client, team_id: int):
 def team_recent_schedule(request, client, team_id: int):
     """Return the previous and next five games for a team."""
 
-    mlbam_id = (
-        TeamIdInfo.objects.filter(id=team_id)
-        .values_list('mlbam_team_id', flat=True)
-        .first()
-    )
-    if mlbam_id is None:
-        return Response({'error': 'Team not found'}, status=404)
+    # mlbam_id = (
+    #     TeamIdInfo.objects.filter(id=team_id)
+    #     .values_list('mlbam_team_id', flat=True)
+    #     .first()
+    # )
+    # if mlbam_id is None:
+    #     return Response({'error': 'Team not found'}, status=404)
 
     try:
-        logger.info("Fetching recent schedule for mlbam_team_id=%s", mlbam_team_id)
-        schedule = client.fetch_recent_schedule_for_team(int(mlbam_team_id))
+        logger.info("Fetching recent schedule for mlbam_team_id=%s", team_id)
+        schedule = client.fetch_recent_schedule_for_team(int(team_id))
         return Response(schedule)
     except ValueError as ve:
         logger.error("ValueError in team_recent_schedule: %s", ve)
