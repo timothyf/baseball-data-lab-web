@@ -56,24 +56,24 @@ class TeamLogoApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_logo_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_team_logo_url.return_value = 'logo-url'
+        mock_client.fetch_team_logo_url.return_value = 'logo-url'
 
         TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
 
         client = Client()
-        response = client.get('/api/teams/1/logo/')
+        response = client.get('/api/teams/555/logo/')
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'logo-url')
         self.assertEqual(response['Content-Type'], 'text/plain')
-        mock_client.get_team_logo_url.assert_called_once_with(555)
+        mock_client.fetch_team_logo_url.assert_called_once_with(555)
 
 
 class TeamRecordApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_record_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_team_record_for_season.return_value = {
+        mock_client.fetch_team_record_for_season.return_value = {
             'wins': 10,
             'losses': 5,
             'divisionRank': '1',
@@ -87,12 +87,12 @@ class TeamRecordApiTests(TestCase):
         TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
 
         client = Client()
-        response = client.get('/api/teams/1/record/', {'season': '2025'})
+        response = client.get('/api/teams/555/record/', {'season': '2025'})
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data['wins'], 10)
-        mock_client.get_team_record_for_season.assert_called_once_with(555, 2025)
+        mock_client.fetch_team_record_for_season.assert_called_once_with(2025, 555)
 
 
 class TeamRecentScheduleApiTests(TestCase):
@@ -125,7 +125,7 @@ class TeamRosterApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_roster_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.get_team_roster.return_value = {
+        mock_client.fetch_team_roster.return_value = {
             'roster': [
                 {
                     'id': 1,
@@ -144,7 +144,7 @@ class TeamRosterApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['roster']), 1)
-        mock_client.get_team_roster.assert_called_once_with(555)
+        mock_client.fetch_active_roster.assert_called_once_with(555)
 
     def test_team_roster_team_not_found(self):
         client = Client()
