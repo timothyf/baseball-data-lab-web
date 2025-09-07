@@ -6,7 +6,7 @@ from ..models import PlayerIdInfo
 
 
 @api_view(['GET'])
-def hall_of_fame_players(request, hall_of_fame=False):  # noqa: F841 - hall_of_fame unused
+def hall_of_fame_players(request):  # noqa: F841 - hall_of_fame unused
     # enrich each inducted Player with mlbam_id from PlayerIdInfo by bbref_id
 
     players = list(

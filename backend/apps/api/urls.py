@@ -48,7 +48,7 @@ urlpatterns = [
     path('players/<int:player_id>/gamelog/', player_gamelog, name='api-player-gamelog'),
     path('players/<int:player_id>/statcast/batter/', player_statcast_batter_data, name='api-player-statcast-batter'),
     path('players/<int:player_id>/statcast/pitcher/', player_statcast_pitcher_data, name='api-player-statcast-pitcher'),
-    path('players/halloffame/', hall_of_fame_players, {'hall_of_fame': True}, name='api-hall-of-fame-search'),
+    path('players/halloffame/', hall_of_fame_players, name='api-hall-of-fame-search'),
     # Headshot endpoint should live under the same ``players`` namespace as the
     # other player-related endpoints.  The previous singular ``player`` prefix
     # resulted in 404 responses when tests requested ``/api/players/<id>/headshot/``.
