@@ -161,6 +161,9 @@ export const fetchPitchingLeaders = ({ sortOrder = 'asc', ...params } = {}) =>
 export const fetchFieldingLeaders = ({ sortOrder = 'desc', ...params } = {}) =>
   fetchLeaders({ group: 'fielding', sortOrder, ...params });
 
+export const fetchHallOfFamePlayers = (opts) =>
+  apiFetch('/players/halloffame/', { cacheKey: 'hallOfFame', ...opts });
+
 export default {
   fetchTeamDetails,
   fetchTeamLogo,
@@ -177,6 +180,7 @@ export default {
   fetchBattingLeaders,
   fetchPitchingLeaders,
   fetchFieldingLeaders,
+  fetchHallOfFamePlayers,
   fetchPlayerSplits,
   fetchPlayerGameLog,
 };
