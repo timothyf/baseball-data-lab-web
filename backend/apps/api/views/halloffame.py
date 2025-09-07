@@ -1,11 +1,12 @@
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from ..models import HallOfFameVote
 from ..models import PlayerIdInfo
 
 
 @api_view(['GET'])
-def hall_of_fame_players(request):
+def hall_of_fame_players(request, hall_of_fame=False):  # noqa: F841 - hall_of_fame unused
     # enrich each inducted Player with mlbam_id from PlayerIdInfo by bbref_id
 
     players = list(
@@ -18,13 +19,13 @@ def hall_of_fame_players(request):
     mlbam_map = dict(
         PlayerIdInfo.objects
         .filter(key_bbref__in=bbref_ids)
-        .values_list('key_bbref', 'mlbam_id')
+        .values_list('key_bbref', 'key_mlbam')
     )
 
     for p in players:
         p['mlbam_id'] = mlbam_map.get(p['bbref_id'])
 
-    return {'players': players}
+    return Response({'players': players})
 
 
 
