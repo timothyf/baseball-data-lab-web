@@ -16,14 +16,20 @@ def hall_of_fame_players(request):  # noqa: F841 - hall_of_fame unused
     )
 
     bbref_ids = [p['bbref_id'] for p in players if p['bbref_id']]
-    mlbam_map = dict(
-        PlayerIdInfo.objects
+    info_map = {
+        bbref: {
+            'mlbam_id': mlbam,
+            'name': name,
+        }
+        for bbref, mlbam, name in PlayerIdInfo.objects
         .filter(key_bbref__in=bbref_ids)
-        .values_list('key_bbref', 'key_mlbam')
-    )
+        .values_list('key_bbref', 'key_mlbam', 'name_full')
+    }
 
     for p in players:
-        p['mlbam_id'] = mlbam_map.get(p['bbref_id'])
+        info = info_map.get(p['bbref_id'], {})
+        p['mlbam_id'] = info.get('mlbam_id')
+        p['name'] = info.get('name')
 
     return Response({'players': players})
 

@@ -13,12 +13,23 @@ class HallOfFamePlayersApiTests(TestCase):
         HallOfFameVote.objects.create(bbref_id='notind01', year=1990, inducted=False, category='Player')
         HallOfFameVote.objects.create(bbref_id='manager01', year=1988, inducted=True, category='Manager')
 
-        PlayerIdInfo.objects.create(key_bbref='ruthba01', key_mlbam='12345')
+        PlayerIdInfo.objects.create(
+            key_bbref='ruthba01', key_mlbam='12345', name_first='Babe', name_last='Ruth'
+        )
+        PlayerIdInfo.objects.create(
+            key_bbref='doejo01', name_first='John', name_last='Doe'
+        )
 
         response = self.client.get('/api/players/halloffame/')
         self.assertEqual(response.status_code, 200)
         players = response.json()['players']
 
         self.assertEqual(len(players), 2)
-        self.assertIn({'bbref_id': 'ruthba01', 'year': 1936, 'mlbam_id': '12345'}, players)
-        self.assertIn({'bbref_id': 'doejo01', 'year': 2000, 'mlbam_id': None}, players)
+        self.assertIn(
+            {'bbref_id': 'ruthba01', 'year': 1936, 'mlbam_id': '12345', 'name': 'Babe Ruth'},
+            players,
+        )
+        self.assertIn(
+            {'bbref_id': 'doejo01', 'year': 2000, 'mlbam_id': None, 'name': 'John Doe'},
+            players,
+        )
