@@ -68,3 +68,22 @@ class Venue(models.Model):
     def __str__(self) -> str:  # pragma: no cover - simple convenience method
         """Return the venue name for admin displays."""
         return self.name or ""
+
+
+class HallOfFameVote(models.Model):
+    bbref_id = models.CharField(max_length=20, null=True)
+    year = models.IntegerField(null=True)
+    voted_by = models.CharField(max_length=100, null=True)
+    ballots = models.IntegerField(null=True)
+    needed = models.IntegerField(null=True)
+    votes = models.IntegerField(null=True)
+    inducted = models.BooleanField(null=True)
+    category = models.CharField(max_length=50, null=True)
+    needed_note = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        db_table = 'hall_of_fame_votes'
+
+    def __str__(self) -> str:  # pragma: no cover - simple convenience method
+        """Return the player's bbref id and year for admin displays."""
+        return f"{self.bbref_id or ''} ({self.year})"
