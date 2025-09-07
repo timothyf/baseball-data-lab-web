@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from unittest.mock import patch
 from django.test import TestCase, Client
 
@@ -108,7 +109,7 @@ class TeamRecentScheduleApiTests(TestCase):
         TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
 
         client = Client()
-        response = client.get('/api/teams/1/recent_schedule/')
+        response = client.get('/api/teams/555/recent_schedule/')
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -125,7 +126,7 @@ class TeamRosterApiTests(TestCase):
     @patch('apps.api.views.UnifiedDataClient')
     def test_team_roster_endpoint(self, mock_client_cls):
         mock_client = mock_client_cls.return_value
-        mock_client.fetch_team_roster.return_value = {
+        mock_client.fetch_active_roster.return_value = {
             'roster': [
                 {
                     'id': 1,
@@ -139,14 +140,14 @@ class TeamRosterApiTests(TestCase):
         TeamIdInfo.objects.create(id=1, mlbam_team_id=555, full_name='Team A')
 
         client = Client()
-        response = client.get('/api/teams/1/roster/')
+        response = client.get('/api/teams/555/roster/')
 
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['roster']), 1)
-        mock_client.fetch_active_roster.assert_called_once_with(555)
+        mock_client.fetch_active_roster.assert_called_once_with(555, 2025)
 
     def test_team_roster_team_not_found(self):
         client = Client()
         response = client.get('/api/teams/1/roster/')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)

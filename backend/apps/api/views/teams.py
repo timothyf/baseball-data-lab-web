@@ -103,14 +103,6 @@ def team_info(request, mlbam_team_id: int):
 def team_logo(request, client, team_id: int):
     """Return a team's logo image."""
 
-    # mlbam_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
-    # if mlbam_id is None:
-    #     return Response({'error': 'Team not found'}, status=404)
-
     try:
         logo_url = client.fetch_team_logo_url(int(team_id))
         return HttpResponse(logo_url, content_type='text/plain')
@@ -128,19 +120,7 @@ def team_logo(request, client, team_id: int):
 def team_record(request, client, team_id: int):
     """Return a team's record for a given season."""
 
-    # mlbam_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
-    # if mlbam_id is None:
-    #     return Response({'error': 'Team not found'}, status=404)
-
-    season_str = request.GET.get('season') or str(datetime.now().year)
-    try:
-        season = int(season_str)
-    except ValueError:
-        return Response({'error': 'Invalid season'}, status=400)
+    season = datetime.now().year
 
     try:
         record = client.fetch_team_record_for_season(season, int(team_id))
@@ -155,21 +135,13 @@ def team_record(request, client, team_id: int):
 def team_recent_schedule(request, client, team_id: int):
     """Return the previous and next five games for a team."""
 
-    # mlbam_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
-    # if mlbam_id is None:
-    #     return Response({'error': 'Team not found'}, status=404)
-
     try:
         logger.info("Fetching recent schedule for mlbam_team_id=%s", team_id)
         schedule = client.fetch_recent_schedule_for_team(int(team_id))
         return Response(schedule)
     except ValueError as ve:
         logger.error("ValueError in team_recent_schedule: %s", ve)
-        return Response({'error': str(ve)}, status=400)
+        return Response({'error': str(ve)}, status=404)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error("Unexpected error in team_recent_schedule: %s", exc)
         return Response({'error': str(exc)}, status=500)
@@ -180,14 +152,6 @@ def team_recent_schedule(request, client, team_id: int):
 @require_unified_client
 def team_roster(request, client, team_id: int):
     """Return the current roster for a team."""
-
-    # mlbam_id = (
-    #     TeamIdInfo.objects.filter(id=team_id)
-    #     .values_list('mlbam_team_id', flat=True)
-    #     .first()
-    # )
-    # if mlbam_id is None:
-    #     return Response({'error': 'Team not found'}, status=404)
 
     season = datetime.now().year
 

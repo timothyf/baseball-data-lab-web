@@ -1,5 +1,6 @@
 from unittest.mock import patch
 from django.test import TestCase, Client
+import pytest
 
 
 class GameDataApiTests(TestCase):
