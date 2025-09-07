@@ -75,7 +75,7 @@ class HallOfFameVote(models.Model):
     year = models.IntegerField(null=True)
     voted_by = models.CharField(max_length=100, null=True)
     ballots = models.IntegerField(null=True)
-    needed = models.IntegerField(null=True)
+    votes_needed = models.IntegerField(null=True)
     votes = models.IntegerField(null=True)
     inducted = models.BooleanField(null=True)
     category = models.CharField(max_length=50, null=True)
