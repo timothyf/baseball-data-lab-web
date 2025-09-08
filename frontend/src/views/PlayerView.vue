@@ -74,7 +74,7 @@
         <TabPanel v-if="splitsAvailable" header="Splits">
           <PlayerSplits :id="id" />
         </TabPanel>
-        <TabPanel header="Game Log">
+        <TabPanel v-if="gameLogAvailable" header="Game Log">
           <PlayerGameLog v-if="position" :id="id" :stat-type="statType" />
         </TabPanel>
         <TabPanel header="Charts & Trends">
@@ -95,7 +95,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import LoadingDialog from '../components/LoadingDialog.vue';
 import { useTeamColors } from '../composables/useTeamColors.js';
-import { fetchPlayer, fetchPlayerSplits } from '../services/api.js';
+import { fetchPlayer, fetchPlayerSplits, fetchPlayerGameLog } from '../services/api.js';
 
 const { id } = defineProps({
   id: String
@@ -117,6 +117,7 @@ const draft = ref(null);
 const mlbDebutDate = ref('');
 const loading = ref(true);
 const splitsAvailable = ref(false);
+const gameLogAvailable = ref(false);
 
 const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
 
@@ -197,6 +198,12 @@ onMounted(async () => {
         splits.monthly?.pitching?.length
       )
     );
+
+    if (position.value) {
+      const season = new Date().getFullYear();
+      const gameLog = await fetchPlayerGameLog(id, statType.value, season);
+      gameLogAvailable.value = Boolean(gameLog?.stats?.[0]?.splits?.length);
+    }
   } finally {
     loading.value = false;
   }
