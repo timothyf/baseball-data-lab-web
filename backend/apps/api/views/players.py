@@ -61,20 +61,48 @@ def player_search(request):
         .values('id', 'name_full', 'key_mlbam')[:10]
     )
 
-    results = []
+    # Gather MLBAM ids to fetch team data in a single API call
+    mlbam_ids = []
+    normalized_rows = []
     for row in rows:
         key_mlbam = row.get('key_mlbam')
         if key_mlbam is not None:
             key_mlbam = str(key_mlbam)
             if key_mlbam.endswith('.0'):
                 key_mlbam = key_mlbam[:-2]
-        results.append(
-            {
-                "id": row['id'],
-                "name_full": row['name_full'],
-                "key_mlbam": key_mlbam,
-            }
-        )
+            mlbam_ids.append(key_mlbam)
+        normalized_rows.append({
+            "id": row['id'],
+            "name_full": row['name_full'],
+            "key_mlbam": key_mlbam,
+        })
+
+    team_lookup = {}
+    if mlbam_ids:
+        try:
+            resp = requests.get(
+                "https://statsapi.mlb.com/api/v1/people",
+                params={"personIds": ",".join(mlbam_ids)},
+                timeout=5,
+            )
+            if resp.ok:
+                people = resp.json().get("people") or []
+                for person in people:
+                    pid = str(person.get("id"))
+                    team = (person.get("currentTeam") or {}).get("name")
+                    team_lookup[pid] = team
+        except Exception:  # pragma: no cover - network failure
+            pass
+
+    results = []
+    for row in normalized_rows:
+        results.append({
+            "id": row["id"],
+            "name_full": row["name_full"],
+            "key_mlbam": row["key_mlbam"],
+            "team_name": team_lookup.get(row["key_mlbam"]),
+        })
+
     return Response(results)
 
 

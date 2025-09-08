@@ -8,7 +8,10 @@
     :placeholder="placeholder"
   >
     <template #option="{ option }">
-      <div>{{ option[optionLabel] }}</div>
+      <div>
+        {{ option[optionLabel] }}
+        <span v-if="option.team_name"> - {{ option.team_name }}</span>
+      </div>
     </template>
   </AutoComplete>
 </template>
