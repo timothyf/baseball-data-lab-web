@@ -63,22 +63,34 @@ function sortBy(key) {
 }
 
 const sortedPlayers = computed(() => {
+  const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
   return [...players.value].sort((a, b) => {
-    let valA = a[sortKey.value];
-    let valB = b[sortKey.value];
+    const key = sortKey.value;
+    let valA = a[key];
+    let valB = b[key];
 
-    if (sortKey.value === 'year' || sortKey.value === 'mlbam_id') {
-      // ensure numeric comparison
-      valA = typeof valA === 'number' ? valA : parseInt(valA, 10) || 0;
-      valB = typeof valB === 'number' ? valB : parseInt(valB, 10) || 0;
+    if (key === 'year' || key === 'mlbam_id') {
+      // ensure numeric comparison and push invalid values to the end
+      valA = Number(valA);
+      valB = Number(valB);
+
+      const aInvalid = Number.isNaN(valA);
+      const bInvalid = Number.isNaN(valB);
+      if (aInvalid && bInvalid) return 0;
+      if (aInvalid) return 1;
+      if (bInvalid) return -1;
+
       return sortAsc.value ? valA - valB : valB - valA;
     }
 
-    valA = valA ?? '';
-    valB = valB ?? '';
-    return sortAsc.value
-      ? String(valA).localeCompare(String(valB))
-      : String(valB).localeCompare(String(valA));
+    valA = (valA ?? '').toString();
+    valB = (valB ?? '').toString();
+
+    if (!valA && !valB) return 0;
+    if (!valA) return 1;
+    if (!valB) return -1;
+
+    return sortAsc.value ? collator.compare(valA, valB) : collator.compare(valB, valA);
   });
 });
 

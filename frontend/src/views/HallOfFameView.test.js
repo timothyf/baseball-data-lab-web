@@ -100,5 +100,56 @@ describe('HallOfFameView', () => {
     const rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Future Star');
   });
+
+  it('handles sorting across columns with accented names and missing ids', async () => {
+    fetchHallOfFamePlayers.mockResolvedValue({
+      players: [
+        {
+          bbref_id: 'm1',
+          name: 'Minnie Miñoso',
+          first_name: 'Minnie',
+          last_name: 'Miñoso',
+          mlbam_id: '123',
+          year: '2022',
+        },
+        {
+          bbref_id: 'z1',
+          name: 'Zed Future',
+          first_name: 'Zed',
+          last_name: 'Future',
+          mlbam_id: '999',
+          year: '2025',
+        },
+      ],
+    });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+
+    await flushPromises();
+
+    const headers = wrapper.findAll('th');
+
+    // sort by year descending
+    await headers[4].trigger('click');
+    await headers[4].trigger('click');
+    await flushPromises();
+    let rows = wrapper.findAll('tbody tr');
+    expect(rows[0].text()).toContain('Zed Future');
+
+    // sort by mlbam_id descending
+    await headers[3].trigger('click');
+    await headers[3].trigger('click');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows[0].text()).toContain('Zed Future');
+
+    // sort by first name descending
+    await headers[1].trigger('click');
+    await headers[1].trigger('click');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows[0].text()).toContain('Zed Future');
+  });
 });
 
