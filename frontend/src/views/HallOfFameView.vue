@@ -68,16 +68,17 @@ const sortedPlayers = computed(() => {
     let valB = b[sortKey.value];
 
     if (sortKey.value === 'year' || sortKey.value === 'mlbam_id') {
-      valA = Number(valA) || 0;
-      valB = Number(valB) || 0;
-    } else {
-      valA = valA ?? '';
-      valB = valB ?? '';
+      // ensure numeric comparison
+      valA = typeof valA === 'number' ? valA : parseInt(valA, 10) || 0;
+      valB = typeof valB === 'number' ? valB : parseInt(valB, 10) || 0;
+      return sortAsc.value ? valA - valB : valB - valA;
     }
 
-    if (valA < valB) return sortAsc.value ? -1 : 1;
-    if (valA > valB) return sortAsc.value ? 1 : -1;
-    return 0;
+    valA = valA ?? '';
+    valB = valB ?? '';
+    return sortAsc.value
+      ? String(valA).localeCompare(String(valB))
+      : String(valB).localeCompare(String(valA));
   });
 });
 
