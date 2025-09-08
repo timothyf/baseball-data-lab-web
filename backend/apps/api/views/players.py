@@ -116,33 +116,23 @@ def player_headshot(request, client, player_id: int):
 def player_info(request, client, player_id: int):
     """Return basic information about a player."""
 
-    key_mlbam = (
-        PlayerIdInfo.objects.filter(id=player_id)
-        .values_list("key_mlbam", flat=True)
-        .first()
-    )
-    if key_mlbam is None:
-        key_mlbam = (
-            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
-            .values_list("key_mlbam", flat=True)
-            .first()
-        )
-        if key_mlbam is None:
-            key_mlbam = str(player_id)
-
-    key_mlbam = str(key_mlbam)
-    if key_mlbam.endswith('.0'):
-        key_mlbam = key_mlbam[:-2]
-
     try:
-        info = client.fetch_player_info(int(key_mlbam))
+        logger.info("Fetching info for player_id=%s", player_id)
+        info = client.fetch_player_info(int(player_id))
         team = info.get("currentTeam", {}) or {}
         pos = info.get("primaryPosition", {}) or {}
         bat = info.get("batSide", {}) or {}
         throw = info.get("pitchHand", {}) or {}
 
-        draft = info.get("drafts", {})[0] or {}
-        draft_team = draft.get("team", {}) or {}
+        logger.info("Processing draft info for player_id=%s", player_id)
+        drafts = info.get("drafts") or []
+        draft = {}
+        if isinstance(drafts, list) and drafts:
+            first = drafts[0] or {}
+            if isinstance(first, dict):
+                draft = first
+
+        draft_team = draft.get("team") or {}
         draft_data = {
             "year": draft.get("year"),
             "round": draft.get("pickRound"),
@@ -150,8 +140,10 @@ def player_info(request, client, player_id: int):
             "overall": draft.get("pickNumber"),
             "team_id": draft_team.get("id"),
             "team_name": draft_team.get("name"),
-            "school": draft.get("school")
+            "school": draft.get("school"),
         } if draft else None
+
+        logger.info("Set draft data for player_id=%s: %s", player_id, draft_data)
 
         birth_city = info.get("birthCity")
         birth_state = info.get("birthStateProvince")
