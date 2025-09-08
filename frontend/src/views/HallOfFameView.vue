@@ -63,12 +63,34 @@ function sortBy(key) {
 }
 
 const sortedPlayers = computed(() => {
+  const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
   return [...players.value].sort((a, b) => {
-    const valA = a[sortKey.value] ?? '';
-    const valB = b[sortKey.value] ?? '';
-    if (valA < valB) return sortAsc.value ? -1 : 1;
-    if (valA > valB) return sortAsc.value ? 1 : -1;
-    return 0;
+    const key = sortKey.value;
+    let valA = a[key];
+    let valB = b[key];
+
+    if (key === 'year' || key === 'mlbam_id') {
+      // ensure numeric comparison and push invalid values to the end
+      valA = Number(valA);
+      valB = Number(valB);
+
+      const aInvalid = Number.isNaN(valA);
+      const bInvalid = Number.isNaN(valB);
+      if (aInvalid && bInvalid) return 0;
+      if (aInvalid) return 1;
+      if (bInvalid) return -1;
+
+      return sortAsc.value ? valA - valB : valB - valA;
+    }
+
+    valA = (valA ?? '').toString();
+    valB = (valB ?? '').toString();
+
+    if (!valA && !valB) return 0;
+    if (!valA) return 1;
+    if (!valB) return -1;
+
+    return sortAsc.value ? collator.compare(valA, valB) : collator.compare(valB, valA);
   });
 });
 
@@ -77,9 +99,11 @@ onMounted(async () => {
     const data = await fetchHallOfFamePlayers();
     players.value = (data?.players || []).map((p) => {
       const mlbam = Number.parseInt(p.mlbam_id, 10);
+      const year = Number.parseInt(p.year, 10);
       return {
         ...p,
         mlbam_id: Number.isNaN(mlbam) ? null : mlbam,
+        year: Number.isNaN(year) ? null : year,
       };
     });
   } catch (e) {
