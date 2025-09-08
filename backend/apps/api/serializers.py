@@ -9,6 +9,7 @@ class PlayerSearchResultSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name_full = serializers.CharField()
     key_mlbam = serializers.CharField(allow_null=True)
+    team_name = serializers.CharField(allow_null=True)
 
 
 class DraftInfoSerializer(serializers.Serializer):
