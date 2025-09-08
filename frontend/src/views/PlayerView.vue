@@ -71,7 +71,7 @@
         <TabPanel header="Stats">
           <PlayerStats :id="id" />
         </TabPanel>
-        <TabPanel header="Splits">
+        <TabPanel v-if="splitsAvailable" header="Splits">
           <PlayerSplits :id="id" />
         </TabPanel>
         <TabPanel header="Game Log">
@@ -95,7 +95,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import LoadingDialog from '../components/LoadingDialog.vue';
 import { useTeamColors } from '../composables/useTeamColors.js';
-import { fetchPlayer } from '../services/api.js';
+import { fetchPlayer, fetchPlayerSplits } from '../services/api.js';
 
 const { id } = defineProps({
   id: String
@@ -116,6 +116,7 @@ const throwSide = ref('');
 const draft = ref(null);
 const mlbDebutDate = ref('');
 const loading = ref(true);
+const splitsAvailable = ref(false);
 
 const statType = computed(() => (position.value === 'Pitcher' ? 'pitching' : 'hitting'));
 
@@ -170,7 +171,10 @@ const hasBio = computed(() =>
 
 onMounted(async () => {
   try {
-    const data = await fetchPlayer(id);
+    const [data, splits] = await Promise.all([
+      fetchPlayer(id),
+      fetchPlayerSplits(id)
+    ]);
     if (data) {
       name.value = data.name || '';
       teamName.value = data.team_name || '';
@@ -185,6 +189,14 @@ onMounted(async () => {
       throwSide.value = data.throw_side || '';
       draft.value = data.draft || null;
     }
+    splitsAvailable.value = Boolean(
+      splits && (
+        splits.batting?.length ||
+        splits.pitching?.length ||
+        splits.monthly?.batting?.length ||
+        splits.monthly?.pitching?.length
+      )
+    );
   } finally {
     loading.value = false;
   }
