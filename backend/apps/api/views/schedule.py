@@ -90,17 +90,26 @@ def game_data(request, client, game_pk: int):
     try:
         data = client.fetch_game_live_feed(game_pk)
 
-        home_id = data.get('home_team_data', {}).get('id')
-        away_id = data.get('away_team_data', {}).get('id')
+        logger.info("Fetched game data for game_pk=%s", game_pk)
+        logger.info("away team id: %s",  data.get('gameData').get('teams').get('away').get('id'))
 
-        if home_id:
-            data['teams']['home']['team']['logo_url'] = client.fetch_team_spot_url(
-                home_id, 32
-            )
-        if away_id:
-            data['teams']['away']['team']['logo_url'] = client.fetch_team_spot_url(
-                away_id, 32
-            )
+        home_id = data.get('gameData', {}).get('teams', {}).get('home', {}).get('id')
+        away_id = data.get('gameData', {}).get('teams', {}).get('away', {}).get('id')
+
+        try:
+            if home_id:
+                logger.info("Fetching logo for home team id=%s", home_id)
+                data['gameData']['teams']['home']['logo_url'] = client.fetch_team_spot_url(
+                    home_id, 32
+                )
+            if away_id:
+                logger.info("Fetching logo for away team id=%s", away_id)
+                data['gameData']['teams']['away']['logo_url'] = client.fetch_team_spot_url(
+                    away_id, 32
+                )
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.error("Error fetching team logo: %s", exc)
+        
 
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
