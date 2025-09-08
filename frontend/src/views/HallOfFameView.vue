@@ -64,11 +64,21 @@ function sortBy(key) {
 
 const sortedPlayers = computed(() => {
   return [...players.value].sort((a, b) => {
-    const valA = a[sortKey.value] ?? '';
-    const valB = b[sortKey.value] ?? '';
-    if (valA < valB) return sortAsc.value ? -1 : 1;
-    if (valA > valB) return sortAsc.value ? 1 : -1;
-    return 0;
+    let valA = a[sortKey.value];
+    let valB = b[sortKey.value];
+
+    if (sortKey.value === 'year' || sortKey.value === 'mlbam_id') {
+      // ensure numeric comparison
+      valA = typeof valA === 'number' ? valA : parseInt(valA, 10) || 0;
+      valB = typeof valB === 'number' ? valB : parseInt(valB, 10) || 0;
+      return sortAsc.value ? valA - valB : valB - valA;
+    }
+
+    valA = valA ?? '';
+    valB = valB ?? '';
+    return sortAsc.value
+      ? String(valA).localeCompare(String(valB))
+      : String(valB).localeCompare(String(valA));
   });
 });
 
@@ -77,9 +87,11 @@ onMounted(async () => {
     const data = await fetchHallOfFamePlayers();
     players.value = (data?.players || []).map((p) => {
       const mlbam = Number.parseInt(p.mlbam_id, 10);
+      const year = Number.parseInt(p.year, 10);
       return {
         ...p,
         mlbam_id: Number.isNaN(mlbam) ? null : mlbam,
+        year: Number.isNaN(year) ? null : year,
       };
     });
   } catch (e) {
