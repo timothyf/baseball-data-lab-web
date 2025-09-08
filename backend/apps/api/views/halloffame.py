@@ -3,10 +3,12 @@ from rest_framework.response import Response
 
 from ..models import HallOfFameVote
 from ..models import PlayerIdInfo
+from ..utils import require_unified_client
 
 
 @api_view(['GET'])
-def hall_of_fame_players(request):  # noqa: F841 - hall_of_fame unused
+@require_unified_client
+def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
     # enrich each inducted Player with mlbam_id from PlayerIdInfo by bbref_id
 
     players = list(
@@ -47,6 +49,20 @@ def hall_of_fame_players(request):  # noqa: F841 - hall_of_fame unused
         p['name'] = info.get('name')
         p['first_name'] = info.get('first_name')
         p['last_name'] = info.get('last_name')
+
+        # Attempt to fetch the player's primary position if an mlbam_id is
+        # available. Any errors from the external client are swallowed so that
+        # failure to fetch a position does not break the entire endpoint.
+        mlbam_id = p.get('mlbam_id')
+        position = None
+        if mlbam_id:
+            try:
+                data = client.fetch_player_info(int(mlbam_id)) or {}
+                pos = data.get('primaryPosition') or {}
+                position = pos.get('name')
+            except Exception:  # pragma: no cover - defensive
+                position = None
+        p['position'] = position
 
     return Response({'players': players})
 

@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from unittest.mock import patch
 
 from apps.api.models import HallOfFameVote, PlayerIdInfo
 
@@ -7,7 +8,12 @@ class HallOfFamePlayersApiTests(TestCase):
     def setUp(self):
         self.client = Client(HTTP_HOST='localhost')
 
-    def test_returns_inducted_players_with_mlbam_ids(self):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_returns_inducted_players_with_mlbam_ids(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_player_info.return_value = {
+            'primaryPosition': {'name': 'Pitcher'}
+        }
         HallOfFameVote.objects.create(bbref_id='ruthba01', year=1936, inducted=True, category='Player')
         HallOfFameVote.objects.create(bbref_id='doejo01', year=2000, inducted=True, category='Player')
         HallOfFameVote.objects.create(bbref_id='notind01', year=1990, inducted=False, category='Player')
@@ -33,6 +39,7 @@ class HallOfFamePlayersApiTests(TestCase):
                 'name': 'Babe Ruth',
                 'first_name': 'Babe',
                 'last_name': 'Ruth',
+                'position': 'Pitcher',
             },
             players,
         )
@@ -44,6 +51,7 @@ class HallOfFamePlayersApiTests(TestCase):
                 'name': 'John Doe',
                 'first_name': 'John',
                 'last_name': 'Doe',
+                'position': None,
             },
             players,
         )
