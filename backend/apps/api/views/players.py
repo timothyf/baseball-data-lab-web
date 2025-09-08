@@ -61,20 +61,56 @@ def player_search(request):
         .values('id', 'name_full', 'key_mlbam')[:10]
     )
 
-    results = []
+    # Gather MLBAM ids to fetch team data in a single API call
+    mlbam_ids = []
+    normalized_rows = []
     for row in rows:
         key_mlbam = row.get('key_mlbam')
+        logger.info("Processing player: %s (MLBAM ID: %s)", row['name_full'], key_mlbam)
         if key_mlbam is not None:
             key_mlbam = str(key_mlbam)
             if key_mlbam.endswith('.0'):
                 key_mlbam = key_mlbam[:-2]
-        results.append(
-            {
-                "id": row['id'],
-                "name_full": row['name_full'],
-                "key_mlbam": key_mlbam,
-            }
-        )
+            mlbam_ids.append(key_mlbam)
+        normalized_rows.append({
+            "id": row['id'],
+            "name_full": row['name_full'],
+            "key_mlbam": key_mlbam,
+        })
+
+    team_lookup = {}
+    if mlbam_ids:
+        logger.info("Fetching team data for MLBAM IDs: %s", mlbam_ids)
+        try:
+            resp = requests.get(
+                            "https://statsapi.mlb.com/api/v1/people",
+                            params={
+                                "personIds": ",".join(mlbam_ids),
+                                "hydrate": "currentTeam",
+                            },
+                            timeout=5,
+                        )
+            if resp.ok:
+                people = resp.json().get("people") or []
+                for person in people:
+                    pid = str(person.get("id"))
+                    team = (person.get("currentTeam") or {}).get("name")
+                    team_lookup[pid] = team
+                    logger.info("Found team for MLBAM ID %s: %s", pid, team)
+        except Exception:  # pragma: no cover - network failure
+            logger.exception("Error fetching team data for player search")
+            pass
+
+    
+    results = []
+    for row in normalized_rows:
+        results.append({
+            "id": row["id"],
+            "name_full": row["name_full"],
+            "key_mlbam": row["key_mlbam"],
+            "team_name": team_lookup.get(row["key_mlbam"]),
+        })
+
     return Response(results)
 
 
@@ -117,14 +153,12 @@ def player_info(request, client, player_id: int):
     """Return basic information about a player."""
 
     try:
-        logger.info("Fetching info for player_id=%s", player_id)
         info = client.fetch_player_info(int(player_id))
         team = info.get("currentTeam", {}) or {}
         pos = info.get("primaryPosition", {}) or {}
         bat = info.get("batSide", {}) or {}
         throw = info.get("pitchHand", {}) or {}
 
-        logger.info("Processing draft info for player_id=%s", player_id)
         drafts = info.get("drafts") or []
         draft = {}
         if isinstance(drafts, list) and drafts:
@@ -143,7 +177,6 @@ def player_info(request, client, player_id: int):
             "school": draft.get("school"),
         } if draft else None
 
-        logger.info("Set draft data for player_id=%s: %s", player_id, draft_data)
 
         birth_city = info.get("birthCity")
         birth_state = info.get("birthStateProvince")
