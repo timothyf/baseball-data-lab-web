@@ -38,6 +38,7 @@
         </tr>
       </tbody>
     </table>
+    <LoadingDialog :visible="loading" />
   </section>
 </template>
 
@@ -45,10 +46,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { fetchHallOfFamePlayers } from '../services/api';
 import logger from '../utils/logger';
+import LoadingDialog from '../components/LoadingDialog.vue';
 
 const players = ref([]);
 const sortKey = ref('name');
 const sortAsc = ref(true);
+const loading = ref(true);
 
 function sortBy(key) {
   if (sortKey.value === key) {
@@ -72,10 +75,18 @@ const sortedPlayers = computed(() => {
 onMounted(async () => {
   try {
     const data = await fetchHallOfFamePlayers();
-    players.value = data?.players || [];
+    players.value = (data?.players || []).map((p) => {
+      const mlbam = Number.parseInt(p.mlbam_id, 10);
+      return {
+        ...p,
+        mlbam_id: Number.isNaN(mlbam) ? null : mlbam,
+      };
+    });
   } catch (e) {
     logger.error('Failed to fetch Hall of Fame players:', e);
     players.value = [];
+  } finally {
+    loading.value = false;
   }
 });
 </script>
