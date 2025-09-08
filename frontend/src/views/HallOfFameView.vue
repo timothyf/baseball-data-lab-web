@@ -4,7 +4,6 @@
     <table v-if="players.length" class="hof-table">
       <thead>
         <tr>
-          <th @click="sortBy('name')">Player</th>
           <th @click="sortBy('first_name')">First Name</th>
           <th @click="sortBy('last_name')">Last Name</th>
           <th @click="sortBy('mlbam_id')">MLBAM ID</th>
@@ -13,15 +12,6 @@
       </thead>
       <tbody>
         <tr v-for="player in sortedPlayers" :key="player.bbref_id">
-          <td>
-            <RouterLink
-              v-if="player.mlbam_id"
-              :to="{ name: 'Player', params: { id: player.mlbam_id }, query: { name: player.name } }"
-            >
-              {{ player.name || player.bbref_id }}
-            </RouterLink>
-            <span v-else>{{ player.name || player.bbref_id }}</span>
-          </td>
           <td>{{ player.first_name }}</td>
           <td>{{ player.last_name }}</td>
           <td>

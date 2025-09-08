@@ -51,14 +51,14 @@ describe('HallOfFameView', () => {
     const rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);
     const cells = rows[0].findAll('td');
-    expect(cells[1].text()).toBe('Alpha');
-    expect(cells[2].text()).toBe('One');
+    expect(cells[0].text()).toBe('Alpha');
+    expect(cells[1].text()).toBe('One');
 
     // sort by year
-    await wrapper.findAll('th')[4].trigger('click');
+    await wrapper.findAll('th')[3].trigger('click');
     await flushPromises();
     const sortedRows = wrapper.findAll('tbody tr');
-    expect(sortedRows[0].text()).toContain('Beta Two');
+    expect(sortedRows[0].text()).toContain('Beta');
 
     expect(sortedRows[0].html()).toContain('https://www.mlb.com/player/2');
     expect(sortedRows[0].html()).not.toContain('2.0');
@@ -100,13 +100,13 @@ describe('HallOfFameView', () => {
     await flushPromises();
 
     // sort by year descending
-    const yearHeader = wrapper.findAll('th')[4];
+    const yearHeader = wrapper.findAll('th')[3];
     await yearHeader.trigger('click');
     await flushPromises();
     await yearHeader.trigger('click');
     await flushPromises();
     const rows2 = wrapper.findAll('tbody tr');
-    expect(rows2[0].text()).toContain('Dick Allen');
+    expect(rows2[0].text()).toContain('Dick');
 
     // sort by year ascending
     await yearHeader.trigger('click');
@@ -114,9 +114,9 @@ describe('HallOfFameView', () => {
     const rows3 = wrapper.findAll('tbody tr');
     const firstRowText = rows3[0].text();
     try {
-      expect(firstRowText).toContain('Minnie Miñoso');
+      expect(firstRowText).toContain('Minnie');
     } catch (err) {
-      console.error(`Expected Minnie Miñoso, got rows3[0].text(): ${firstRowText}`);
+      console.error(`Expected Minnie, got rows3[0].text(): ${firstRowText}`);
       throw err;
     }
 
@@ -124,7 +124,7 @@ describe('HallOfFameView', () => {
     await yearHeader.trigger('click');
     await flushPromises();
     const rows4 = wrapper.findAll('tbody tr');
-    expect(rows4[0].text()).toContain('Dick Allen');
+    expect(rows4[0].text()).toContain('Dick');
 
   });
 
@@ -158,31 +158,31 @@ describe('HallOfFameView', () => {
     const headers = wrapper.findAll('th');
 
     // sort by year descending
-    await headers[4].trigger('click');
-    await headers[4].trigger('click');
+    await headers[3].trigger('click');
+    await headers[3].trigger('click');
     await flushPromises();
     let rows = wrapper.findAll('tbody tr');
-    expect(rows[0].text()).toContain('Zed Future');
+    expect(rows[0].text()).toContain('Zed');
 
     // sort by year ascending
-    await headers[4].trigger('click');
+    await headers[3].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
-    expect(rows[0].text()).toContain('Minnie Miñoso');
+    expect(rows[0].text()).toContain('Minnie');
 
     // sort by mlbam_id descending
-    await headers[3].trigger('click');
-    await headers[3].trigger('click');
+    await headers[2].trigger('click');
+    await headers[2].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
-    expect(rows[0].text()).toContain('Zed Future');
+    expect(rows[0].text()).toContain('Zed');
 
     // sort by first name descending
-    await headers[1].trigger('click');
-    await headers[1].trigger('click');
+    await headers[0].trigger('click');
+    await headers[0].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
-    expect(rows[0].text()).toContain('Zed Future');
+    expect(rows[0].text()).toContain('Zed');
   });
 });
 
