@@ -26,10 +26,24 @@ class HallOfFamePlayersApiTests(TestCase):
 
         self.assertEqual(len(players), 2)
         self.assertIn(
-            {'bbref_id': 'ruthba01', 'year': 1936, 'mlbam_id': '12345', 'name': 'Babe Ruth'},
+            {
+                'bbref_id': 'ruthba01',
+                'year': 1936,
+                'mlbam_id': '12345',
+                'name': 'Babe Ruth',
+                'first_name': 'Babe',
+                'last_name': 'Ruth',
+            },
             players,
         )
         self.assertIn(
-            {'bbref_id': 'doejo01', 'year': 2000, 'mlbam_id': None, 'name': 'John Doe'},
+            {
+                'bbref_id': 'doejo01',
+                'year': 2000,
+                'mlbam_id': None,
+                'name': 'John Doe',
+                'first_name': 'John',
+                'last_name': 'Doe',
+            },
             players,
         )
