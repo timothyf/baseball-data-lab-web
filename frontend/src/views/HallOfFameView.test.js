@@ -19,20 +19,20 @@ describe('HallOfFameView', () => {
     fetchHallOfFamePlayers.mockResolvedValue({
       players: [
         {
-          bbref_id: 'b1',
-          name: 'Alpha One',
-          first_name: 'Alpha',
-          last_name: 'One',
-          mlbam_id: '1',
-          year: 1990,
-        },
-        {
           bbref_id: 'b2',
           name: 'Beta Two',
           first_name: 'Beta',
           last_name: 'Two',
           mlbam_id: '2',
           year: 1980,
+        },
+        {
+          bbref_id: 'b1',
+          name: 'Alpha One',
+          first_name: 'Alpha',
+          last_name: 'One',
+          mlbam_id: '1',
+          year: 1990,
         },
       ],
     });

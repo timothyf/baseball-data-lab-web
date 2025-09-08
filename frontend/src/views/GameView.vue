@@ -188,6 +188,7 @@
 </template>
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import logger from '../utils/logger';
 
 const { game_pk } = defineProps({
   game_pk: { type: [String, Number], required: true }
@@ -198,9 +199,11 @@ const game = ref(null);
 const homeTeam = computed(() =>
   game.value?.home_team_data || game.value?.gameData?.teams?.home || {}
 );
-const awayTeam = computed(() =>
-  game.value?.away_team_data || game.value?.gameData?.teams?.away || {}
-);
+const awayTeam = computed(() => {
+  const team =  game.value?.away_team_data || game.value?.gameData?.teams?.away || {};
+  logger.info('AWAY TEAM', team);
+  return team;
+});
 const gameDate = computed(
   () => game.value?.gameDate || game.value?.gameData?.datetime?.originalDate || ''
 );
