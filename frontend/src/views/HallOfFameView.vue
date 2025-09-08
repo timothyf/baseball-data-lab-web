@@ -49,7 +49,7 @@ import logger from '../utils/logger';
 import LoadingDialog from '../components/LoadingDialog.vue';
 
 const players = ref([]);
-const sortKey = ref('name');
+const sortKey = ref('last_name');
 const sortAsc = ref(true);
 const loading = ref(true);
 
