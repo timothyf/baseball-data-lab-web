@@ -83,5 +83,8 @@ def new_game(request, game_pk: int = None):
 def leaders(request):
     return render(request, 'web/leaders.html')
 
+def hall_of_fame(request):
+    return render(request, 'web/hall_of_fame.html')
+
 def developer(request):
     return render(request, 'web/developer.html')

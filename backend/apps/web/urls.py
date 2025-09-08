@@ -14,5 +14,5 @@ urlpatterns = [
     path('developer/', views.developer, name='developer'),
     path('leaders/', views.leaders, name='leaders'),
     path('game/<int:game_pk>/', views.game, name='game'),
-    path('new-game/<int:game_pk>/', views.new_game, name='new_game')
+    path('hall-of-fame/', views.hall_of_fame, name='hall_of_fame')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
