@@ -7,6 +7,7 @@
           <th @click="sortBy('name')">Player</th>
           <th @click="sortBy('first_name')">First Name</th>
           <th @click="sortBy('last_name')">Last Name</th>
+          <th @click="sortBy('position')">Position</th>
           <th @click="sortBy('mlbam_id')">MLBAM ID</th>
           <th @click="sortBy('year')">Year Inducted</th>
         </tr>
@@ -24,6 +25,7 @@
           </td>
           <td>{{ player.first_name }}</td>
           <td>{{ player.last_name }}</td>
+          <td>{{ player.position }}</td>
           <td>
             <a
               v-if="player.mlbam_id"

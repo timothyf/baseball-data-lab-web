@@ -23,6 +23,7 @@ describe('HallOfFameView', () => {
           name: 'Beta Two',
           first_name: 'Beta',
           last_name: 'Two',
+          position: 'Pitcher',
           mlbam_id: '2',
           year: 1980,
         },
@@ -31,6 +32,7 @@ describe('HallOfFameView', () => {
           name: 'Alpha One',
           first_name: 'Alpha',
           last_name: 'One',
+          position: 'Shortstop',
           mlbam_id: '1',
           year: 1990,
         },
@@ -53,9 +55,10 @@ describe('HallOfFameView', () => {
     const cells = rows[0].findAll('td');
     expect(cells[1].text()).toBe('Alpha');
     expect(cells[2].text()).toBe('One');
+    expect(cells[3].text()).toBe('Shortstop');
 
     // sort by year
-    await wrapper.findAll('th')[4].trigger('click');
+    await wrapper.findAll('th')[5].trigger('click');
     await flushPromises();
     const sortedRows = wrapper.findAll('tbody tr');
     expect(sortedRows[0].text()).toContain('Beta Two');
@@ -72,6 +75,7 @@ describe('HallOfFameView', () => {
           name: 'Minnie Miñoso',
           first_name: 'Minnie',
           last_name: 'Miñoso',
+          position: 'Outfielder',
           mlbam_id: '3',
           year: '2022',
         },
@@ -80,6 +84,7 @@ describe('HallOfFameView', () => {
           name: 'Future Star',
           first_name: 'Future',
           last_name: 'Star',
+          position: 'Catcher',
           mlbam_id: '4',
           year: '2023',
         },
@@ -88,6 +93,7 @@ describe('HallOfFameView', () => {
           name: 'Dick Allen',
           first_name: 'Dick',
           last_name: 'Allen',
+          position: 'First Baseman',
           mlbam_id: '110157',
           year: '2025',
         }
@@ -100,7 +106,7 @@ describe('HallOfFameView', () => {
     await flushPromises();
 
     // sort by year descending
-    const yearHeader = wrapper.findAll('th')[4];
+    const yearHeader = wrapper.findAll('th')[5];
     await yearHeader.trigger('click');
     await flushPromises();
     await yearHeader.trigger('click');
@@ -136,6 +142,7 @@ describe('HallOfFameView', () => {
           name: 'Minnie Miñoso',
           first_name: 'Minnie',
           last_name: 'Miñoso',
+          position: 'Outfielder',
           mlbam_id: '123',
           year: '2022',
         },
@@ -144,6 +151,7 @@ describe('HallOfFameView', () => {
           name: 'Zed Future',
           first_name: 'Zed',
           last_name: 'Future',
+          position: 'Pitcher',
           mlbam_id: '999',
           year: '2025',
         },
@@ -158,21 +166,21 @@ describe('HallOfFameView', () => {
     const headers = wrapper.findAll('th');
 
     // sort by year descending
-    await headers[4].trigger('click');
-    await headers[4].trigger('click');
+    await headers[5].trigger('click');
+    await headers[5].trigger('click');
     await flushPromises();
     let rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed Future');
 
     // sort by year ascending
-    await headers[4].trigger('click');
+    await headers[5].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Minnie Miñoso');
 
     // sort by mlbam_id descending
-    await headers[3].trigger('click');
-    await headers[3].trigger('click');
+    await headers[4].trigger('click');
+    await headers[4].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed Future');
