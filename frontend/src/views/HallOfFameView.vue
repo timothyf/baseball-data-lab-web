@@ -62,35 +62,36 @@ function sortBy(key) {
   }
 }
 
+const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+const numericKeys = new Set(['year', 'mlbam_id']);
+
 const sortedPlayers = computed(() => {
-  const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+  const key = sortKey.value;
+  const asc = sortAsc.value;
+  const isNumeric = numericKeys.has(key);
+
   return [...players.value].sort((a, b) => {
-    const key = sortKey.value;
-    let valA = a[key];
-    let valB = b[key];
+    const aVal = a[key];
+    const bVal = b[key];
 
-    if (key === 'year' || key === 'mlbam_id') {
-      // ensure numeric comparison and push invalid values to the end
-      valA = Number(valA);
-      valB = Number(valB);
-
-      const aInvalid = Number.isNaN(valA);
-      const bInvalid = Number.isNaN(valB);
-      if (aInvalid && bInvalid) return 0;
-      if (aInvalid) return 1;
-      if (bInvalid) return -1;
-
-      return sortAsc.value ? valA - valB : valB - valA;
+    if (isNumeric) {
+      const an = Number(aVal);
+      const bn = Number(bVal);
+      const aBad = Number.isNaN(an);
+      const bBad = Number.isNaN(bn);
+      if (aBad || bBad) return aBad === bBad ? 0 : aBad ? 1 : -1;
+      const cmp = an - bn;
+      return asc ? cmp : -cmp;
     }
 
-    valA = (valA ?? '').toString();
-    valB = (valB ?? '').toString();
+    const as = (aVal ?? '').toString();
+    const bs = (bVal ?? '').toString();
+    const aEmpty = !as;
+    const bEmpty = !bs;
+    if (aEmpty || bEmpty) return aEmpty === bEmpty ? 0 : aEmpty ? 1 : -1;
 
-    if (!valA && !valB) return 0;
-    if (!valA) return 1;
-    if (!valB) return -1;
-
-    return sortAsc.value ? collator.compare(valA, valB) : collator.compare(valB, valA);
+    const cmp = collator.compare(as, bs);
+    return asc ? cmp : -cmp;
   });
 });
 

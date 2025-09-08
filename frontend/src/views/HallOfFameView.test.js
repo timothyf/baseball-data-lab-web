@@ -69,9 +69,9 @@ describe('HallOfFameView', () => {
       players: [
         {
           bbref_id: 'm1',
-          name: 'Minnie Minoso',
+          name: 'Minnie Miñoso',
           first_name: 'Minnie',
-          last_name: 'Minoso',
+          last_name: 'Miñoso',
           mlbam_id: '3',
           year: '2022',
         },
@@ -81,8 +81,16 @@ describe('HallOfFameView', () => {
           first_name: 'Future',
           last_name: 'Star',
           mlbam_id: '4',
-          year: '2025',
+          year: '2023',
         },
+        {
+          bbref_id: 'd1',
+          name: 'Dick Allen',
+          first_name: 'Dick',
+          last_name: 'Allen',
+          mlbam_id: '110157',
+          year: '2025',
+        }
       ],
     });
 
@@ -91,14 +99,33 @@ describe('HallOfFameView', () => {
 
     await flushPromises();
 
+    // sort by year descending
     const yearHeader = wrapper.findAll('th')[4];
     await yearHeader.trigger('click');
     await flushPromises();
     await yearHeader.trigger('click');
     await flushPromises();
+    const rows2 = wrapper.findAll('tbody tr');
+    expect(rows2[0].text()).toContain('Dick Allen');
 
-    const rows = wrapper.findAll('tbody tr');
-    expect(rows[0].text()).toContain('Future Star');
+    // sort by year ascending
+    await yearHeader.trigger('click');
+    await flushPromises();
+    const rows3 = wrapper.findAll('tbody tr');
+    const firstRowText = rows3[0].text();
+    try {
+      expect(firstRowText).toContain('Minnie Miñoso');
+    } catch (err) {
+      console.error(`Expected Minnie Miñoso, got rows3[0].text(): ${firstRowText}`);
+      throw err;
+    }
+
+    // sort by year descending
+    await yearHeader.trigger('click');
+    await flushPromises();
+    const rows4 = wrapper.findAll('tbody tr');
+    expect(rows4[0].text()).toContain('Dick Allen');
+
   });
 
   it('handles sorting across columns with accented names and missing ids', async () => {
@@ -136,6 +163,12 @@ describe('HallOfFameView', () => {
     await flushPromises();
     let rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed Future');
+
+    // sort by year ascending
+    await headers[4].trigger('click');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows[0].text()).toContain('Minnie Miñoso');
 
     // sort by mlbam_id descending
     await headers[3].trigger('click');
