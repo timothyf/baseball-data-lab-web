@@ -12,8 +12,8 @@ describe('HallOfFameView', () => {
   it('fetches and displays players with sortable columns', async () => {
     fetchHallOfFamePlayers.mockResolvedValue({
       players: [
-        { bbref_id: 'b1', name: 'Alpha', mlbam_id: '1', year: 1990 },
-        { bbref_id: 'b2', name: 'Beta', mlbam_id: '2', year: 1980 },
+        { bbref_id: 'b1', name: 'Alpha', mlbam_id: '1.0', year: 1990 },
+        { bbref_id: 'b2', name: 'Beta', mlbam_id: '2.0', year: 1980 },
       ],
     });
 
@@ -33,6 +33,7 @@ describe('HallOfFameView', () => {
     expect(sortedRows[0].text()).toContain('Beta');
 
     expect(sortedRows[0].html()).toContain('https://www.mlb.com/player/2');
+    expect(sortedRows[0].html()).not.toContain('2.0');
   });
 });
 

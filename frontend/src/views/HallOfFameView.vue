@@ -68,7 +68,13 @@ const sortedPlayers = computed(() => {
 onMounted(async () => {
   try {
     const data = await fetchHallOfFamePlayers();
-    players.value = data?.players || [];
+    players.value = (data?.players || []).map((p) => {
+      const mlbam = Number.parseInt(p.mlbam_id, 10);
+      return {
+        ...p,
+        mlbam_id: Number.isNaN(mlbam) ? null : mlbam,
+      };
+    });
   } catch (e) {
     logger.error('Failed to fetch Hall of Fame players:', e);
     players.value = [];
