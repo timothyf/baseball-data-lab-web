@@ -2,6 +2,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 
+const DialogStub = { props: ['visible'], template: '<div></div>' };
+const ProgressSpinnerStub = { template: '<div></div>' };
+
+vi.mock('primevue/dialog', () => ({ default: DialogStub }));
+vi.mock('primevue/progressspinner', () => ({ default: ProgressSpinnerStub }));
+
 const fetchHallOfFamePlayers = vi.fn();
 
 vi.mock('../services/api', () => ({
@@ -20,7 +26,13 @@ describe('HallOfFameView', () => {
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
 
+    let dialog = wrapper.findComponent(DialogStub);
+    expect(dialog.props('visible')).toBe(true);
+
     await flushPromises();
+
+    dialog = wrapper.findComponent(DialogStub);
+    expect(dialog.props('visible')).toBe(false);
 
     const rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);
