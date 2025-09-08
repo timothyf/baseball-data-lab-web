@@ -63,5 +63,42 @@ describe('HallOfFameView', () => {
     expect(sortedRows[0].html()).toContain('https://www.mlb.com/player/2');
     expect(sortedRows[0].html()).not.toContain('2.0');
   });
+
+  it('sorts years numerically when reversing sort order', async () => {
+    fetchHallOfFamePlayers.mockResolvedValue({
+      players: [
+        {
+          bbref_id: 'm1',
+          name: 'Minnie Minoso',
+          first_name: 'Minnie',
+          last_name: 'Minoso',
+          mlbam_id: '3',
+          year: '2022',
+        },
+        {
+          bbref_id: 'f1',
+          name: 'Future Star',
+          first_name: 'Future',
+          last_name: 'Star',
+          mlbam_id: '4',
+          year: '2025',
+        },
+      ],
+    });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+
+    await flushPromises();
+
+    const yearHeader = wrapper.findAll('th')[4];
+    await yearHeader.trigger('click');
+    await flushPromises();
+    await yearHeader.trigger('click');
+    await flushPromises();
+
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows[0].text()).toContain('Future Star');
+  });
 });
 
