@@ -1,5 +1,6 @@
 from asyncio.log import logger
 from django.core.cache import cache
+from django.db.models import Max
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
@@ -19,21 +20,9 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
     players = list(
         HallOfFameVote.objects
         .filter(inducted=True, category='Player')
-        .values('bbref_id', 'year')
+        .values('bbref_id')
+        .annotate(year=Max('year'))
     )
-
-    latest = {}
-    for p in players:
-        bid = p.get('bbref_id')
-        y = p.get('year')
-        cur = latest.get(bid)
-        if cur is None:
-            latest[bid] = p
-        else:
-            cy = cur.get('year')
-            if cy is None or (y is not None and y > cy):
-                latest[bid] = p
-    players = list(latest.values())
 
     bbref_ids = [p['bbref_id'] for p in players if p['bbref_id']]
     info_map = {
