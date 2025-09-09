@@ -123,11 +123,15 @@ onBeforeUnmount(() => {
 }
 .chart {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 400px;
+  height: 400px;
 }
 .chart h3 {
   text-align: center;
+}
+.chart canvas {
+  width: 300px !important;
+  height: 300px !important;
 }
 </style>
 
