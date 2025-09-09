@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
-  <polygon points="150,20 280,150 150,280 20,150" fill="none" stroke="#d3d3d3" stroke-width="2" />
-  <polygon points="150,100 200,150 150,200 100,150" fill="none" stroke="#d3d3d3" stroke-width="1" />
+  <!-- Outer foul lines and outfield boundary -->
+  <path d="M150 20 L280 150 L150 280 L20 150 Z" fill="none" stroke="#d3d3d3" stroke-width="2" />
+  <!-- Infield base paths -->
+  <path d="M150 240 L210 180 L150 120 L90 180 Z" fill="none" stroke="#d3d3d3" stroke-width="1" />
+  <!-- Home plate -->
+  <path d="M150 240 L140 240 L140 250 L150 260 L160 250 L160 240 Z" fill="none" stroke="#d3d3d3" stroke-width="1" />
 </svg>
