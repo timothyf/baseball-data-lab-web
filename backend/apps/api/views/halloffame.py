@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
@@ -80,7 +81,10 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
         position = None
         if mlbam_id:
             try:
-                data = client.fetch_player_info(int(mlbam_id)) or {}
+                mid_str = str(mlbam_id).strip()
+                if mid_str.endswith('.0'):
+                    mid_str = mid_str[:-2]
+                data = client.fetch_player_info(int(mid_str)) or {}
                 pos = data.get('primaryPosition') or {}
                 position = pos.get('name')
             except Exception:  # pragma: no cover - defensive
