@@ -78,7 +78,8 @@
           <PlayerGameLog v-if="position" :id="id" :stat-type="statType" />
         </TabPanel>
         <TabPanel header="Charts & Trends">
-          <p>Charts & Trends coming soon.</p>
+          <BatterSprayChart v-if="statType === 'hitting'" />
+          <p v-else>Charts & Trends coming soon.</p>
         </TabPanel>
       </TabView>
     </div>
@@ -91,6 +92,7 @@ import { ref, computed, onMounted } from 'vue';
 import PlayerStats from '../components/PlayerStats.vue';
 import PlayerSplits from '../components/PlayerSplits.vue';
 import PlayerGameLog from '../components/PlayerGameLog.vue';
+import BatterSprayChart from '../components/BatterSprayChart.vue';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import LoadingDialog from '../components/LoadingDialog.vue';

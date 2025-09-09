@@ -9,11 +9,13 @@ const PlayerGameLogStub = { template: '<div class="gamelog">Game Log Content</di
 const LoadingDialogStub = { template: '<div></div>' };
 const TabViewStub = { template: '<div><slot></slot></div>' };
 const TabPanelStub = { template: '<div><slot></slot></div>' };
+const BatterSprayChartStub = { template: '<div class="spray-chart"></div>' };
 
 vi.mock('../components/PlayerStats.vue', () => ({ default: PlayerStatsStub }));
 vi.mock('../components/PlayerSplits.vue', () => ({ default: PlayerSplitsStub }));
 vi.mock('../components/PlayerGameLog.vue', () => ({ default: PlayerGameLogStub }));
 vi.mock('../components/LoadingDialog.vue', () => ({ default: LoadingDialogStub }));
+vi.mock('../components/BatterSprayChart.vue', () => ({ default: BatterSprayChartStub }));
 vi.mock('primevue/tabview', () => ({ default: TabViewStub }));
 vi.mock('primevue/tabpanel', () => ({ default: TabPanelStub }));
 
@@ -51,6 +53,18 @@ describe('PlayerView game log tab', () => {
     await flushPromises();
 
     expect(wrapper.find('.gamelog').exists()).toBe(false);
+  });
+
+  it('shows spray chart for batters', async () => {
+    fetchPlayer.mockResolvedValue({ name: 'Test', team_name: 'Team', position: 'Catcher' });
+    fetchPlayerSplits.mockResolvedValue({});
+    fetchPlayerGameLog.mockResolvedValue({ stats: [{ splits: [] }] });
+
+    const { default: PlayerView } = await import('./PlayerView.vue');
+    const wrapper = mount(PlayerView, { props: { id: '1' } });
+    await flushPromises();
+
+    expect(wrapper.find('.spray-chart').exists()).toBe(true);
   });
 });
 
