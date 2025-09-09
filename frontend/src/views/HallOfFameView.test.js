@@ -65,6 +65,9 @@ describe('HallOfFameView', () => {
     dialog = wrapper.findComponent(DialogStub);
     expect(dialog.props('visible')).toBe(false);
 
+    const count = wrapper.find('[data-test="inductee-count"]');
+    expect(count.text()).toBe('2 Inductees');
+
     const rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);
     const cells = rows[0].findAll('td');

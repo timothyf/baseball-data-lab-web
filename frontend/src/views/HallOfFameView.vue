@@ -3,6 +3,9 @@
     <h1>Hall of Fame</h1>
     <TabView>
       <TabPanel header="Inductees">
+        <p v-if="!loading" data-test="inductee-count">
+          {{ players.length }} Inductees
+        </p>
         <table v-if="players.length" class="hof-table">
           <thead>
             <tr>
