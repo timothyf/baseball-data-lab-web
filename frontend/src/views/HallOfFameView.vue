@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { fetchHallOfFamePlayers } from '../services/api';
 import logger from '../utils/logger';
 import LoadingDialog from '../components/LoadingDialog.vue';
@@ -75,6 +75,10 @@ const positionFilter = ref('');
 const yearFilter = ref('');
 const first = ref(0);
 const rows = 50;
+
+watch([sortKey, sortAsc, positionFilter, yearFilter], () => {
+  first.value = 0;
+});
 
 function sortBy(key) {
   if (sortKey.value === key) {
