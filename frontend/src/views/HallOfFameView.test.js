@@ -9,10 +9,14 @@ const PaginatorStub = {
   emits: ['page'],
   template: '<div></div>',
 };
+const TabViewStub = { template: '<div><slot></slot></div>' };
+const TabPanelStub = { template: '<div><slot></slot></div>' };
 
 vi.mock('primevue/dialog', () => ({ default: DialogStub }));
 vi.mock('primevue/progressspinner', () => ({ default: ProgressSpinnerStub }));
 vi.mock('primevue/paginator', () => ({ default: PaginatorStub }));
+vi.mock('primevue/tabview', () => ({ default: TabViewStub }));
+vi.mock('primevue/tabpanel', () => ({ default: TabPanelStub }));
 
 const fetchHallOfFamePlayers = vi.fn();
 
