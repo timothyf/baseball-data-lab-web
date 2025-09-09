@@ -123,6 +123,14 @@ export const fetchPlayer = (id, opts) =>
 export const fetchPlayerStats = (id, opts) =>
   apiFetch(`/players/${id}/stats/`, { cacheKey: `playerStats:${id}`, ...opts });
 
+export const fetchCareerStatsForPlayers = (ids = [], opts) => {
+  const param = Array.isArray(ids) ? ids.join(',') : ids;
+  return apiFetch(
+    `/players/career_stats/?player_ids=${param}`,
+    { cacheKey: `playerCareerStats:${param}`, ...opts },
+  );
+};
+
 export const fetchPlayerSplits = (id, opts) =>
   apiFetch(`/players/${id}/splits/`, { cacheKey: `playerSplits:${id}`, ...opts });
 
@@ -211,6 +219,7 @@ export default {
   fetchTopStat,
   fetchPlayer,
   fetchPlayerStats,
+  fetchCareerStatsForPlayers,
   fetchTeamRecentSchedule,
   fetchTeamRoster,
   fetchTeamLeaders,

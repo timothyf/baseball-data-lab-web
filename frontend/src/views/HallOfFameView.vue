@@ -125,7 +125,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { fetchHallOfFamePlayers, fetchPlayerStats } from '../services/api';
+import { fetchHallOfFamePlayers, fetchCareerStatsForPlayers } from '../services/api';
 import { fieldLabels } from '../config/playerStatsConfig.js';
 import logger from '../utils/logger';
 import LoadingDialog from '../components/LoadingDialog.vue';
@@ -241,23 +241,24 @@ function findGroup(data, name, type) {
 }
 
 async function loadCareerStats() {
-  const hit = [];
-  const pitch = [];
-  for (const p of players.value) {
-    if (!p.mlbam_id) continue;
-    try {
-      const stats = await fetchPlayerStats(p.mlbam_id);
-      const name = `${p.first_name ?? ''} ${p.last_name ?? ''}`.trim() || p.name;
-      const h = findGroup(stats, 'hitting', 'career')?.splits?.[0]?.stat;
-      const pc = findGroup(stats, 'pitching', 'career')?.splits?.[0]?.stat;
+  const ids = players.value.map((p) => p.mlbam_id).filter(Boolean);
+  if (!ids.length) return;
+  try {
+    const data = await fetchCareerStatsForPlayers(ids);
+    const hit = [];
+    const pitch = [];
+    for (const person of data?.people || []) {
+      const name = person.fullName || `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim();
+      const h = findGroup(person, 'hitting', 'career')?.splits?.[0]?.stat;
+      const pc = findGroup(person, 'pitching', 'career')?.splits?.[0]?.stat;
       if (h) hit.push({ name, ...h });
       if (pc) pitch.push({ name, ...pc });
-    } catch (err) {
-      logger.error('Failed to fetch stats for player', p.mlbam_id, err);
     }
+    hitters.value = hit.sort((a, b) => collator.compare(a.name, b.name));
+    pitchers.value = pitch.sort((a, b) => collator.compare(a.name, b.name));
+  } catch (err) {
+    logger.error('Failed to fetch career stats', err);
   }
-  hitters.value = hit.sort((a, b) => collator.compare(a.name, b.name));
-  pitchers.value = pitch.sort((a, b) => collator.compare(a.name, b.name));
 }
 
 onMounted(async () => {

@@ -19,9 +19,11 @@ vi.mock('primevue/tabview', () => ({ default: TabViewStub }));
 vi.mock('primevue/tabpanel', () => ({ default: TabPanelStub }));
 
 const fetchHallOfFamePlayers = vi.fn();
+const fetchCareerStatsForPlayers = vi.fn();
 
 vi.mock('../services/api', () => ({
   fetchHallOfFamePlayers: (...args) => fetchHallOfFamePlayers(...args),
+  fetchCareerStatsForPlayers: (...args) => fetchCareerStatsForPlayers(...args),
 }));
 
 describe('HallOfFameView', () => {
@@ -50,6 +52,7 @@ describe('HallOfFameView', () => {
         },
       ],
     });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -68,10 +71,10 @@ describe('HallOfFameView', () => {
     expect(cells[0].text()).toBe('Alpha');
     expect(cells[1].text()).toBe('One');
     expect(cells[2].text()).toBe('Shortstop');
-    expect(cells[5].text()).toBe('Veterans');
+    expect(cells[4].text()).toBe('Veterans');
 
     // sort by year
-    await wrapper.findAll('th')[4].trigger('click');
+    await wrapper.findAll('th')[3].trigger('click');
     await flushPromises();
     const sortedRows = wrapper.findAll('tbody tr');
     expect(sortedRows[0].text()).toContain('Beta');
@@ -112,6 +115,7 @@ describe('HallOfFameView', () => {
         }
       ],
     });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -119,7 +123,7 @@ describe('HallOfFameView', () => {
     await flushPromises();
 
     // sort by year descending
-    const yearHeader = wrapper.findAll('th')[4];
+    const yearHeader = wrapper.findAll('th')[3];
     await yearHeader.trigger('click');
     await flushPromises();
     await yearHeader.trigger('click');
@@ -170,6 +174,7 @@ describe('HallOfFameView', () => {
         },
       ],
     });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -179,21 +184,21 @@ describe('HallOfFameView', () => {
     const headers = wrapper.findAll('th');
 
     // sort by year descending
-    await headers[4].trigger('click');
-    await headers[4].trigger('click');
+    await headers[3].trigger('click');
+    await headers[3].trigger('click');
     await flushPromises();
     let rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed');
 
     // sort by year ascending
-    await headers[4].trigger('click');
+    await headers[3].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Minnie');
 
     // sort by mlbam_id descending
-    await headers[3].trigger('click');
-    await headers[3].trigger('click');
+    await headers[5].trigger('click');
+    await headers[5].trigger('click');
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed');
@@ -229,6 +234,7 @@ describe('HallOfFameView', () => {
         },
       ],
     });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -272,6 +278,7 @@ describe('HallOfFameView', () => {
       year: 2000 + i,
     }));
     fetchHallOfFamePlayers.mockResolvedValue({ players });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -300,6 +307,7 @@ describe('HallOfFameView', () => {
       year: 2000 + i,
     }));
     fetchHallOfFamePlayers.mockResolvedValue({ players });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);
@@ -339,6 +347,7 @@ describe('HallOfFameView', () => {
       year: 2000 + i,
     }));
     fetchHallOfFamePlayers.mockResolvedValue({ players });
+    fetchCareerStatsForPlayers.mockResolvedValue({ people: [] });
 
     const { default: HallOfFameView } = await import('./HallOfFameView.vue');
     const wrapper = mount(HallOfFameView);

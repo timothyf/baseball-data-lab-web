@@ -310,3 +310,17 @@ class PlayerHeadshotApiTests(TestCase):
 #         data = response.json()
 #         self.assertEqual(len(data), 1)
 #         self.assertEqual(data[0]['key_mlbam'], '123')
+
+
+class PlayerCareerStatsBatchApiTests(TestCase):
+    @patch('apps.api.views.UnifiedDataClient')
+    def test_returns_stats_for_multiple_players(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_client.fetch_career_stats_for_players.return_value = {'people': []}
+
+        client = Client()
+        resp = client.get('/api/players/career_stats/?player_ids=1,2')
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), {'people': []})
+        mock_client.fetch_career_stats_for_players.assert_called_once_with([1, 2])
