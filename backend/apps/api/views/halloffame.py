@@ -1,4 +1,5 @@
 from asyncio.log import logger
+from django.core.cache import cache
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
@@ -6,6 +7,8 @@ import pandas as pd
 from ..models import HallOfFameVote
 from ..models import PlayerIdInfo
 from ..utils import require_unified_client
+
+PLAYER_INFO_CACHE_TIMEOUT = 60 * 60  # one hour
 
 
 @api_view(['GET'])
@@ -74,21 +77,34 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
         p['first_name'] = info.get('first_name')
         p['last_name'] = info.get('last_name')
 
-        # Attempt to fetch the player's primary position if an mlbam_id is
-        # available. Any errors from the external client are swallowed so that
-        # failure to fetch a position does not break the entire endpoint.
-        mlbam_id = p.get('mlbam_id')
+    mlbam_ids = [p['mlbam_id'] for p in players if p.get('mlbam_id')]
+    cache_keys = {mid: f"player-info:{mid}" for mid in mlbam_ids}
+    cached = cache.get_many(cache_keys.values())
+    positions = {}
+    missing_ids = []
+    for mid in mlbam_ids:
+        key = cache_keys[mid]
+        if key in cached:
+            positions[mid] = cached[key]
+        else:
+            missing_ids.append(mid)
+
+    for mid in missing_ids:
         position = None
-        if mlbam_id:
-            try:
-                mid_str = str(mlbam_id).strip()
-                if mid_str.endswith('.0'):
-                    mid_str = mid_str[:-2]
-                data = client.fetch_player_info(int(mid_str)) or {}
-                pos = data.get('primaryPosition') or {}
-                position = pos.get('name')
-            except Exception:  # pragma: no cover - defensive
-                position = None
-        p['position'] = position
+        try:
+            mid_str = str(mid).strip()
+            if mid_str.endswith('.0'):
+                mid_str = mid_str[:-2]
+            data = client.fetch_player_info(int(mid_str)) or {}
+            pos = data.get('primaryPosition') or {}
+            position = pos.get('name')
+        except Exception:  # pragma: no cover - defensive
+            position = None
+        positions[mid] = position
+        cache.set(cache_keys[mid], position, PLAYER_INFO_CACHE_TIMEOUT)
+
+    for p in players:
+        mlbam_id = p.get('mlbam_id')
+        p['position'] = positions.get(mlbam_id)
 
     return Response({'players': players})
