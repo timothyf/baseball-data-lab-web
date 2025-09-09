@@ -36,6 +36,7 @@ describe('HallOfFameView', () => {
           position: 'Pitcher',
           mlbam_id: '2',
           year: 1980,
+          voted_by: 'BBWAA',
         },
         {
           bbref_id: 'b1',
@@ -45,6 +46,7 @@ describe('HallOfFameView', () => {
           position: 'Shortstop',
           mlbam_id: '1',
           year: 1990,
+          voted_by: 'Veterans',
         },
       ],
     });
@@ -66,6 +68,7 @@ describe('HallOfFameView', () => {
     expect(cells[0].text()).toBe('Alpha');
     expect(cells[1].text()).toBe('One');
     expect(cells[2].text()).toBe('Shortstop');
+    expect(cells[5].text()).toBe('Veterans');
 
     // sort by year
     await wrapper.findAll('th')[4].trigger('click');

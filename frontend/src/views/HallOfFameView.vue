@@ -10,6 +10,7 @@
               <th @click="sortBy('last_name')">Last Name</th>
               <th @click="sortBy('position')">Position</th>
               <th @click="sortBy('year')">Year Inducted</th>
+              <th @click="sortBy('voted_by')">Voted By</th>
               <th @click="sortBy('mlbam_id')">MLBAM ID</th>
             </tr>
             <tr class="filters">
@@ -55,6 +56,7 @@
                   {{ player.mlbam_id }}
                 </a>
               </td>
+              <td>{{ player.voted_by }}</td>
             </tr>
           </tbody>
         </table>
