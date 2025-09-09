@@ -68,6 +68,7 @@ import LoadingDialog from '../components/LoadingDialog.vue';
 import Paginator from 'primevue/paginator';
 
 const players = ref([]);
+const HOF_CACHE_TTL = 24 * 60 * 60 * 1000;
 const sortKey = ref('last_name');
 const sortAsc = ref(true);
 const loading = ref(true);
@@ -158,7 +159,7 @@ const paginatedPlayers = computed(() => {
 
 onMounted(async () => {
   try {
-    const data = await fetchHallOfFamePlayers();
+    const data = await fetchHallOfFamePlayers({ persistTTL: HOF_CACHE_TTL });
     players.value = (data?.players || []).map((p) => {
       const mlbam = Number.parseInt(p.mlbam_id, 10);
       const year = Number.parseInt(p.year, 10);
