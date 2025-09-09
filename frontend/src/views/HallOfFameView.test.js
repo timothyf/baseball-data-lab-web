@@ -4,9 +4,15 @@ import { mount, flushPromises } from '@vue/test-utils';
 
 const DialogStub = { props: ['visible'], template: '<div></div>' };
 const ProgressSpinnerStub = { template: '<div></div>' };
+const PaginatorStub = {
+  props: ['first', 'rows', 'totalRecords'],
+  emits: ['page'],
+  template: '<div></div>',
+};
 
 vi.mock('primevue/dialog', () => ({ default: DialogStub }));
 vi.mock('primevue/progressspinner', () => ({ default: ProgressSpinnerStub }));
+vi.mock('primevue/paginator', () => ({ default: PaginatorStub }));
 
 const fetchHallOfFamePlayers = vi.fn();
 
@@ -246,6 +252,34 @@ describe('HallOfFameView', () => {
     await flushPromises();
     rows = wrapper.findAll('tbody tr');
     expect(rows).toHaveLength(2);
+  });
+
+  it('paginates the players list', async () => {
+    const players = Array.from({ length: 60 }, (_, i) => ({
+      bbref_id: `id${i}`,
+      name: `Player ${i}`,
+      first_name: `First${i}`,
+      last_name: `Last${i}`,
+      position: 'Pitcher',
+      mlbam_id: String(i),
+      year: 2000 + i,
+    }));
+    fetchHallOfFamePlayers.mockResolvedValue({ players });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+
+    await flushPromises();
+
+    expect(wrapper.findAll('tbody tr')).toHaveLength(50);
+
+    const paginator = wrapper.findComponent(PaginatorStub);
+    paginator.vm.$emit('page', { first: 50, rows: 50 });
+    await flushPromises();
+
+    const rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(10);
+    expect(rows[0].text()).toContain('First50');
   });
 });
 
