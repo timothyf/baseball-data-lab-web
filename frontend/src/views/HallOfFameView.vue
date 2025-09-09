@@ -12,7 +12,14 @@
         </tr>
         <tr class="filters">
           <th></th>
-          <th></th>
+          <th>
+            <input
+              v-model="lastNameSearch"
+              type="text"
+              placeholder="Search"
+              data-test="last-name-search"
+            />
+          </th>
           <th>
             <select v-model="positionFilter" data-test="position-filter">
               <option value="">All</option>
@@ -74,10 +81,11 @@ const sortAsc = ref(true);
 const loading = ref(true);
 const positionFilter = ref('');
 const yearFilter = ref('');
+const lastNameSearch = ref('');
 const first = ref(0);
 const rows = 50;
 
-watch([sortKey, sortAsc, positionFilter, yearFilter], () => {
+watch([sortKey, sortAsc, positionFilter, yearFilter, lastNameSearch], () => {
   first.value = 0;
 });
 
@@ -117,7 +125,9 @@ const filteredPlayers = computed(() =>
   players.value.filter(
     (p) =>
       (!positionFilter.value || p.position === positionFilter.value) &&
-      (!yearFilter.value || p.year === Number(yearFilter.value))
+      (!yearFilter.value || p.year === Number(yearFilter.value)) &&
+      (!lastNameSearch.value ||
+        (p.last_name ?? '').toLowerCase().includes(lastNameSearch.value.toLowerCase()))
   )
 );
 
@@ -205,6 +215,10 @@ onMounted(async () => {
 }
 
 .filters select {
+  width: 100%;
+}
+
+.filters input {
   width: 100%;
 }
 </style>
