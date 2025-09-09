@@ -55,6 +55,12 @@ const routes = [
     props: route => ({ id: route.params.id, name: route.query.name })
   },
   {
+    path: '/player/:id/reports',
+    name: 'PlayerReports',
+    component: () => import('../views/ReportsView.vue'),
+    props: route => ({ id: route.params.id })
+  },
+  {
     path: '/developer',
     name: 'ApiExplorer',
     component: () => import('../views/ApiExplorerView.vue')

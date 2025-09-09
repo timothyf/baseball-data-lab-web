@@ -81,6 +81,11 @@
           <BatterSprayChart v-if="statType === 'hitting'" />
           <p v-else>Charts & Trends coming soon.</p>
         </TabPanel>
+        <TabPanel>
+          <template #header>
+            <RouterLink :to="{ name: 'PlayerReports', params: { id } }">Reports</RouterLink>
+          </template>
+        </TabPanel>
       </TabView>
     </div>
     <LoadingDialog :visible="loading" />
@@ -89,6 +94,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { RouterLink } from 'vue-router';
 import PlayerStats from '../components/PlayerStats.vue';
 import PlayerSplits from '../components/PlayerSplits.vue';
 import PlayerGameLog from '../components/PlayerGameLog.vue';
