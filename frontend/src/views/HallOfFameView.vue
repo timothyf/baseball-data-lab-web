@@ -85,9 +85,8 @@
           @page="onPage"
         />
       </TabPanel>
-      <TabPanel header="Career Stats">
+      <TabPanel header="Hitting Stats">
         <div v-if="hitters.length">
-          <h2>Hitters</h2>
           <table class="hof-table">
             <thead>
               <tr>
@@ -111,8 +110,9 @@
             </tbody>
           </table>
         </div>
+      </TabPanel>
+      <TabPanel header="Pitching Stats">
         <div v-if="pitchers.length">
-          <h2>Pitchers</h2>
           <table class="hof-table">
             <thead>
               <tr>
