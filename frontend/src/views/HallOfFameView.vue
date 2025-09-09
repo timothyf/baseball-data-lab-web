@@ -88,12 +88,18 @@
           <table class="hof-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th v-for="field in hittingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+                <th @click="sortHitters('name')">Name</th>
+                <th
+                  v-for="field in hittingFields"
+                  :key="field"
+                  @click="sortHitters(field)"
+                >
+                  {{ fieldLabels[field] ?? field }}
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="h in hitters" :key="h.name">
+              <tr v-for="h in sortedHitters" :key="h.name">
                 <td>{{ h.name }}</td>
                 <td v-for="field in hittingFields" :key="field">{{ h[field] ?? '-' }}</td>
               </tr>
@@ -105,12 +111,18 @@
           <table class="hof-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th v-for="field in pitchingFields" :key="field">{{ fieldLabels[field] ?? field }}</th>
+                <th @click="sortPitchers('name')">Name</th>
+                <th
+                  v-for="field in pitchingFields"
+                  :key="field"
+                  @click="sortPitchers(field)"
+                >
+                  {{ fieldLabels[field] ?? field }}
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="p in pitchers" :key="p.name">
+              <tr v-for="p in sortedPitchers" :key="p.name">
                 <td>{{ p.name }}</td>
                 <td v-for="field in pitchingFields" :key="field">{{ p[field] ?? '-' }}</td>
               </tr>
@@ -151,6 +163,11 @@ const rows = 50;
 const hittingFields = ['atBats', 'hits', 'homeRuns', 'rbi', 'avg', 'obp', 'slg', 'ops'];
 const pitchingFields = ['wins', 'losses', 'era', 'gamesPitched', 'gamesStarted', 'inningsPitched', 'strikeOuts', 'saves', 'whip'];
 
+const hittingSortKey = ref('name');
+const hittingSortAsc = ref(true);
+const pitchingSortKey = ref('name');
+const pitchingSortAsc = ref(true);
+
 watch([sortKey, sortAsc, positionFilter, yearFilter, lastNameSearch, votedByFilter], () => {
   first.value = 0;
 });
@@ -166,6 +183,24 @@ function sortBy(key) {
 
 function onPage(event) {
   first.value = event.first;
+}
+
+function sortHitters(key) {
+  if (hittingSortKey.value === key) {
+    hittingSortAsc.value = !hittingSortAsc.value;
+  } else {
+    hittingSortKey.value = key;
+    hittingSortAsc.value = true;
+  }
+}
+
+function sortPitchers(key) {
+  if (pitchingSortKey.value === key) {
+    pitchingSortAsc.value = !pitchingSortAsc.value;
+  } else {
+    pitchingSortKey.value = key;
+    pitchingSortAsc.value = true;
+  }
 }
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
@@ -234,6 +269,36 @@ const paginatedPlayers = computed(() => {
   return sortedPlayers.value.slice(start, start + rows);
 });
 
+function sortData(data, key, asc) {
+  return [...data].sort((a, b) => {
+    const aVal = a[key];
+    const bVal = b[key];
+    const an = Number.parseFloat(aVal);
+    const bn = Number.parseFloat(bVal);
+    const aNum = !Number.isNaN(an);
+    const bNum = !Number.isNaN(bn);
+    if (aNum && bNum) {
+      const cmp = an - bn;
+      return asc ? cmp : -cmp;
+    }
+    const as = (aVal ?? '').toString();
+    const bs = (bVal ?? '').toString();
+    const aEmpty = !as;
+    const bEmpty = !bs;
+    if (aEmpty || bEmpty) return aEmpty === bEmpty ? 0 : aEmpty ? 1 : -1;
+    const cmp = collator.compare(as, bs);
+    return asc ? cmp : -cmp;
+  });
+}
+
+const sortedHitters = computed(() =>
+  sortData(hitters.value, hittingSortKey.value, hittingSortAsc.value),
+);
+
+const sortedPitchers = computed(() =>
+  sortData(pitchers.value, pitchingSortKey.value, pitchingSortAsc.value),
+);
+
 function findGroup(data, name, type) {
   return data?.stats?.find(
     (s) => s.group?.displayName === name && s.type?.displayName === type,
@@ -254,8 +319,8 @@ async function loadCareerStats() {
       if (h) hit.push({ name, ...h });
       if (pc) pitch.push({ name, ...pc });
     }
-    hitters.value = hit.sort((a, b) => collator.compare(a.name, b.name));
-    pitchers.value = pitch.sort((a, b) => collator.compare(a.name, b.name));
+    hitters.value = hit;
+    pitchers.value = pitch;
   } catch (err) {
     logger.error('Failed to fetch career stats', err);
   }
