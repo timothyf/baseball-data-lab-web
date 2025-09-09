@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BatterSprayChart: typeof import('./components/BatterSprayChart.vue')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
     GameRow: typeof import('./components/GameRow.vue')['default']
