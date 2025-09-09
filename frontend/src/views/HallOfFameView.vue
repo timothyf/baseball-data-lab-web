@@ -9,9 +9,9 @@
               <th @click="sortBy('first_name')">First Name</th>
               <th @click="sortBy('last_name')">Last Name</th>
               <th @click="sortBy('position')">Position</th>
-              <th @click="sortBy('mlbam_id')">MLBAM ID</th>
               <th @click="sortBy('year')">Year Inducted</th>
               <th @click="sortBy('voted_by')">Voted By</th>
+              <th @click="sortBy('mlbam_id')">MLBAM ID</th>
             </tr>
             <tr class="filters">
               <th></th>
@@ -59,6 +59,7 @@
               <td>{{ player.first_name }}</td>
               <td>{{ player.last_name }}</td>
               <td>{{ player.position }}</td>
+              <td>{{ player.year }}</td>
               <td>{{ player.voted_by }}</td>
               <td>
                 <a
@@ -70,8 +71,6 @@
                   {{ player.mlbam_id }}
                 </a>
               </td>
-              <td>{{ player.year }}</td>
-              <td>{{ player.voted_by }}</td>
             </tr>
           </tbody>
         </table>
