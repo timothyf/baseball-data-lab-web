@@ -282,6 +282,45 @@ describe('HallOfFameView', () => {
     expect(rows[0].text()).toContain('First50');
   });
 
+  it('filters players by last name across all pages', async () => {
+    const players = Array.from({ length: 60 }, (_, i) => ({
+      bbref_id: `id${i}`,
+      name: `Player ${i}`,
+      first_name: `First${i}`,
+      last_name: `Last${i}`,
+      position: 'Pitcher',
+      mlbam_id: String(i),
+      year: 2000 + i,
+    }));
+    fetchHallOfFamePlayers.mockResolvedValue({ players });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+
+    await flushPromises();
+
+    const input = wrapper.find('[data-test="last-name-search"]');
+    await input.setValue('Last55');
+    await flushPromises();
+    let rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].text()).toContain('First55');
+
+    await input.setValue('');
+    await flushPromises();
+
+    const paginator = wrapper.findComponent(PaginatorStub);
+    paginator.vm.$emit('page', { first: 50, rows: 50 });
+    await flushPromises();
+    expect(wrapper.findAll('tbody tr')[0].text()).toContain('First50');
+
+    await input.setValue('Last0');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].text()).toContain('First0');
+  });
+
   it('applies sorting and filtering across all pages', async () => {
     const players = Array.from({ length: 60 }, (_, i) => ({
       bbref_id: `id${i}`,
