@@ -65,17 +65,3 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
         p['position'] = position
 
     return Response({'players': players})
-
-
-
-
-
-                # ("bbref_id", models.CharField(max_length=20, null=True)),
-                # ("year", models.IntegerField(null=True)),
-                # ("voted_by", models.CharField(max_length=100, null=True)),
-                # ("ballots", models.IntegerField(null=True)),
-                # ("votes_needed", models.IntegerField(null=True)),
-                # ("votes", models.IntegerField(null=True)),
-                # ("inducted", models.BooleanField(null=True)),
-                # ("category", models.CharField(max_length=50, null=True)),
-                # ("needed_note", models.CharField(max_length=255, null=True)),
