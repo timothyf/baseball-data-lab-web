@@ -86,56 +86,116 @@
         />
       </TabPanel>
       <TabPanel header="Hitting Stats">
-        <div v-if="hitters.length">
-          <table class="hof-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th @click="sortHitters('name')">Name</th>
-                <th
-                  v-for="field in hittingFields"
-                  :key="field"
-                  @click="sortHitters(field)"
-                >
-                  {{ fieldLabels[field] ?? field }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(h, index) in sortedHitters" :key="h.name">
-                <td>{{ index + 1 }}</td>
-                <td>{{ h.name }}</td>
-                <td v-for="field in hittingFields" :key="field">{{ h[field] ?? '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <TabView>
+          <TabPanel header="Standard">
+            <div v-if="hitters.length">
+              <table class="hof-table" data-test="hitting-standard-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th @click="sortHitters('name')">Name</th>
+                    <th
+                      v-for="field in hittingStandardFields"
+                      :key="field"
+                      @click="sortHitters(field)"
+                    >
+                      {{ fieldLabels[field] ?? field }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(h, index) in sortedHitters" :key="h.name">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ h.name }}</td>
+                    <td v-for="field in hittingStandardFields" :key="field">{{ h[field] ?? '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </TabPanel>
+          <TabPanel header="Advanced">
+            <div v-if="hitters.length">
+              <table class="hof-table" data-test="hitting-advanced-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th @click="sortHitters('name')">Name</th>
+                    <th
+                      v-for="field in hittingAdvancedFields"
+                      :key="field"
+                      @click="sortHitters(field)"
+                    >
+                      {{ fieldLabels[field] ?? field }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(h, index) in sortedHitters" :key="h.name">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ h.name }}</td>
+                    <td v-for="field in hittingAdvancedFields" :key="field">{{ h[field] ?? '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </TabPanel>
+        </TabView>
       </TabPanel>
       <TabPanel header="Pitching Stats">
-        <div v-if="pitchers.length">
-          <table class="hof-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th @click="sortPitchers('name')">Name</th>
-                <th
-                  v-for="field in pitchingFields"
-                  :key="field"
-                  @click="sortPitchers(field)"
-                >
-                  {{ fieldLabels[field] ?? field }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(p, index) in sortedPitchers" :key="p.name">
-                <td>{{ index + 1 }}</td>
-                <td>{{ p.name }}</td>
-                <td v-for="field in pitchingFields" :key="field">{{ p[field] ?? '-' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <TabView>
+          <TabPanel header="Standard">
+            <div v-if="pitchers.length">
+              <table class="hof-table" data-test="pitching-standard-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th @click="sortPitchers('name')">Name</th>
+                    <th
+                      v-for="field in pitchingStandardFields"
+                      :key="field"
+                      @click="sortPitchers(field)"
+                    >
+                      {{ fieldLabels[field] ?? field }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(p, index) in sortedPitchers" :key="p.name">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ p.name }}</td>
+                    <td v-for="field in pitchingStandardFields" :key="field">{{ p[field] ?? '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </TabPanel>
+          <TabPanel header="Advanced">
+            <div v-if="pitchers.length">
+              <table class="hof-table" data-test="pitching-advanced-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th @click="sortPitchers('name')">Name</th>
+                    <th
+                      v-for="field in pitchingAdvancedFields"
+                      :key="field"
+                      @click="sortPitchers(field)"
+                    >
+                      {{ fieldLabels[field] ?? field }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(p, index) in sortedPitchers" :key="p.name">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ p.name }}</td>
+                    <td v-for="field in pitchingAdvancedFields" :key="field">{{ p[field] ?? '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </TabPanel>
+        </TabView>
       </TabPanel>
     </TabView>
     <LoadingDialog :visible="loading" />
@@ -145,7 +205,13 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { fetchHallOfFamePlayers, fetchCareerStatsForPlayers } from '../services/api';
-import { fieldLabels } from '../config/playerStatsConfig.js';
+import {
+  standardHittingFields,
+  advancedHittingFields,
+  standardPitchingFields,
+  advancedPitchingFields,
+  fieldLabels,
+} from '../config/playerStatsConfig.js';
 import logger from '../utils/logger';
 import LoadingDialog from '../components/LoadingDialog.vue';
 import Paginator from 'primevue/paginator';
@@ -166,9 +232,10 @@ const lastNameSearch = ref('');
 const first = ref(0);
 const rows = 50;
 
-
-const hittingFields = ['atBats', 'hits', 'homeRuns', 'rbi', 'avg', 'obp', 'slg', 'ops'];
-const pitchingFields = ['wins', 'losses', 'era', 'gamesPitched', 'gamesStarted', 'inningsPitched', 'strikeOuts', 'saves', 'whip'];
+const hittingStandardFields = standardHittingFields.filter((f) => f !== 'team');
+const hittingAdvancedFields = advancedHittingFields.filter((f) => f !== 'team');
+const pitchingStandardFields = standardPitchingFields.filter((f) => f !== 'team');
+const pitchingAdvancedFields = advancedPitchingFields.filter((f) => f !== 'team');
 
 const hittingSortKey = ref('name');
 const hittingSortAsc = ref(true);

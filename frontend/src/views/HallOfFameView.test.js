@@ -378,5 +378,72 @@ describe('HallOfFameView', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].text()).toContain('First0');
   });
+
+  it('renders standard and advanced stats tables for hitting and pitching', async () => {
+    fetchHallOfFamePlayers.mockResolvedValue({
+      players: [
+        {
+          bbref_id: 'p1',
+          name: 'Player One',
+          first_name: 'Player',
+          last_name: 'One',
+          position: 'Pitcher',
+          mlbam_id: '1',
+          year: 2000,
+          voted_by: 'BBWAA',
+        },
+      ],
+    });
+    fetchCareerStatsForPlayers.mockResolvedValue({
+      people: [
+        {
+          fullName: 'Player One',
+          stats: [
+            {
+              group: { displayName: 'hitting' },
+              type: { displayName: 'career' },
+              splits: [
+                {
+                  stat: {
+                    atBats: 10,
+                    hits: 4,
+                    plateAppearances: 12,
+                  },
+                },
+              ],
+            },
+            {
+              group: { displayName: 'pitching' },
+              type: { displayName: 'career' },
+              splits: [
+                {
+                  stat: {
+                    wins: 1,
+                    qualityStarts: 1,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+    await flushPromises();
+
+    const hittingStandard = wrapper.find('[data-test="hitting-standard-table"]');
+    expect(hittingStandard.html()).toContain('AB');
+
+    const hittingAdvanced = wrapper.find('[data-test="hitting-advanced-table"]');
+    expect(hittingAdvanced.html()).toContain('PA');
+
+    const pitchingStandard = wrapper.find('[data-test="pitching-standard-table"]');
+    expect(pitchingStandard.html()).toContain('W');
+
+    const pitchingAdvanced = wrapper.find('[data-test="pitching-advanced-table"]');
+    expect(pitchingAdvanced.html()).toContain('QS');
+  });
 });
 
