@@ -91,6 +91,7 @@
           <table class="hof-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th @click="sortHitters('name')">Name</th>
                 <th
                   v-for="field in hittingFields"
@@ -102,7 +103,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="h in sortedHitters" :key="h.name">
+              <tr v-for="(h, index) in sortedHitters" :key="h.name">
+                <td>{{ index + 1 }}</td>
                 <td>{{ h.name }}</td>
                 <td v-for="field in hittingFields" :key="field">{{ h[field] ?? '-' }}</td>
               </tr>
@@ -114,6 +116,7 @@
           <table class="hof-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th @click="sortPitchers('name')">Name</th>
                 <th
                   v-for="field in pitchingFields"
@@ -125,7 +128,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="p in sortedPitchers" :key="p.name">
+              <tr v-for="(p, index) in sortedPitchers" :key="p.name">
+                <td>{{ index + 1 }}</td>
                 <td>{{ p.name }}</td>
                 <td v-for="field in pitchingFields" :key="field">{{ p[field] ?? '-' }}</td>
               </tr>
