@@ -37,7 +37,20 @@
                   <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
                 </select>
               </th>
-              <th></th>
+              <th>
+                <select v-model="votedByFilter" data-test="voted-by-filter">
+                  <option value="">All</option>
+                  <option value="BBWAA">BBWAA</option>
+                  <option value="Veterans">Veterans</option>
+                  <option value="Veterans - Today's Game Era">Veterans - Today's Game Era</option>
+                  <option value="Veterans - 1943 and Later">Veterans - 1943 and Later</option>
+                  <option value="Classic Baseball Era">Classic Baseball Era</option>
+                  <option value="Old Timers">Old Timers</option>
+                  <option value="Run Off">Run Off</option>
+                  <option value="Negro League">Negro League</option>
+                  <option value="Special Election">Special Election</option>
+                </select>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -46,6 +59,7 @@
               <td>{{ player.last_name }}</td>
               <td>{{ player.position }}</td>
               <td>{{ player.year }}</td>
+              <td>{{ player.voted_by }}</td>
               <td>
                 <a
                   v-if="player.mlbam_id"
@@ -56,7 +70,6 @@
                   {{ player.mlbam_id }}
                 </a>
               </td>
-              <td>{{ player.voted_by }}</td>
             </tr>
           </tbody>
         </table>
@@ -92,11 +105,12 @@ const sortAsc = ref(true);
 const loading = ref(true);
 const positionFilter = ref('');
 const yearFilter = ref('');
+const votedByFilter = ref('');
 const lastNameSearch = ref('');
 const first = ref(0);
 const rows = 50;
 
-watch([sortKey, sortAsc, positionFilter, yearFilter, lastNameSearch], () => {
+watch([sortKey, sortAsc, positionFilter, yearFilter, lastNameSearch, votedByFilter], () => {
   first.value = 0;
 });
 
@@ -138,7 +152,8 @@ const filteredPlayers = computed(() =>
       (!positionFilter.value || p.position === positionFilter.value) &&
       (!yearFilter.value || p.year === Number(yearFilter.value)) &&
       (!lastNameSearch.value ||
-        (p.last_name ?? '').toLowerCase().includes(lastNameSearch.value.toLowerCase()))
+        (p.last_name ?? '').toLowerCase().includes(lastNameSearch.value.toLowerCase())) &&
+      (!votedByFilter.value || p.voted_by === votedByFilter.value)
   )
 );
 

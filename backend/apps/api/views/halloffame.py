@@ -54,11 +54,13 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
                 mlbam = row.get('key_mlbam')
                 first = row.get('name_first')
                 last = row.get('name_last')
+                voted_by = row.get('voted_by')
                 info = {
                     'mlbam_id': None if pd.isna(mlbam) else str(int(mlbam)),
                     'name': f"{(first or '').strip()} {(last or '').strip()}".strip(),
                     'first_name': first,
                     'last_name': last,
+                    'voted_by': voted_by,
                 }
             else:
                 info = {}
@@ -69,6 +71,7 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
         p['name'] = info.get('name')
         p['first_name'] = info.get('first_name')
         p['last_name'] = info.get('last_name')
+        p['voted_by'] = p.get('voted_by')
 
     mlbam_ids = [p['mlbam_id'] for p in players if p.get('mlbam_id')]
     cache_keys = {mid: f"player-info:{mid}" for mid in mlbam_ids}
