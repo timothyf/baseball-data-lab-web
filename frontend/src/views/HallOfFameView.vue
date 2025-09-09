@@ -10,6 +10,25 @@
           <th @click="sortBy('mlbam_id')">MLBAM ID</th>
           <th @click="sortBy('year')">Year Inducted</th>
         </tr>
+        <tr class="filters">
+          <th></th>
+          <th></th>
+          <th>
+            <select v-model="positionFilter" data-test="position-filter">
+              <option value="">All</option>
+              <option v-for="pos in positions" :key="pos" :value="pos">
+                {{ pos }}
+              </option>
+            </select>
+          </th>
+          <th></th>
+          <th>
+            <select v-model="yearFilter" data-test="year-filter">
+              <option value="">All</option>
+              <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+            </select>
+          </th>
+        </tr>
       </thead>
       <tbody>
         <tr v-for="player in sortedPlayers" :key="player.bbref_id">
@@ -44,6 +63,8 @@ const players = ref([]);
 const sortKey = ref('last_name');
 const sortAsc = ref(true);
 const loading = ref(true);
+const positionFilter = ref('');
+const yearFilter = ref('');
 
 function sortBy(key) {
   if (sortKey.value === key) {
@@ -57,12 +78,37 @@ function sortBy(key) {
 const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
 const numericKeys = new Set(['year', 'mlbam_id']);
 
+const positions = computed(() => {
+  const set = new Set();
+  for (const p of players.value) {
+    if (p.position) set.add(p.position);
+  }
+  return [...set].sort((a, b) => collator.compare(a, b));
+});
+
+const years = computed(() => {
+  const set = new Set();
+  for (const p of players.value) {
+    if (p.year != null) set.add(p.year);
+  }
+  return [...set].sort((a, b) => a - b);
+});
+
+const filteredPlayers = computed(() =>
+  players.value.filter(
+    (p) =>
+      (!positionFilter.value || p.position === positionFilter.value) &&
+      (!yearFilter.value || p.year === Number(yearFilter.value))
+  )
+);
+
 const sortedPlayers = computed(() => {
   const key = sortKey.value;
   const asc = sortAsc.value;
   const isNumeric = numericKeys.has(key);
+  const data = filteredPlayers.value;
 
-  return [...players.value].sort((a, b) => {
+  return [...data].sort((a, b) => {
     const aVal = a[key];
     const bVal = b[key];
 
@@ -128,6 +174,14 @@ onMounted(async () => {
 .hof-table th {
   cursor: pointer;
   background-color: #f5f5f5;
+}
+
+.filters th {
+  cursor: default;
+}
+
+.filters select {
+  width: 100%;
 }
 </style>
 
