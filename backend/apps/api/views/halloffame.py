@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import pandas as pd
 
 from ..models import HallOfFameVote
 from ..models import PlayerIdInfo
@@ -44,7 +45,29 @@ def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
     }
 
     for p in players:
-        info = info_map.get(p['bbref_id'], {})
+        info = info_map.get(p['bbref_id'])
+        if not info:
+            # Fall back to a reverse lookup using the player's bbref ID.
+            try:
+                df = client.playerid_reverse_lookup(p['bbref_id'], key_type='bbref')
+            except Exception:  # pragma: no cover - defensive
+                df = None
+            if df is not None and not df.empty:
+                row = df.iloc[0]
+                mlbam = row.get('key_mlbam')
+                first = row.get('name_first')
+                last = row.get('name_last')
+                info = {
+                    'mlbam_id': None if pd.isna(mlbam) else str(int(mlbam)),
+                    'name': f"{(first or '').strip()} {(last or '').strip()}".strip(),
+                    'first_name': first,
+                    'last_name': last,
+                }
+            else:
+                info = {}
+        else:
+            info = dict(info)
+
         p['mlbam_id'] = info.get('mlbam_id')
         p['name'] = info.get('name')
         p['first_name'] = info.get('first_name')
