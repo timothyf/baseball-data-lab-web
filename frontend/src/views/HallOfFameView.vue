@@ -11,6 +11,7 @@
             <tr>
               <th @click="sortBy('first_name')">First Name</th>
               <th @click="sortBy('last_name')">Last Name</th>
+              <th @click="sortBy('birth_date')">Birthdate</th>
               <th @click="sortBy('position')">Position</th>
               <th @click="sortBy('year')">Year Inducted</th>
               <th @click="sortBy('voted_by')">Voted By</th>
@@ -26,6 +27,7 @@
                   data-test="last-name-search"
                 />
               </th>
+              <th></th>
               <th>
                 <select v-model="positionFilter" data-test="position-filter">
                   <option value="">All</option>
@@ -61,6 +63,7 @@
             <tr v-for="player in paginatedPlayers" :key="player.bbref_id">
               <td>{{ player.first_name }}</td>
               <td>{{ player.last_name }}</td>
+              <td>{{ player.birth_date }}</td>
               <td>{{ player.position }}</td>
               <td>{{ player.year }}</td>
               <td>{{ player.voted_by }}</td>
@@ -319,15 +322,24 @@ async function loadCareerStats() {
     const data = await fetchCareerStatsForPlayers(ids);
     const hit = [];
     const pitch = [];
+    const birthdates = new Map();
     for (const person of data?.people || []) {
       const name = person.fullName || `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim();
       const h = findGroup(person, 'hitting', 'career')?.splits?.[0]?.stat;
       const pc = findGroup(person, 'pitching', 'career')?.splits?.[0]?.stat;
       if (h) hit.push({ name, ...h });
       if (pc) pitch.push({ name, ...pc });
+      if (person.id && person.birthDate) {
+        birthdates.set(Number(person.id), person.birthDate);
+      }
     }
     hitters.value = hit;
     pitchers.value = pitch;
+    for (const p of players.value) {
+      if (p.mlbam_id) {
+        p.birth_date = birthdates.get(p.mlbam_id) || null;
+      }
+    }
   } catch (err) {
     logger.error('Failed to fetch career stats', err);
   }
