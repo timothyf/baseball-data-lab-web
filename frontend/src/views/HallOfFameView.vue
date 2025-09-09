@@ -11,6 +11,7 @@
               <th @click="sortBy('position')">Position</th>
               <th @click="sortBy('mlbam_id')">MLBAM ID</th>
               <th @click="sortBy('year')">Year Inducted</th>
+              <th @click="sortBy('voted_by')">Voted By</th>
             </tr>
             <tr class="filters">
               <th></th>
@@ -37,6 +38,7 @@
                   <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
                 </select>
               </th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -55,6 +57,7 @@
                 </a>
               </td>
               <td>{{ player.year }}</td>
+              <td>{{ player.voted_by }}</td>
             </tr>
           </tbody>
         </table>

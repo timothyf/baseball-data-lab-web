@@ -1,6 +1,6 @@
 from asyncio.log import logger
 from django.core.cache import cache
-from django.db.models import Max
+from django.db.models import Max, OuterRef, Subquery
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
@@ -17,11 +17,15 @@ PLAYER_INFO_CACHE_TIMEOUT = 60 * 60  # one hour
 def hall_of_fame_players(request, client):  # noqa: F841 - hall_of_fame unused
     # enrich each inducted Player with mlbam_id from PlayerIdInfo by bbref_id
 
+    base_qs = HallOfFameVote.objects.filter(inducted=True, category='Player')
+    latest_vote = base_qs.filter(bbref_id=OuterRef('bbref_id')).order_by('-year')
     players = list(
-        HallOfFameVote.objects
-        .filter(inducted=True, category='Player')
+        base_qs
         .values('bbref_id')
-        .annotate(year=Max('year'))
+        .annotate(
+            year=Max('year'),
+            voted_by=Subquery(latest_vote.values('voted_by')[:1]),
+        )
     )
 
     bbref_ids = [p['bbref_id'] for p in players if p['bbref_id']]

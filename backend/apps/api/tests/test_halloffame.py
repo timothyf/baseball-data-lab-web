@@ -14,8 +14,8 @@ class HallOfFamePlayersApiTests(TestCase):
         mock_client.fetch_player_info.return_value = {
             'primaryPosition': {'name': 'Pitcher'}
         }
-        HallOfFameVote.objects.create(bbref_id='ruthba01', year=1936, inducted=True, category='Player')
-        HallOfFameVote.objects.create(bbref_id='doejo01', year=2000, inducted=True, category='Player')
+        HallOfFameVote.objects.create(bbref_id='ruthba01', year=1936, voted_by='BBWAA', inducted=True, category='Player')
+        HallOfFameVote.objects.create(bbref_id='doejo01', year=2000, voted_by='Veterans', inducted=True, category='Player')
         HallOfFameVote.objects.create(bbref_id='notind01', year=1990, inducted=False, category='Player')
         HallOfFameVote.objects.create(bbref_id='manager01', year=1988, inducted=True, category='Manager')
 
@@ -35,6 +35,7 @@ class HallOfFamePlayersApiTests(TestCase):
             {
                 'bbref_id': 'ruthba01',
                 'year': 1936,
+                'voted_by': 'BBWAA',
                 'mlbam_id': '12345',
                 'name': 'Babe Ruth',
                 'first_name': 'Babe',
@@ -47,6 +48,7 @@ class HallOfFamePlayersApiTests(TestCase):
             {
                 'bbref_id': 'doejo01',
                 'year': 2000,
+                'voted_by': 'Veterans',
                 'mlbam_id': None,
                 'name': 'John Doe',
                 'first_name': 'John',
