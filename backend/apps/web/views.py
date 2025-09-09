@@ -77,9 +77,6 @@ def player(request, player_id: int):
 def game(request, game_pk: int):
     return render(request, 'web/game.html', {'game_pk': game_pk})
 
-def new_game(request, game_pk: int = None):
-    return render(request, 'web/new_game.html', {'game_pk': game_pk})
-
 def leaders(request):
     return render(request, 'web/leaders.html')
 
