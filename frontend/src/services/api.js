@@ -2,6 +2,8 @@ import httpClient from './httpClient';
 import logger from '../utils/logger';
 
 const cache = new Map();
+const PERSIST_PREFIX = 'apiCache:';
+export const DEFAULT_PERSIST_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 // Schedule specific cache with revalidation support
 const scheduleCache = new Map();
@@ -24,10 +26,34 @@ export function invalidateScheduleCache(date) {
 
 async function apiFetch(
   url,
-  { cacheKey, useCache = true, asText = false, signal } = {},
+  {
+    cacheKey,
+    useCache = true,
+    asText = false,
+    signal,
+    persist = false,
+    persistTTL = DEFAULT_PERSIST_TTL,
+  } = {},
 ) {
-  if (useCache && cacheKey && cache.has(cacheKey)) {
-    return cache.get(cacheKey);
+  const storageKey = cacheKey ? `${PERSIST_PREFIX}${cacheKey}` : null;
+  if (useCache && cacheKey) {
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey);
+    }
+    if (persist && storageKey && typeof localStorage !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          const { data, timestamp } = JSON.parse(raw);
+          if (Date.now() - timestamp < persistTTL) {
+            cache.set(cacheKey, data);
+            return data;
+          }
+        }
+      } catch (err) {
+        logger.error(err);
+      }
+    }
   }
   try {
     const response = await httpClient.get(url, {
@@ -37,6 +63,13 @@ async function apiFetch(
     const data = response.data;
     if (useCache && cacheKey) {
       cache.set(cacheKey, data);
+      if (persist && storageKey && typeof localStorage !== 'undefined') {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({ data, timestamp: Date.now() }));
+        } catch (err) {
+          logger.error(err);
+        }
+      }
     }
     return data;
   } catch (e) {
@@ -162,7 +195,12 @@ export const fetchFieldingLeaders = ({ sortOrder = 'desc', ...params } = {}) =>
   fetchLeaders({ group: 'fielding', sortOrder, ...params });
 
 export const fetchHallOfFamePlayers = (opts) =>
-  apiFetch('/players/halloffame/', { cacheKey: 'hallOfFame', ...opts });
+  apiFetch('/players/halloffame/', {
+    cacheKey: 'hallOfFame',
+    persist: true,
+    persistTTL: DEFAULT_PERSIST_TTL,
+    ...opts,
+  });
 
 export default {
   fetchTeamDetails,
