@@ -81,10 +81,8 @@
           <BatterSprayChart v-if="statType === 'hitting'" />
           <p v-else>Charts & Trends coming soon.</p>
         </TabPanel>
-        <TabPanel>
-          <template #header>
-            <RouterLink :to="{ name: 'PlayerReports', params: { id } }">Reports</RouterLink>
-          </template>
+        <TabPanel header="Reports">
+          <p>Reports coming soon.</p>
         </TabPanel>
       </TabView>
     </div>
