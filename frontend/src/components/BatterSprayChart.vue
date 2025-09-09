@@ -1,69 +1,133 @@
 <template>
-  <div class="batter-spray-chart">
-    <canvas ref="canvasEl"></canvas>
+  <div class="batter-spray-chart spray-chart">
+    <div class="chart">
+      <h3>Batted Balls</h3>
+      <canvas ref="battedBallsCanvas"></canvas>
+    </div>
+    <div class="chart">
+      <h3>Hits</h3>
+      <canvas ref="hitsCanvas"></canvas>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Chart from 'chart.js/auto';
+import diamond from '../assets/diamond.svg';
 
-const canvasEl = ref(null);
-let chartInstance;
+const battedBallsCanvas = ref(null);
+const hitsCanvas = ref(null);
+let battedBallsChart;
+let hitsChart;
 
-// Dummy spray chart data points
 const sprayData = [
-  { x: -30, y: 80 },
-  { x: 20, y: 70 },
-  { x: -60, y: 110 },
-  { x: 50, y: 90 },
-  { x: 0, y: 120 }
+  { x: -30, y: 80, result: 'out' },
+  { x: 20, y: 70, result: 'single' },
+  { x: -60, y: 110, result: 'double' },
+  { x: 50, y: 90, result: 'triple' },
+  { x: 0, y: 120, result: 'home_run' },
+  { x: 30, y: 60, result: 'out' },
+  { x: -20, y: 95, result: 'single' },
+  { x: 70, y: 130, result: 'home_run' },
+  { x: -90, y: 140, result: 'double' },
+  { x: 10, y: 50, result: 'out' }
 ];
 
-onMounted(() => {
-  if (canvasEl.value) {
-    chartInstance = new Chart(canvasEl.value, {
-      type: 'scatter',
-      data: {
-        datasets: [
-          {
-            label: 'Spray Chart',
-            data: sprayData,
-            backgroundColor: 'rgba(75, 192, 192, 1)'
-          }
-        ]
-      },
-      options: {
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            min: -150,
-            max: 150
-          },
-          y: {
-            min: 0,
-            max: 150
-          }
+const hitsData = sprayData.filter(p => p.result !== 'out');
+
+const colors = {
+  single: '#1f77b4',
+  double: '#2ca02c',
+  triple: '#ff7f0e',
+  home_run: '#d62728',
+  out: '#666666'
+};
+
+const labels = {
+  single: 'Single',
+  double: 'Double',
+  triple: 'Triple',
+  home_run: 'Home Run',
+  out: 'Out'
+};
+
+function buildDatasets(points) {
+  const grouped = {};
+  points.forEach(pt => {
+    if (!grouped[pt.result]) grouped[pt.result] = [];
+    grouped[pt.result].push({ x: pt.x, y: pt.y });
+  });
+  return Object.keys(grouped).map(result => ({
+    label: labels[result],
+    data: grouped[result],
+    backgroundColor: colors[result]
+  }));
+}
+
+const fieldImage = new Image();
+fieldImage.src = diamond;
+const fieldPlugin = {
+  id: 'diamondBackground',
+  beforeDraw(chart) {
+    const { ctx, chartArea: { left, top, width, height } } = chart;
+    if (fieldImage.complete) {
+      ctx.drawImage(fieldImage, left, top, width, height);
+    } else {
+      fieldImage.onload = () => chart.draw();
+    }
+  }
+};
+
+function createChart(canvas, data) {
+  return new Chart(canvas, {
+    type: 'scatter',
+    data: { datasets: buildDatasets(data) },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
         }
+      },
+      scales: {
+        x: { min: -150, max: 150 },
+        y: { min: 0, max: 150 }
       }
-    });
+    },
+    plugins: [fieldPlugin]
+  });
+}
+
+onMounted(() => {
+  if (battedBallsCanvas.value) {
+    battedBallsChart = createChart(battedBallsCanvas.value, sprayData);
+  }
+  if (hitsCanvas.value) {
+    hitsChart = createChart(hitsCanvas.value, hitsData);
   }
 });
 
 onBeforeUnmount(() => {
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
+  battedBallsChart?.destroy();
+  hitsChart?.destroy();
 });
 </script>
 
 <style scoped>
 .batter-spray-chart {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+.chart {
   position: relative;
-  width: 100%;
-  max-width: 500px;
-  height: 400px;
-  margin: 0 auto;
+  width: 300px;
+  height: 300px;
+}
+.chart h3 {
+  text-align: center;
 }
 </style>
 
