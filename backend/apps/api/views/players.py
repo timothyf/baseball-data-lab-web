@@ -249,6 +249,33 @@ def player_stats(request, client, player_id: int):
 @extend_schema(responses=OpenApiTypes.OBJECT)
 @api_view(['GET'])
 @require_unified_client
+def player_career_stats_batch(request, client):
+    """Return career statistics for multiple players."""
+
+    ids_param = request.GET.get('player_ids')
+    if not ids_param:
+        return Response({'error': 'player_ids parameter is required'}, status=400)
+    try:
+        player_ids = [int(pid) for pid in ids_param.split(',') if pid]
+    except ValueError:
+        return Response({'error': 'invalid player_ids'}, status=400)
+
+    try:
+        data = client.fetch_career_stats_for_players(player_ids)
+        data = _replace_non_finite(data)
+        return Response(data)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.error(
+            "Error fetching career stats for player_ids=%s: %s",
+            player_ids,
+            exc,
+        )
+        return Response({'error': str(exc)}, status=500)
+
+
+@extend_schema(responses=OpenApiTypes.OBJECT)
+@api_view(['GET'])
+@require_unified_client
 def player_splits(request, client, player_id: int):
     """Return batting and pitching splits for a player."""
     logger.info("Fetching splits for player_id=%s", player_id)
