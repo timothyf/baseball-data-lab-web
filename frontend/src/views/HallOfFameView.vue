@@ -31,7 +31,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="player in sortedPlayers" :key="player.bbref_id">
+        <tr v-for="player in paginatedPlayers" :key="player.bbref_id">
           <td>{{ player.first_name }}</td>
           <td>{{ player.last_name }}</td>
           <td>{{ player.position }}</td>
@@ -49,6 +49,13 @@
         </tr>
       </tbody>
     </table>
+    <Paginator
+      v-if="sortedPlayers.length > rows"
+      :first="first"
+      :rows="rows"
+      :totalRecords="sortedPlayers.length"
+      @page="onPage"
+    />
     <LoadingDialog :visible="loading" />
   </section>
 </template>
@@ -58,6 +65,7 @@ import { ref, onMounted, computed } from 'vue';
 import { fetchHallOfFamePlayers } from '../services/api';
 import logger from '../utils/logger';
 import LoadingDialog from '../components/LoadingDialog.vue';
+import Paginator from 'primevue/paginator';
 
 const players = ref([]);
 const sortKey = ref('last_name');
@@ -65,6 +73,8 @@ const sortAsc = ref(true);
 const loading = ref(true);
 const positionFilter = ref('');
 const yearFilter = ref('');
+const first = ref(0);
+const rows = 50;
 
 function sortBy(key) {
   if (sortKey.value === key) {
@@ -73,6 +83,10 @@ function sortBy(key) {
     sortKey.value = key;
     sortAsc.value = true;
   }
+}
+
+function onPage(event) {
+  first.value = event.first;
 }
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
@@ -131,6 +145,11 @@ const sortedPlayers = computed(() => {
     const cmp = collator.compare(as, bs);
     return asc ? cmp : -cmp;
   });
+});
+
+const paginatedPlayers = computed(() => {
+  const start = first.value;
+  return sortedPlayers.value.slice(start, start + rows);
 });
 
 onMounted(async () => {
