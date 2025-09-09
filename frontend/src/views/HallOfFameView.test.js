@@ -192,5 +192,60 @@ describe('HallOfFameView', () => {
     rows = wrapper.findAll('tbody tr');
     expect(rows[0].text()).toContain('Zed');
   });
+
+  it('filters players by position and year', async () => {
+    fetchHallOfFamePlayers.mockResolvedValue({
+      players: [
+        {
+          bbref_id: 'p1',
+          name: 'Pitcher One',
+          first_name: 'Pitcher',
+          last_name: 'One',
+          position: 'Pitcher',
+          mlbam_id: '10',
+          year: 1990,
+        },
+        {
+          bbref_id: 'c1',
+          name: 'Catcher Two',
+          first_name: 'Catcher',
+          last_name: 'Two',
+          position: 'Catcher',
+          mlbam_id: '20',
+          year: 2000,
+        },
+      ],
+    });
+
+    const { default: HallOfFameView } = await import('./HallOfFameView.vue');
+    const wrapper = mount(HallOfFameView);
+
+    await flushPromises();
+
+    const positionSelect = wrapper.find('[data-test="position-filter"]');
+    await positionSelect.setValue('Pitcher');
+    await flushPromises();
+    let rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].text()).toContain('Pitcher');
+
+    const yearSelect = wrapper.find('[data-test="year-filter"]');
+    await yearSelect.setValue('2000');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(0);
+
+    await positionSelect.setValue('');
+    await yearSelect.setValue('2000');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].text()).toContain('Catcher');
+
+    await yearSelect.setValue('');
+    await flushPromises();
+    rows = wrapper.findAll('tbody tr');
+    expect(rows).toHaveLength(2);
+  });
 });
 
