@@ -99,7 +99,11 @@ function scaleBounds(data) {
   const ys = data.map(p => p.y);
   return {
     x: { min: Math.min(...xs) - 10, max: Math.max(...xs) + 10 },
-    y: { min: Math.min(...ys) - 10, max: Math.max(...ys) + 10 }
+    // Ensure home plate (0,0) is at the bottom of the chart
+    y: {
+      min: Math.min(...ys) > 0 ? 0 : Math.min(...ys) - 10,
+      max: Math.max(...ys) + 10
+    }
   };
 }
 
