@@ -427,34 +427,36 @@ def player_statcast_batter_data(request, client, player_id: int):
     if not start_date or not end_date:
         return Response({'error': 'start_date and end_date are required'}, status=400)
 
-    key_mlbam = (
-        PlayerIdInfo.objects.filter(id=player_id)
-        .values_list("key_mlbam", flat=True)
-        .first()
-    )
-    if key_mlbam is None:
-        key_mlbam = (
-            PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
-            .values_list("key_mlbam", flat=True)
-            .first()
-        )
-        if key_mlbam is None:
-            key_mlbam = str(player_id)
+    # key_mlbam = (
+    #     PlayerIdInfo.objects.filter(id=player_id)
+    #     .values_list("key_mlbam", flat=True)
+    #     .first()
+    # )
+    # if key_mlbam is None:
+    #     key_mlbam = (
+    #         PlayerIdInfo.objects.filter(key_mlbam=str(player_id))
+    #         .values_list("key_mlbam", flat=True)
+    #         .first()
+    #     )
+    #     if key_mlbam is None:
+    #         key_mlbam = str(player_id)
 
-    key_mlbam = str(key_mlbam)
-    if key_mlbam.endswith('.0'):
-        key_mlbam = key_mlbam[:-2]
+    # key_mlbam = str(key_mlbam)
+    # if key_mlbam.endswith('.0'):
+    #     key_mlbam = key_mlbam[:-2]
 
     try:
         data = client.fetch_statcast_batter_data(
-            int(key_mlbam), start_date, end_date
+            int(player_id), start_date, end_date
+        )
+        logger.info(
+            "Fetched Statcast batter data for player_id=%s", player_id
         )
         return Response(data)
     except Exception as exc:  # pragma: no cover - defensive
         logger.error(
-            "Error fetching Statcast batter data for player_id=%s, key_mlbam=%s: %s",
+            "Error fetching Statcast batter data for player_id=%s: %s",
             player_id,
-            key_mlbam,
             exc,
         )
         return Response({'error': str(exc)}, status=500)

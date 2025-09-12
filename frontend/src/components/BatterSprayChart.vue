@@ -15,6 +15,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Chart from 'chart.js/auto';
 import { fetchPlayerStatcastBatterData } from '../services/api.js';
+import logger from '../utils/logger.js';
 
 const props = defineProps({
   playerId: { type: [String, Number], required: true },
@@ -154,7 +155,45 @@ async function loadData() {
   const start = props.startDate || `${year}-03-01`;
   const end = props.endDate || new Date().toISOString().slice(0, 10);
   const res = await fetchPlayerStatcastBatterData(props.playerId, start, end);
-  const raw = Array.isArray(res?.results) ? res.results : [];
+  logger.info(
+    `Fetched Statcast data for player ${props.playerId} from ${start} to ${end}`,
+  );
+  // Log only the first 500 characters of the response
+  let str;
+  try {
+    str = typeof res === 'string' ? res : JSON.stringify(res);
+  } catch {
+    str = String(res);
+  }
+  if (typeof str !== 'string') str = String(str);
+  const truncated = str.length > 500;
+  const preview = str.slice(0, 500);
+  logger.info(`Statcast response (first 500 chars): ${preview}${truncated ? '…' : ''}`);
+  if (res?.error) {
+    logger.info(`Error fetching Statcast data: ${res.error}`);
+    return;
+  }
+  // Ensure res is parsed and normalized to an array before using it
+  const parsedRes = typeof res === 'string'
+    ? (() => {
+        try {
+          return JSON.parse(res);
+        } catch (e) {
+          logger.info(`Failed to parse Statcast JSON string: ${e?.message || e}`);
+          return [];
+        }
+      })()
+    : res;
+  logger.info(`Parsed Statcast response type: ${typeof parsedRes}`);
+  const raw = Array.isArray(parsedRes)
+    ? parsedRes
+    : Array.isArray(parsedRes?.results)
+    ? parsedRes.results
+    : [];
+  logger.info(`Received ${raw.length} Statcast records for player ${props.playerId}`);
+  if (!raw.length) {
+    logger.info(`No Statcast data available for player ${props.playerId}`);
+  }
   const sprayData = transformStatcast(raw);
   const hitsData = sprayData.filter((p) => hitEvents.includes(p.result));
   const bounds = scaleBounds(sprayData);
