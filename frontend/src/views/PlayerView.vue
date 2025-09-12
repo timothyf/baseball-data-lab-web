@@ -78,7 +78,7 @@
           <PlayerGameLog v-if="position" :id="id" :stat-type="statType" />
         </TabPanel>
         <TabPanel header="Charts & Trends">
-          <BatterSprayChart v-if="statType === 'hitting'" />
+          <BatterSprayChart v-if="statType === 'hitting'" :player-id="id" />
           <p v-else>Charts & Trends coming soon.</p>
         </TabPanel>
         <TabPanel header="Reports">

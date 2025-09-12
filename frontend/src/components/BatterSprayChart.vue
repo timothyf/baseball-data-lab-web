@@ -14,24 +14,18 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Chart from 'chart.js/auto';
+import { fetchPlayerStatcastBatterData } from '../services/api.js';
+
+const props = defineProps({
+  playerId: { type: [String, Number], required: true },
+  startDate: String,
+  endDate: String,
+});
 
 const battedBallsCanvas = ref(null);
 const hitsCanvas = ref(null);
 let battedBallsChart;
 let hitsChart;
-// Sample Statcast-style data (hc_x/hc_y are Statcast coordinates)
-const statcastData = [
-  { hc_x: 95.42, hc_y: 118.27, events: 'field_out' },
-  { hc_x: 145.42, hc_y: 128.27, events: 'single' },
-  { hc_x: 65.42, hc_y: 88.27, events: 'double' },
-  { hc_x: 175.42, hc_y: 108.27, events: 'triple' },
-  { hc_x: 125.42, hc_y: 78.27, events: 'home_run' },
-  { hc_x: 155.42, hc_y: 138.27, events: 'field_out' },
-  { hc_x: 105.42, hc_y: 103.27, events: 'single' },
-  { hc_x: 195.42, hc_y: 68.27, events: 'home_run' },
-  { hc_x: 35.42, hc_y: 58.27, events: 'double' },
-  { hc_x: 135.42, hc_y: 148.27, events: 'field_out' }
-];
 
 // Batted-ball and hit events from baseball_data_lab constants
 const battedBallEvents = [
@@ -48,7 +42,7 @@ const battedBallEvents = [
   'double_play',
   'triple_play',
   'catcher_interf',
-  'fielders_choice'
+  'fielders_choice',
 ];
 
 const hitEvents = ['single', 'double', 'triple', 'home_run'];
@@ -56,16 +50,15 @@ const hitEvents = ['single', 'double', 'triple', 'home_run'];
 // Transform Statcast coordinates similar to the BattingSprayChart class
 function transformStatcast(data) {
   return data
-    .filter(d => battedBallEvents.includes(d.events) && d.hc_x != null && d.hc_y != null)
-    .map(d => ({
+    .filter(
+      (d) => battedBallEvents.includes(d.events) && d.hc_x != null && d.hc_y != null,
+    )
+    .map((d) => ({
       x: d.hc_x - 125.42,
       y: 198.27 - d.hc_y,
-      result: d.events
+      result: d.events,
     }));
 }
-
-const sprayData = transformStatcast(statcastData);
-const hitsData = sprayData.filter(p => hitEvents.includes(p.result));
 
 // Styling for different events
 const eventStyles = {
@@ -78,36 +71,40 @@ const outStyle = { color: '#666666', label: 'Out' };
 
 function buildDatasets(points) {
   const grouped = {};
-  points.forEach(pt => {
+  points.forEach((pt) => {
     const key = eventStyles[pt.result] ? pt.result : 'out';
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push({ x: pt.x, y: pt.y });
   });
-  return Object.keys(grouped).map(result => {
+  return Object.keys(grouped).map((result) => {
     const style = eventStyles[result] || outStyle;
     return {
       label: style.label,
       data: grouped[result],
-      backgroundColor: style.color
+      backgroundColor: style.color,
     };
   });
 }
 
 // Compute scale bounds based on data, similar to the Python implementation
 function scaleBounds(data) {
-  const xs = data.map(p => p.x);
-  const ys = data.map(p => p.y);
+  if (!data.length) {
+    return {
+      x: { min: -200, max: 200 },
+      y: { min: 0, max: 250 },
+    };
+  }
+  const xs = data.map((p) => p.x);
+  const ys = data.map((p) => p.y);
   return {
     x: { min: Math.min(...xs) - 10, max: Math.max(...xs) + 10 },
     // Ensure home plate (0,0) is at the bottom of the chart
     y: {
       min: Math.min(...ys) > 0 ? 0 : Math.min(...ys) - 10,
-      max: Math.max(...ys) + 10
-    }
+      max: Math.max(...ys) + 10,
+    },
   };
 }
-
-const bounds = scaleBounds(sprayData);
 
 // Plugin to draw the diamond baselines using Chart.js
 const diamondPlugin = {
@@ -135,7 +132,7 @@ const diamondPlugin = {
   }
 };
 
-function createChart(canvas, data) {
+function createChart(canvas, data, bounds) {
   return new Chart(canvas, {
     type: 'scatter',
     data: { datasets: buildDatasets(data) },
@@ -143,23 +140,36 @@ function createChart(canvas, data) {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom'
-        }
+          position: 'bottom',
+        },
       },
-      scales: bounds
+      scales: bounds,
     },
-    plugins: [diamondPlugin]
+    plugins: [diamondPlugin],
   });
 }
 
-onMounted(() => {
+async function loadData() {
+  const year = new Date().getFullYear();
+  const start = props.startDate || `${year}-03-01`;
+  const end = props.endDate || new Date().toISOString().slice(0, 10);
+  const res = await fetchPlayerStatcastBatterData(props.playerId, start, end);
+  const raw = Array.isArray(res?.results) ? res.results : [];
+  const sprayData = transformStatcast(raw);
+  const hitsData = sprayData.filter((p) => hitEvents.includes(p.result));
+  const bounds = scaleBounds(sprayData);
+
   if (battedBallsCanvas.value) {
-    battedBallsChart = createChart(battedBallsCanvas.value, sprayData);
+    battedBallsChart?.destroy();
+    battedBallsChart = createChart(battedBallsCanvas.value, sprayData, bounds);
   }
   if (hitsCanvas.value) {
-    hitsChart = createChart(hitsCanvas.value, hitsData);
+    hitsChart?.destroy();
+    hitsChart = createChart(hitsCanvas.value, hitsData, bounds);
   }
-});
+}
+
+onMounted(loadData);
 
 onBeforeUnmount(() => {
   battedBallsChart?.destroy();
