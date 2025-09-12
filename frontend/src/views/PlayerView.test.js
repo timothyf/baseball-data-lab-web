@@ -9,7 +9,7 @@ const PlayerGameLogStub = { template: '<div class="gamelog">Game Log Content</di
 const LoadingDialogStub = { template: '<div></div>' };
 const TabViewStub = { template: '<div><slot></slot></div>' };
 const TabPanelStub = { template: '<div><slot></slot></div>' };
-const BatterSprayChartStub = { template: '<div class="spray-chart"></div>' };
+const BatterSprayChartStub = { props: ['playerId'], template: '<div class="spray-chart"></div>' };
 const RouterLinkStub = { template: '<a><slot></slot></a>' };
 
 vi.mock('../components/PlayerStats.vue', () => ({ default: PlayerStatsStub }));
